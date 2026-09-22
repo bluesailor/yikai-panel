@@ -1,0 +1,23 @@
+{
+  "root": "D:\\yikai",
+  "language": "zh",
+  "dbManagerPort": 8878,
+  "dbFastCgiPort": 9084,
+  "mysql57Port": 3307,
+  "mysql80Port": 3309,
+  "mysqlUser": "root",
+  "mysqlPassword": "123456",
+  "sites": [
+    {
+      "id": "yikaicms",
+      "domain": "yikaicms.yikai",
+      "directory": "D:\\yikai\\wwwroot\\yikaicms.yikai",
+      "php": "8.2",
+      "database": "mysql80",
+      "databaseName": "yikaicms",
+      "httpPort": 8081,
+      "fastCgiPort": 9082
+    }
+  ],
+  "fileName": "D:\\yikai\\config\\panel.json"
+}

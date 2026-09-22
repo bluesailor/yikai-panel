@@ -1,0 +1,59 @@
+﻿{
+    "phase":  "uninstall",
+    "root":  "D:\\yikai-installtest",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: no environment process left before uninstalling (0 remaining)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: uninstaller finished and removed itself"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: panel program removed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: software directory removed (including nginx runtime logs)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: runtime logs removed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: runtime temp removed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: user file in wwwroot preserved"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: database directory preserved"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: backups directory preserved"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: panel settings preserved for a later reinstall"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: desktop shortcut removed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: uninstall entry removed"
+                   }
+               ],
+    "failed":  false
+}

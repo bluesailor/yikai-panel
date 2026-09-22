@@ -1,0 +1,122 @@
+﻿[
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qafail --template php --database mysql80 --db-name qa_custom_db --db-user root --db-password x",
+        "passed":  true,
+        "detail":  "System.InvalidOperationException: Database user: use 1-32 letters, digits or underscores (not root).\r"
+    },
+    {
+        "check":  "root as project user rejected before copying files",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qafail2 --template php --database mysql80 --db-name mysql --db-user qa_x --db-password x",
+        "passed":  true,
+        "detail":  "System.InvalidOperationException: Database name: use 1-64 letters, digits or underscores (not a system database).\r"
+    },
+    {
+        "check":  "system database name rejected",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qadbuser --template yikaicms --database mysql80 --php 8.2 --db-name qa_custom_db --db-user qa_custom_user --db-password ***",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project stores database name, user and password",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qafail --template php --database mysql80 --db-name qa_custom_db --db-user qa_other --db-password x",
+        "passed":  true,
+        "detail":  "System.InvalidOperationException: Another project already uses this database name.\r"
+    },
+    {
+        "check":  "duplicate database name rejected",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel created project database user",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project user can create tables in its database",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project user denied on other databases",
+        "passed":  true,
+        "detail":  "ERROR 1044 (42000) at line 1: Access denied for user \u0027qa_custom_user\u0027@\u0027127.0.0.1\u0027 to database \u0027qaphp_yikai\u0027"
+    },
+    {
+        "check":  "grants limited to project database",
+        "passed":  true,
+        "detail":  "GRANT USAGE ON *.* TO `qa_custom_user`@`127.0.0.1` | GRANT ALL PRIVILEGES ON `qa_custom_db`.* TO `qa_custom_user`@`127.0.0.1`"
+    },
+    {
+        "check":  "PHP connects with project user",
+        "passed":  true,
+        "detail":  "ok:qa_custom_db"
+    },
+    {
+        "check":  "installer prefilled with project database and user",
+        "passed":  true,
+        "detail":  "\u003cinput type=\"text\" name=\"db_name\" class=\"w-full border rounded px-3 py-2\" value=\"qa_custom_db\"\u003e | \u003cinput type=\"text\" name=\"db_user\" class=\"w-full border rounded px-3 py-2\" value=\"qa_custom_user\"\u003e"
+    },
+    {
+        "check":  "db tools refreshed from panel on start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db page shows project user",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "password change synced to MySQL",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qadb57 --template php --database mysql57 --php 8.2 --db-name qa57_db --db-user qa57_user --db-password Qa57pass",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "MySQL 5.7 project user works",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

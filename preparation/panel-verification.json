@@ -1,0 +1,80 @@
+[
+  {
+    "passed": true,
+    "site": "qa_panel80_yikai",
+    "check": "page-zh"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel80_yikai",
+    "check": "page-en"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel80_yikai",
+    "check": "page-ja"
+  },
+  {
+    "passed": true,
+    "bytes": 2154,
+    "site": "qa_panel80_yikai",
+    "check": "backup-download-restore-utf8"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel80_yikai",
+    "check": "adminer-auto-login"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel57_yikai",
+    "check": "page-zh"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel57_yikai",
+    "check": "page-en"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel57_yikai",
+    "check": "page-ja"
+  },
+  {
+    "passed": true,
+    "bytes": 2117,
+    "site": "qa_panel57_yikai",
+    "check": "backup-download-restore-utf8"
+  },
+  {
+    "passed": true,
+    "site": "qa_panel57_yikai",
+    "check": "adminer-auto-login"
+  },
+  {
+    "passed": true,
+    "site": "qa_panelsqlite_yikai",
+    "check": "page-zh"
+  },
+  {
+    "passed": true,
+    "site": "qa_panelsqlite_yikai",
+    "check": "page-en"
+  },
+  {
+    "passed": true,
+    "site": "qa_panelsqlite_yikai",
+    "check": "page-ja"
+  },
+  {
+    "passed": true,
+    "bytes": 8192,
+    "site": "qa_panelsqlite_yikai",
+    "check": "backup-download-restore-utf8"
+  },
+  {
+    "passed": true,
+    "site": "qa_panelsqlite_yikai",
+    "check": "adminer-auto-login"
+  }
+]

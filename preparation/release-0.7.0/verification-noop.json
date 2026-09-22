@@ -1,0 +1,40 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-noop-test",
+    "variant":  "D:\\yikai-soft\\dev\\yikai-panel\\preparation\\release-0.7.0\\build\\payload-noop",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "setup: variant payload points at D:\\yikai-noop-test"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "setup: variant installer compiled"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: self-check reported success in the install log"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: no false “path not rewritten” warning"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini unchanged (path already correct, nothing to rewrite)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini has no UTF-8 BOM"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini points at the install root"
+                   }
+               ],
+    "failed":  false
+}

@@ -1,0 +1,9 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-php-versions-20260917-094457",
+    "BackupHash":  "7DBF3A955C4A8C4FC49A8C25B8B0F1FADCE7C5E6AB9A2FFDE3A053F02AB2B76A",
+    "Installed":  "D:\\yikai\\soft\\panel\\YikaiLocal.exe",
+    "Hash":  "323A8C5E5A1A4D65B5A09B0B4EFE3821ADDF8902E625607B5C4A4190536A7DDB",
+    "PanelPid":  39180,
+    "TestSite8082":  200,
+    "Services":  "mysql80,php-yikaicms,php-test_yikai,php-db,nginx"
+}

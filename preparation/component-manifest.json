@@ -1,0 +1,121 @@
+{
+  "preparedAt": "2026-09-15T08:30:26.1120620+08:00",
+  "components": [
+    {
+      "source": "D:\\phpstudy_pro\\Extensions\\php\\php8.0.2nts",
+      "name": "PHP 8.0",
+      "path": "soft/php/8.0",
+      "version": "8.0.2",
+      "probeSha256": "63e982be09ed2e329ad07fd655e4f74653f9fbf4c4b69171a2c7b346cf454892",
+      "probe": "soft/php/8.0/php.exe"
+    },
+    {
+      "source": "https://downloads.php.net/~windows/releases/archives/php-8.2.33-nts-Win32-vs16-x64.zip",
+      "name": "PHP 8.2",
+      "path": "soft/php/8.2",
+      "version": "8.2.33",
+      "probeSha256": "1f3c8aebacb635130ea767b64de0b8c89b43162627ddbc60644f87511750aef3",
+      "probe": "soft/php/8.2/php.exe"
+    },
+    {
+      "source": "D:\\phpstudy_pro\\Extensions\\php\\php8.5.9nts",
+      "name": "PHP 8.5",
+      "path": "soft/php/8.5",
+      "version": "8.5.9",
+      "probeSha256": "0eadb9b73bd08467bf1f900f7453115ee55257ddbca8d9174cfbb152261b14ce",
+      "probe": "soft/php/8.5/php.exe"
+    },
+    {
+      "source": "D:\\phpstudy_pro\\Extensions\\MySQL5.7.26",
+      "name": "MySQL 5.7",
+      "path": "soft/mysql/5.7",
+      "version": "5.7.26",
+      "probeSha256": "8f66dec79289be9f9eedb4cc24607dab57c6e32cc5aa3a6b5829f36451dd11a3",
+      "probe": "soft/mysql/5.7/bin/mysqld.exe"
+    },
+    {
+      "source": "D:\\phpstudy_pro\\Extensions\\MySQL8.0.12",
+      "name": "MySQL 8.0",
+      "path": "soft/mysql/8.0",
+      "version": "8.0.12",
+      "probeSha256": "f45c2751c0e3e9f40cf7ffe089fbe530ab76c30754b62196bd415dad5bd384ae",
+      "probe": "soft/mysql/8.0/bin/mysqld.exe"
+    },
+    {
+      "source": "https://nginx.org/download/nginx-1.30.4.zip",
+      "name": "Nginx",
+      "path": "soft/nginx",
+      "version": "1.30.4",
+      "probeSha256": "016d25f2a5c3f056e8e8079c864c3539e12b6a13bd434c684173004670343bf6",
+      "probe": "soft/nginx/nginx.exe"
+    },
+    {
+      "source": "D:\\phpstudy_pro\\Extensions\\Apache2.4.39 (Apache Haus build, VS2017, logs excluded)",
+      "name": "Apache",
+      "path": "soft/apache/2.4.39",
+      "version": "2.4.39",
+      "addedAt": "2026-09-17",
+      "license": "Apache License 2.0; LICENSE/NOTICE not present in source copy, add before release",
+      "probeSha256": "3f0c9c23b7891ca4985ea05fbbc7e71075df5fbfd3cfd87a395ddfd20d961641",
+      "probe": "soft/apache/2.4.39/bin/httpd.exe"
+    },
+    {
+      "source": "https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.zip",
+      "name": "phpMyAdmin",
+      "path": "soft/phpmyadmin",
+      "version": "5.2.3",
+      "probeSha256": "8d216d796379ba0e4e07e870e0c1ff38707872f80ae93ffb219c9df59b16cf14",
+      "probe": "soft/phpmyadmin/index.php"
+    },
+    {
+      "source": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+      "name": "VC++ x64 redistributable",
+      "path": "soft/prerequisites",
+      "version": "14.44.35211.0",
+      "probeSha256": "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b",
+      "probe": "soft/prerequisites/vc_redist.x64.exe"
+    },
+    {
+      "source": "https://github.com/vrana/adminer/releases/download/v6.1.0/adminer-6.1.0.php",
+      "name": "Adminer",
+      "path": "soft/db-manager/vendor",
+      "version": "6.1.0",
+      "license": "Apache-2.0 OR GPL-2.0; distributed under Apache-2.0",
+      "addedAt": "2026-09-22",
+      "probeSha256": "95bf24b510b41904446f720f4f1212c9e28b1d523f3df44259480d7a12ea181e",
+      "probe": "soft/db-manager/vendor/adminer.php"
+    },
+    {
+      "source": "https://update.yikaicms.com/packages/yikaicms-v1.20.0.zip",
+      "name": "YikaiCMS",
+      "path": "soft/packages/yikaicms",
+      "version": "1.20.0",
+      "probeSha256": "2871db629a14cc02501171418d7b621288a3912ff995476d9731a284364ed4e1",
+      "probe": "soft/packages/yikaicms/config/version.php",
+      "zipSha256": "0272E97F09691EA406DECD4A62EF4F612E1771E15987A0F44054657C936CB7AC",
+      "replacedFrom": "1.19.9（旧模板备份在 backups/yikaicms-template-1.19.9-*）"
+    },
+    {
+      "source": "https://www.heidisql.com/downloads/releases/HeidiSQL_12.21_64_Portable.zip",
+      "archiveSha256": "fecb76a69e29a53ea05b1d57fc2f7b7aaed5b8f889556c6eca545e2a800df1ab",
+      "name": "HeidiSQL",
+      "path": "soft/heidisql",
+      "version": "12.21",
+      "license": "GPL-2.0",
+      "probeSha256": "d4bc6b81906832aeed79e054ed094f5e15449c8fa91285538173d4a7f90db113",
+      "probe": "soft/heidisql/heidisql.exe"
+    }
+  ],
+  "status": "components-shipped-in-0.7.0-full-package",
+  "release": {
+    "version": "0.7.0",
+    "builtAt": "2026-09-19",
+    "record": "release-0.7.0/release-record.json",
+    "installer": "packages/YikaiPanel-0.7.0-setup-x64.exe",
+    "sha256": "3FE2998451C083393C6345D445AE56C13F2ADB3C34382B665C5F38FC03026CA3",
+    "apacheLicenseAdded": "release-0.7.0/license/apache-LICENSE.txt（官方 Apache-2.0 文本）与 apache-NOTICE.txt（随包第三方库清单，由组装脚本放入负载）",
+    "excluded": [
+      "soft/phpmyadmin（面板改用 db-manager + Adminer，不再随包分发）"
+    ]
+  }
+}

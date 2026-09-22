@@ -1,0 +1,70 @@
+﻿# 易开面板：公开仓库的排除规则（安全网）
+#
+# 发布策略：只提交“我们自己写的源码、文档、素材、脚本”；提交前运行 preparation/github/check-publish.ps1。
+# 这个文件的作用是兜底：即使有人执行了 git add -A，也不该把下面这些带进版本库。
+
+# ---- 运行环境与商业组件：体积大，且授权不属于本仓库 ----
+soft/
+wwwroot/
+packages/
+config/
+data/
+logs/
+temp/
+backups/
+*.lnk
+
+# ---- 内部 QA 数据（站点副本、数据库、MySQL 数据目录、配置快照、旧构建）----
+preparation/before-*/
+preparation/panel-*/
+preparation/*-qa-*/
+preparation/projects-qa-*/
+preparation/qa-sites/
+preparation/brand-*/
+preparation/**/data/
+preparation/**/wwwroot/
+preparation/**/config/
+preparation/**/evidence*/
+preparation/**/*.exe
+preparation/**/*.png
+preparation/release-0.7.0/build/
+
+# 只保留脚本、文档、清单与检查程序源码：
+preparation/**/*.sql
+preparation/**/*.sqlite
+preparation/**/*.sqlite3
+
+# ---- 旧 QA 日志与构建产物（保留结构化报告，去掉过程日志）----
+preparation/**/*.txt
+website/dist/
+
+# ---- preparation 下的 PHP 夹具（含曾用于测试的 YikaiCMS 安装向导副本，绝不发布）----
+preparation/**/*.php
+
+# 发布底稿里的截图：仓库根 images/ 才是 README 引用的那份，底稿不重复提交
+preparation/github/images/
+
+# ---- 凭据与证书 ----
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# ---- 产物与中间文件 ----
+*.exe
+*.dll
+*.pdb
+*.zip
+*.sha256
+*.log
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# ---- 编辑器与工具 ----
+.zcode/
+.idea/
+.vscode/

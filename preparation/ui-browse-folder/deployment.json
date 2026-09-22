@@ -1,0 +1,9 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-browse-folder-20260917-161245",
+    "Hash":  "21B76A4554849E0E9437CA5B42938C1E95A8F5FE4EF37D7B90F738D2F5AA3603",
+    "PanelAlive":  true,
+    "ServicesBefore":  "mysql80=42800,php-yikaicms=34500,php-test_yikai=43592,php-db=9632,nginx=12088",
+    "ServicesAfter":  "mysql80=42800,php-yikaicms=34500,php-test_yikai=43592,php-db=9632,nginx=12088",
+    "SamePids":  true,
+    "Site8081":  200
+}

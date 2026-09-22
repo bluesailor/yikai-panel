@@ -1,0 +1,167 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-min-test",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "安装退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "面板程序已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 8.5 已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 8.0 已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "Nginx 已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\apache"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\php\\8.0"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\php\\8.2"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\mysql\\5.7"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\phpmyadmin"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 soft\\prerequisites"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 24 MB 的 VC++ 运行库安装器"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "nginx logs 目录已建立"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 目录随包 vcruntime140.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 目录随包 vcruntime140_1.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 目录随包 msvcp140.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面 php.ini 指向 PHP 8.5"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 未抱怨运行库版本不匹配（说明随包 DLL 版本够新）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 mysqli 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 pdo_mysql 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 intl 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 mbstring 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 curl 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 openssl 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 扩展 zip 已加载"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "VCRUNTIME140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\VCRUNTIME140.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MSVCP140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\MSVCP140.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "VCRUNTIME140_1.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\VCRUNTIME140_1.dll"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "面板 --start 退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "默认 PHP 版本自愈为 8.5（实际 8.5）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "最小包不带默认站点（启动后项目数 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 8.0 在 3310 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面在 8878 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面的 PHP-CGI 在 9084 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 8.0 首次启动完成初始化"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面返回 200（由 PHP 8.5 提供；实际 200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "session 目录已创建（数据库页面能存住会话）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面显示“还没有项目”的说明而不是报错页"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "面板 --stop 退出码 0"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "停止后端口已释放"
+                   }
+               ],
+    "failed":  false
+}

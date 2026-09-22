@@ -1,0 +1,35 @@
+﻿{
+    "phase":  "reinstall",
+    "root":  "D:\\yikai-installtest",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: second install over the same root exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: user file in wwwroot survived"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: installed site config survived (payload must not clobber an installed CMS)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: panel.json untouched"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: existing database data untouched"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: php.ini still points at this root after the second pass"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "reinstall: still no unused components"
+                   }
+               ],
+    "failed":  false
+}

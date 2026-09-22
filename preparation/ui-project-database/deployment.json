@@ -1,0 +1,13 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-project-database-20260917-194232",
+    "Hash":  "246DB934E3D2C62A380F3BD847327458B7ADB6F94CF267E0A10B2322D1A31030",
+    "PanelAlive":  true,
+    "ServicesBefore":  "",
+    "ServicesAfter":  "mysql80=36948,php-yikaicms=4584,php-test_yikai=35608,php-db=16192,nginx=11104",
+    "SamePids":  false,
+    "Site8081":  200,
+    "DbPage":  200,
+    "DbToolsBefore":  "A39F8684084B/F6DE006125E5",
+    "DbToolsAfter":  "72C8503027A5/1E5F55DC61F8",
+    "DbToolsBackup":  "database-tools-20260917-114238341"
+}

@@ -1,0 +1,10 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-config-menu-20260917-223653",
+    "Hash":  "DE05D6F6B2605478FF2112D7CD9A3EE06D3FA579B3280FEB835B85E1BD6CD4B2",
+    "PanelAlive":  true,
+    "Window":  "294x54 at 3506,1653",
+    "ServicesBefore":  "mysql80=30332,php-yikaicms=1740,php-test_yikai=46436,php-dem_yikai=47868,php-db=28220,nginx=30348",
+    "ServicesAfter":  "mysql80=30332,php-yikaicms=1740,php-test_yikai=46436,php-dem_yikai=47868,php-db=28220,nginx=30348",
+    "SamePids":  true,
+    "Site8081":  "无法连接到远程服务器"
+}

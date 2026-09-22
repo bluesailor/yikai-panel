@@ -1,0 +1,117 @@
+﻿[
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --https qaphp_yikai on",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "https enabled with port and local root created",
+        "passed":  true,
+        "detail":  "port=8443"
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx https verified against local root, PHP sees HTTPS",
+        "passed":  true,
+        "detail":  "https=on;port=8443 "
+    },
+    {
+        "check":  "nginx https serves project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "plain http still works alongside https",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site certificate subject and validity",
+        "passed":  true,
+        "detail":  "CN=qaphp.yikai, O=Yikai Panel until 11/25/2028 22:45:26"
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache https verified, PHP sees HTTPS",
+        "passed":  true,
+        "detail":  "https=on;port=8443 "
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "openssl generated test certificates",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --https qacms_yikai on --cert \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-custom-cert\\custom.crt\" --key \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-custom-cert\\other.key\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: 証明書または秘密鍵を読み込めないか、一致しません（PEM・暗号化なしの鍵が必要）：The key contents do not contain a PEM, the content is malformed, or the key does not match the certificate.\r"
+    },
+    {
+        "check":  "mismatched key rejected, https stays off",
+        "passed":  true,
+        "detail":  "System.IO.IOException: 証明書または秘密鍵を読み込めないか、一致しません（PEM・暗号化なしの鍵が必要）：The key contents do not contain a PEM, the content is malformed, or the key does not match the certificate.\r"
+    },
+    {
+        "check":  "panel --https qacms_yikai on --cert \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-custom-cert\\custom.crt\" --key \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-custom-cert\\custom.key\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "custom certificate enabled on own port",
+        "passed":  true,
+        "detail":  "port=8444"
+    },
+    {
+        "check":  "custom certificate served (verified with custom cert)",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --https qacms_yikai off",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "https port closed after disable",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "certificate re-issued for new domain",
+        "passed":  true,
+        "detail":  "CN=qaphp2.yikai, O=Yikai Panel "
+    },
+    {
+        "check":  "panel --https qaphp_yikai off",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

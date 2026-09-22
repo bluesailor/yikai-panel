@@ -1,0 +1,26 @@
+# 换行符与二进制文件的处理（避免在 Windows 上反复出现“LF 将被替换为 CRLF”的警告与无意义改动）
+* text=auto
+
+# 源码与脚本：Windows 项目，检出为 CRLF
+*.cs   text eol=crlf
+*.csproj text eol=crlf
+*.ps1  text eol=crlf
+*.php  text eol=crlf
+*.ini  text eol=crlf
+*.conf text eol=crlf
+*.xaml text eol=crlf
+
+# 文档与配置：用 LF，GitHub 上显示更稳定
+*.md   text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.gitignore text eol=lf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.zip binary

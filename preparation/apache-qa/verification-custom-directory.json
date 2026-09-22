@@ -1,0 +1,67 @@
+﻿[
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qacustom --template php --database sqlite --php 8.2 --directory \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\自定义 位置\\qacustom.yikai\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project registered at chosen location",
+        "passed":  true,
+        "detail":  "C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\自定义 位置\\qacustom.yikai"
+    },
+    {
+        "check":  "project files created at chosen location",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nothing created in default wwwroot",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qacustom2 --template php --database sqlite --directory \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\自定义 位置\\qacustom.yikai\"",
+        "passed":  true,
+        "detail":  "System.InvalidOperationException: The folder already exists."
+    },
+    {
+        "check":  "existing target folder is rejected",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx serves project from chinese path with space",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache serves project from chinese path with space",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

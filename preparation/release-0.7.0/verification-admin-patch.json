@@ -1,0 +1,50 @@
+﻿{
+    "site":  "127.0.0.1:8091",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "前台首页仍返回 200"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "前台首页未外泄 PHP 源码"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "未登录访问 /admin/ 有响应（HTTP 302）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带 yk_admin cookie 访问 /admin/ 由后台处理（HTTP 302）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "跳转目标仍在后台目录内（未被前台接管）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带 cookie 的 /admin/ 不是前台首页"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "后台登录页返回 200（HTTP 200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "后台登录页执行了 PHP（未外泄源码）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "后台登录页是真实内容"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带 cookie 访问 /admin/index.php 有响应（HTTP 302）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "/admin/index.php 执行了 PHP（未外泄源码）"
+                   }
+               ],
+    "failed":  false
+}

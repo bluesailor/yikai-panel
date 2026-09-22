@@ -1,0 +1,87 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-installtest",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "run: panel --start exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: MySQL 8.0 listening on 3308"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: web server listening on the database page port 8878"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: web server listening on the site port 8081"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: MySQL 8.0 initialized on first start"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: database page answers 200 on 8878"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: default site answers on 8081"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: fresh site redirects to the CMS installer"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: CMS installer page answers 200"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: CMS installer page is real content"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: config directory is blocked"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: deploy directory is blocked"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: markdown/docs files are blocked"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: dotfiles are blocked"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: API path does not leak PHP source"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: installer entry executes as PHP"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: --ports shows MySQL as panel-owned"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: --ports shows no port taken by another program"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: panel --stop exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "run: services released after stop"
+                   }
+               ],
+    "failed":  false
+}

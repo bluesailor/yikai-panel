@@ -1,0 +1,9 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-dialog-buttons-20260917-160806",
+    "Hash":  "57F082898CA8AFC547D2EE7D5B866862DF109D272950E6BFABDB000E89040829",
+    "PanelAlive":  true,
+    "ServicesBefore":  "",
+    "ServicesAfter":  "mysql80=42800,php-yikaicms=34500,php-test_yikai=43592,php-db=9632,nginx=12088",
+    "SamePids":  false,
+    "Site8081":  200
+}

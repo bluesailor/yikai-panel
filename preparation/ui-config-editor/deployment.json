@@ -1,0 +1,9 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-config-editor-20260917-164703",
+    "Hash":  "333CE432D35CAA8CB8C429753F6847463A3526861ED82D32186E20AF4B0F6F78",
+    "PanelAlive":  true,
+    "ServicesBefore":  "",
+    "ServicesAfter":  "mysql80=42548,php-yikaicms=36332,php-test_yikai=42476,php-db=10444,nginx=42412",
+    "SamePids":  false,
+    "Site8081":  200
+}

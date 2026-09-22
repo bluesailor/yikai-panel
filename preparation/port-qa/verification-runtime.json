@@ -1,0 +1,92 @@
+{
+    "feature":  "port diagnostics + mysql port avoidance",
+    "date":  "2026-09-18",
+    "uiChecks":  "preparation/port-qa/evidence/verification.txt (61/61)",
+    "runtimeChecks":  [
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: start succeeds while 3308 is held (exit 0)"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: mysql80 moved off the occupied port (now 3309)"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: mysql80 moved to the next free port (3309)"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: idle mysql57 keeps its default port"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: the moved port is held by mysqld"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: database initialized on first start"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: database page answers 200 on 8878"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: site port answers on 8081"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: --ports reports panel-owned mysql80"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: stop exits cleanly (exit 0)"
+                          },
+                          {
+                              "phase":  "a",
+                              "passed":  true,
+                              "check":  "a: services released after stop"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: start fails when the initialized port 3309 is held (exit 1)"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: error names the occupied port (3309)"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: error names the holding process"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: mysqld wrote its own log"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: error carries the mysqld log tail"
+                          },
+                          {
+                              "phase":  "b",
+                              "passed":  true,
+                              "check":  "b: initialized port stays fixed (3309)"
+                          }
+                      ]
+}

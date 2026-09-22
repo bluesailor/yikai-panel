@@ -1,0 +1,9 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-project-avatar-20260917-161735",
+    "Hash":  "EA2891E52F0072F7FF918488EA201BE799F807EE8156D2F7083C039833479F43",
+    "PanelAlive":  true,
+    "ServicesBefore":  "mysql80=42800,php-yikaicms=34500,php-test_yikai=43592,php-db=9632,nginx=12088",
+    "ServicesAfter":  "mysql80=42800,php-yikaicms=34500,php-test_yikai=43592,php-db=9632,nginx=12088",
+    "SamePids":  true,
+    "Site8081":  200
+}

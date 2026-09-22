@@ -1,0 +1,77 @@
+﻿[
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qanewdb --template php --database mysql80 --php 8.2",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php starts without mysql",
+        "passed":  true,
+        "detail":  "php-qanewdb_yikai,php-qacms_yikai,php-qaphp_yikai"
+    },
+    {
+        "check":  "mysql stays stopped",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "deferred database logged",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "blank php project served while mysql stopped",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service mysql80 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql start creates deferred database",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  "System.IO.IOException: php.exe: Fatal error: Uncaught RuntimeException: Invalid database name in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\bootstrap.php:17"
+    },
+    {
+        "check":  "failure message includes php reason",
+        "passed":  true,
+        "detail":  "System.IO.IOException: php.exe: Fatal error: Uncaught RuntimeException: Invalid database name in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\bootstrap.php:17"
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "environment stopped",
+        "passed":  true,
+        "detail":  ""
+    }
+]

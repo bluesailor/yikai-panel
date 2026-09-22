@@ -1,0 +1,252 @@
+﻿[
+    {
+        "check":  "php.ini starts with mbstring enabled",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php -m lists curl",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "bz2 is off before the test",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable bz2",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "bz2 written as extension=bz2",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "bz2 loaded by php",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php.ini backed up before saving",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --disable exif",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "exif commented out",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "exif no longer loaded",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "earlier choice kept",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable opcache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "opcache written as zend_extension",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "opcache loaded",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable qabroken",
+        "passed":  true,
+        "detail":  "System.IO.IOException: Warning: PHP Startup: Unable to load dynamic library \u0027qabroken\u0027 (tried: C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/extroot/soft/php/8.2/ext\\qabroken (鎵句笉鍒版寚瀹氱殑妯″潡銆?, C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/extroot/soft/php/8.2/ext\\php_qabroken.dll (%1 涓嶆槸鏈夋晥鐨?Win32 搴旂敤绋嬪簭銆?) in Unknown on line 0\r"
+    },
+    {
+        "check":  "php.ini unchanged after a failed extension",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "error names the failing extension",
+        "passed":  true,
+        "detail":  "System.IO.IOException: Warning: PHP Startup: Unable to load dynamic library \u0027qabroken\u0027 (tried: C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/extroot/soft/php/8.2/ext\\qabroken (鎵句笉鍒版寚瀹氱殑妯″潡銆?, C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/extroot/soft/php/8.2/ext\\php_qabroken.dll (%1 涓嶆槸鏈夋晥鐨?Win32 搴旂敤绋嬪簭銆?) in Unknown on line 0\r"
+    },
+    {
+        "check":  "php still starts with the previous configuration",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --disable mbstring",
+        "passed":  true,
+        "detail":  "System.ArgumentException: This extension is required and cannot be disabled: mbstring\r"
+    },
+    {
+        "check":  "required extension refused",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable definitely_not_here",
+        "passed":  true,
+        "detail":  "System.ArgumentException: Unknown extension: definitely_not_here\r"
+    },
+    {
+        "check":  "unknown extension refused",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable ftp",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "running php restarted (29416 -\u003e 42764)",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "ftp enabled and loaded",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php stopped after the test",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "both projects running (27444 / 36264)",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --site qaext_yikai --enable gmp",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project ini enables gmp",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "other project keeps the version settings",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "version php.ini untouched by the project setting",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "gmp loaded only for this project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "only this project\u0027s php restarted (27444 -\u003e 28972, other 36264)",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --site qaext_yikai --disable intl",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project ini disables intl",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "version php.ini still enables intl",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "intl off for this project only",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "earlier project choice kept",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --site qaext_yikai --disable mbstring",
+        "passed":  true,
+        "detail":  "System.ArgumentException: This extension is required and cannot be disabled: mbstring\r"
+    },
+    {
+        "check":  "required extension refused for a project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --enable soap",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "version php.ini enables soap",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project keeps its own changes on top of the version",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --php-extensions 8.2 --site qaext_yikai --follow-version",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project extension changes cleared",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project ini back to the version settings",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

@@ -1,0 +1,14 @@
+﻿{
+    "Version":  "0.7.0",
+    "Backup":  "D:\\yikai\\backups\\panel-before-0.7.0-20260917-165521",
+    "BackupHash":  "333CE432D35CAA8CB8C429753F6847463A3526861ED82D32186E20AF4B0F6F78",
+    "Hash":  "6A8F50C8230D0B6783A8D3F6CBA9738AB4B90D5B56764D25937FF3A093A86840",
+    "ShortcutTarget":  "D:\\yikai\\soft\\panel\\YikaiLocal.exe",
+    "LaunchedViaShortcut":  true,
+    "PanelAlive":  true,
+    "WindowTitle":  "易开面板 · 0.7.0",
+    "ServicesBefore":  "",
+    "ServicesAfter":  "mysql80=42380,php-yikaicms=30316,php-test_yikai=25752,php-db=27068,nginx=26936",
+    "SamePids":  false,
+    "Site8081":  200
+}

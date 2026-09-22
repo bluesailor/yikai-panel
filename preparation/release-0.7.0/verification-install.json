@@ -1,0 +1,115 @@
+﻿{
+    "phase":  "install",
+    "root":  "D:\\yikai-installtest",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "install: setup exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: panel executable installed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: nginx logs directory created (nginx cannot create it itself)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: nginx temp directory created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory data\\mysql57 created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory data\\mysql80 created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory logs created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory temp created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory backups created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: runtime directory config\\ssl created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: no panel.json shipped (panel writes its own on first start)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini no longer points at the dev root"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini error_log follows the install root"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: php.ini extension_dir follows the install root"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: database page php.ini rewritten too"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: PHP 8.0 php.ini rewritten"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: PHP 8.5 php.ini rewritten"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: default site template installed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: default site has no installed config"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: default site is not pre-installed"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: Apache LICENSE present"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: Apache NOTICE present"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: desktop shortcut created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: start menu shortcut created"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: uninstall entry registered (易开面板 0.7.0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: uninstaller present"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: unused phpMyAdmin component not shipped"
+                   }
+               ],
+    "failed":  false
+}

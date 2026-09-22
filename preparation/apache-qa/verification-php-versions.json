@@ -1,0 +1,122 @@
+﻿[
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "qacms runs php 8.2",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "qaphp runs php 8.5",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "both projects reachable",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.5 --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php8.5 stop keeps php8.2 and db page",
+        "passed":  true,
+        "detail":  "php-qacms_yikai,nginx,php-db,mysql80"
+    },
+    {
+        "check":  "php 8.5 project unavailable",
+        "passed":  true,
+        "detail":  "502"
+    },
+    {
+        "check":  "php 8.2 project still served",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.5 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php8.5 start restores project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php8.2 restart only replaces 8.2 process",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.0 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php8.0 start with no projects starts nothing",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.5 --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache: php8.5 stop isolates 8.5 project",
+        "passed":  true,
+        "detail":  "php=503 cms=302"
+    },
+    {
+        "check":  "panel --service php --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache: php start restores all versions",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --create-site qadefault --template php --database sqlite",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "new project uses default PHP 8.5",
+        "passed":  true,
+        "detail":  "8.5"
+    },
+    {
+        "check":  "environment stopped",
+        "passed":  true,
+        "detail":  ""
+    }
+]

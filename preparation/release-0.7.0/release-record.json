@@ -1,0 +1,170 @@
+{
+  "product": "易开面板 / Yikai Panel",
+  "version": "0.7.0",
+  "builtAt": "2026-09-18",
+  "package": {
+    "type": "完整环境包",
+    "file": "YikaiPanel-0.7.0-setup-x64.exe",
+    "path": "D:\\yikai\\packages\\YikaiPanel-0.7.0-setup-x64.exe",
+    "bytes": 155903173,
+    "sha256": "330D73B1F0AE517F4F061B51A18AECC4768C773CF049A8ACDB1002B0837EF237",
+    "checksumFile": "D:\\yikai\\packages\\YikaiPanel-0.7.0-setup-x64.exe.sha256",
+    "payloadFiles": 3397,
+    "payloadMB": 651.0,
+    "architecture": "win-x64",
+    "defaultInstallDir": "D:\\yikai（没有 D 盘时为安装盘符下的 yikai）",
+    "privileges": "安装本身不需要管理员；hosts 同步与防火墙规则由面板在需要时请求提权",
+    "rebuiltAt": "2026-09-21（去掉 24 MB VC++ 运行库安装器、加入扫描目录快速导入与新入口、修复数据库页面两处故障、工具菜单两条数据库入口改名为“网页管理 / 客户端”后重编）"
+  },
+  "packageMinimal": {
+    "type": "最简环境包",
+    "file": "YikaiPanel-0.7.0-minimal-setup-x64.exe",
+    "path": "D:\\yikai\\packages\\YikaiPanel-0.7.0-minimal-setup-x64.exe",
+    "bytes": 84269721,
+    "sha256": "13545759A352C9FB105A7F5AD5005440C717C04F8AF3CC3BC2D8EEE92A9E92CA",
+    "checksumFile": "D:\\yikai\\packages\\YikaiPanel-0.7.0-minimal-setup-x64.exe.sha256",
+    "payloadFiles": 282,
+    "payloadMB": 275.0,
+    "architecture": "win-x64",
+    "defaultInstallDir": "D:\\yikai（没有 D 盘时为安装盘符下的 yikai）",
+    "privileges": "同完整包",
+    "contents": "nginx + PHP 8.5 + MySQL 8.0 + 面板 + 数据库页面；不带 Apache、MySQL 5.7、PHP 8.0/8.2、CMS 模板与默认站点。新建 YikaiCMS 项目时面板在线取最新模板（soft\\cache 缓存）并自动装好",
+    "why": "体积 80 MB（完整包 149 MB）；适合只想跑一个 YikaiCMS 站点的用户。PHP 扩展按需自选，数据库页面的 php.ini 由 PHP 8.5 派生"
+  },
+  "contents": {
+    "panel": "soft\\panel\\YikaiLocal.exe（.NET 9 自包含单文件，用户无需安装运行时）",
+    "webServers": [
+      "nginx 1.30.4（默认）",
+      "Apache 2.4.39（含 LICENSE/NOTICE）"
+    ],
+    "php": [
+      "PHP 8.0.2",
+      "PHP 8.2.33（默认）",
+      "PHP 8.5.9"
+    ],
+    "databases": [
+      "MySQL 8.0.12（默认）",
+      "MySQL 5.7.26",
+      "SQLite（随 PHP 驱动）"
+    ],
+    "databasePage": "soft\\db-manager（简洁页面 + Adminer 6.1.0）。没有项目时显示说明页（不再 500）；session 目录由面板启动时创建（session.save_path 指向 <root>\\temp\\sessions-phpmyadmin）",
+    "cms": "YikaiCMS 1.20.0 干净模板：soft\\packages\\yikaicms 与默认站点 wwwroot\\yikaicms.yikai（旧模板 1.19.9 备份在 backups\\yikaicms-template-1.19.9-*）",
+    "runtime": "不再随包带 VC++ 运行库安装器（原来的 24 MB）：每个 PHP 目录里放 vcruntime140.dll / vcruntime140_1.dll / msvcp140.dll（14.44），PHP 8.2/8.5 从程序目录加载；MySQL 8.0 与 Apache 目录本来就自带",
+    "rewriteRules": "config\\yikaicms-rewrite.conf 由 CMS 自带 deploy/nginx-server.conf 生成（换端口占位 9082 + 补全 fastcgi_params 路径），并保留面板侧 /admin/ 补丁",
+    "ports": "项目端口（可填 80/443）与 MySQL 端口（可填 3306）可指定并固定；被占用时报错指名占用者；改库端口自动同步已装站点配置",
+    "singleInstance": "同一根目录只允许一个面板实例；第二次启动直接把已运行的面板窗口调到前台，不再弹“已在系统托盘运行”",
+    "scanImport": "左栏“新建 / 接入项目”点开是菜单：新建项目、接入已有目录、扫描目录快速导入（批量）、从 PHPStudy 导入（检测到才显示）。扫描时带点目录用目录名当域名，不带点的英文/数字/-/_ 名字可勾选自动补 .yikai，中文/空格/隐藏目录跳过并逐条说明原因；只登记不复制，不覆盖目录里已有的 index.php"
+  },
+  "notIncluded": [
+    "soft\\phpmyadmin（面板数据库按钮已改用 db-manager + Adminer，包里不再分发 phpMyAdmin）",
+    "VC++ 运行库安装器（vcredist）：改为随包 3 个 DLL，安装后即可用，不需要管理员",
+    "开发机状态：config\\panel.json、面板生成的 panel-*.conf / panel-*.ini、data、logs、temp、backups、SSL 证书",
+    "开发机已安装的网站数据（默认站点为干净模板，无 config.php 与 installed.lock）",
+    "最小包不带 CMS 模板与默认站点（在线取最新版）"
+  ],
+  "tools": {
+    "dotnetSdk": "9.0.317",
+    "innoSetup": "6.7.3",
+    "innoChineseMessages": "ChineseSimplified.isl（jrsoftware/issrc，Inno 6.5.0+ 版本，已加 UTF-8 BOM）",
+    "payloadAssembly": "preparation\\release-0.7.0\\assemble-payload.ps1（完整包）/ assemble-minimal.ps1（最小包）",
+    "installerScript": "preparation\\release-0.7.0\\installer\\yikai-panel.iss（最小包用 /DNoDefaultSite 编译）",
+    "acceptanceScript": "preparation\\release-0.7.0\\acceptance.ps1"
+  },
+  "acceptance": {
+    "fullPackage": {
+      "report": "verification-all.json",
+      "passed": 68,
+      "total": 68,
+      "what": "一次跑完四段：install（文件/路径改写/快捷方式/卸载登记）→ run（服务、网站、CMS 安装向导、1.20.0 安全规则、端口归属）→ reinstall（重复安装不破坏网站与数据库）→ uninstall（程序移除、网站/数据库/备份保留）"
+    },
+    "minimalPackage": {
+      "report": "verification-minimal.json",
+      "passed": 40,
+      "total": 40,
+      "what": "只带 PHP 8.5 的环境自愈；VC 运行库从程序目录加载（不是 System32）；MySQL 8.0 首次启动初始化；数据库页面 200 且没有项目时显示说明页；session 目录已建；停止后端口释放"
+    },
+    "minimalDownload": {
+      "report": "verification-minimal-download.json",
+      "passed": 27,
+      "total": 27,
+      "what": "最小包新建 YikaiCMS 项目：在线下载并缓存模板、自动装好（admin/yikai888）、前台 200、后台登录页 200；数据库页面能真正执行备份（CSRF 与连接都正常）"
+    },
+    "scanImport": {
+      "report": "preparation/scan-folder/verification-scan.json",
+      "script": "preparation/scan-folder/verify-scan.ps1",
+      "passed": 53,
+      "total": 53,
+      "what": "带点目录直接用域名、无点目录可选补 .yikai（含大小写与下划线换算）、同名冲突归带点目录、中文/空格/隐藏目录逐条给原因、重复扫描不重复登记、登记不改动原目录内容、登记后的站点真实访问 200"
+    },
+    "noRewriteCase": {
+      "report": "verification-noop.json",
+      "passed": 8,
+      "total": 8,
+      "script": "verify-noop-rewrite.ps1",
+      "what": "装到“随包路径本身”（默认目录 D:\\yikai）时不误报路径改写失败，不改动本来正确的 php.ini，且不写入 BOM"
+    },
+    "adminPatch": {
+      "report": "verification-admin-patch.json",
+      "passed": 11,
+      "total": 11,
+      "script": "verify-admin-patch.ps1",
+      "what": "带 yk_admin cookie 访问 /admin/ 时由后台处理（跳转仍在 /admin/ 内），前台首页 200 且不外泄 PHP 源码。端口从开发环境 panel.json 读取，不再写死（本次 19:50 重跑，11 项全过）"
+    },
+    "portSettings": {
+      "report": "preparation/port-settings/verification-ports.json",
+      "script": "preparation/port-settings/verify-ports.ps1",
+      "passed": 29,
+      "total": 29,
+      "what": "被占用端口拒绝并指名占用者、指定端口生效且固定、未指定端口仍自动避让、改库端口后同步 YikaiCMS/WordPress 配置并备份（本次未重跑，沿用 0.7.0 开发期结果）"
+    },
+    "uiDialogs": {
+      "harness": "preparation/ui-project-badges/checks（13 个对话框）",
+      "passed": 765,
+      "total": 765,
+      "what": "13 个对话框 × 中英日 × 标准/大/特大字号：控件不越界、按钮文字放得下、标签不被截断、控件不被父容器裁切（本次未重跑，沿用 0.7.0 开发期结果）"
+    },
+    "uiScanDialog": {
+      "harness": "preparation/ui-dialog-scale（-D 语言参数：zh/en/ja）",
+      "passed": 3,
+      "total": 3,
+      "what": "扫描对话框在三语 × 150% 缩放下渲染：底部按钮不被父容器裁切（溢出=False）、候选列与跳过原因完整；截图 preparation/scan-folder/evidence/scan-folder-{zh,en,ja}.png"
+    },
+    "singleInstance": {
+      "report": "preparation/panel-single-instance/verification-single-instance.json",
+      "script": "preparation/panel-single-instance/verify-single-instance.ps1",
+      "passed": 9,
+      "total": 9,
+      "what": "面板已运行时第二次启动：不弹提示框、静默退出码 0、已有窗口被调回前台（本次未重跑，沿用开发期结果）"
+    },
+    "evidence": "evidence\\（安装/卸载/重装日志与各阶段 transcript、控制台输出 *.console.log）",
+    "scope": "本机沙盒：静默安装到独立根目录 D:\\yikai-installtest，未触碰开发环境 D:\\yikai",
+    "isolation": "验收脚本在启动沙盒前先检查固定端口（站点 8081、数据库页面 8878）是否被占用，占用就直接停下并报出占用进程；收尾（含异常退出）会清掉测试根目录里的进程。MySQL 端口由面板自动避开占用",
+    "notCovered": [
+      "断网安装（本机安装过程本就不联网，但未在断网环境实测）",
+      "换一台干净 Windows 机器安装（本次是同一台机器的新目录）",
+      "Apache 模式与各 PHP 版本组合的完整回归（沿用 0.7.0 开发期的隔离测试）",
+      "卸载时选择“连同网站与数据库一起删除”的交互路径（静默模式默认保留，未人工点选验证）"
+    ],
+    "totalPassed": 1010
+  },
+  "knownIssues": [
+    {
+      "issue": "随包 php.ini 写的是开发机路径 D:/yikai/，安装时按实际安装位置改写",
+      "note": "替换串带尾部分隔符，安装到 D:\\yikai-test 这类目录不会写坏路径；不需改写时不写文件（不加 BOM）；装完读回自检，结果写入安装日志"
+    },
+    {
+      "issue": "卸载后 config 目录保留",
+      "note": "有意为之：panel.json 保存项目列表、config\\ssl 保存本地根证书，重新安装可继续使用。soft、logs、temp 由 [UninstallDelete] 清理"
+    },
+    {
+      "issue": "本机 80/443 被 Apache、3306 被 MySQL 占用",
+      "note": "常用端口的“成功绑定”路径在本机无法实测（端口被占），验收覆盖的是拒绝路径（真实占用者）与用空闲端口验证的同一套机制；URL 省略端口规则由单元断言覆盖"
+    },
+    {
+      "issue": "本次修复：数据库页面在新装环境下的两处故障",
+      "note": "① 没有项目时 index.php 抛 RuntimeException（Unknown website）导致 HTTP 500，最小包首次安装必现——改为显示“还没有项目”的说明页（三语）；② 随包 php.ini 的 session.save_path 指向 <root>\\temp\\sessions-phpmyadmin，但没人创建这个目录，session 起不来（session_start 返回 false）、CSRF 每次请求都变，备份/恢复/执行 SQL 会被挡成 403——面板启动时创建该目录，common.php 里再兜一次底。两条都有自动化断言（最小包 40 项、一键 CMS 27 项）"
+    }
+  ],
+  "payloadFiles": 3397,
+  "payloadMB": 651.0
+}

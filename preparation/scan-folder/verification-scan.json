@@ -1,0 +1,219 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-scan-test",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "夹具已建立"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "扫描命令退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "登记了 4 个带点的目录（实际 4）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "域名来自目录名：cmsdemo.yikai,plain.yikai,sqlitesite.yikai,yikaiflow.yikai"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "CMS 目录识别为 yikaicms（实际 yikaicms）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库名从项目配置读出（实际 cmsdemo_db）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "有 storage/database.sqlite 的识别为 SQLite（实际 sqlite）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "普通目录默认 MySQL 8.0（实际 mysql80）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "四个项目端口不重复"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "添加后都是停止状态"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不该加的目录（不带点 / 隐藏 / 非域名）都没有被登记"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "登记的项目都用指定的 PHP（8.5）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带点的英文目录标记为 plain-name 跳过"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带点的 yikaiflow 同样跳过"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带点的中文目录也先按 plain-name 跳过"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "中文带点目录标记为 not-a-domain"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带空格的目录标记为 not-a-domain"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "隐藏目录标记为 hidden"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报告里给出了“名字不带点”的中文原因"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报告里给出了“不是可用域名”的中文原因"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "登记没有复制模板文件（原目录内容不变）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "普通目录没有被塞进 CMS 文件"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "普通目录没有被塞进 storage 目录"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "重复扫描不会重复登记（仍为 4 个）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "已登记目录的域名被占用（domain-taken）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带 --include-plain 的扫描退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "补登记了 nodot.yikai 和 my-shop-2.yikai（共 6 个）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "补出来的域名是"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带点的 yikaiflow 让出已被带点目录占用的域名"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "中文的无点目录即使在 include-plain 下也跳过"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "带空格的无点目录标记 plain-name-invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "以 - 开头的无点目录标记 plain-name-invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报告里能对上“目录 my_shop-2 → 域名 my-shop-2.yikai”"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "无点非法名字的原因写明了字符限制"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "补登记没有动过原来目录"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "补登记没有往原目录塞 storage"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "扫描退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "共 9 个项目（实际 9）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "同名的两个目录里，带点的 collide.yikai 拿到域名"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MyShop 转成小写域名 myshop.yikai"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "My_Shop 转成 my-shop.yikai（下划线换成 -）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带点的 collide 标记 name-conflict 并让出域名"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "冲突原因写明了域名归带点目录"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 8.0 端口固定为 3319（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "夹具项目全部改用 18080+ 端口（共 9 个）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面端口改成 18778"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动单个项目成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动后配置里仍然有 plain.yikai"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动后项目是启用状态"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "登记的站点在 18081 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "站点的 PHP-CGI（19081）已就绪"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "站点内容可访问（plain-ok）：HTTP/1.1 200 OK"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "没有残留进程（清掉了 0 个）"
+                   }
+               ],
+    "failed":  false
+}

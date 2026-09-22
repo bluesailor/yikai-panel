@@ -1,0 +1,152 @@
+﻿[
+    {
+        "check":  "found a LAN address: 172.27.16.1",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php8.2 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service dbpage --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx listens on 127.0.0.1 by default",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site socket bound to 127.0.0.1",
+        "passed":  true,
+        "detail":  "127.0.0.1"
+    },
+    {
+        "check":  "site reachable locally",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site not reachable over the network yet",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --lan-access on",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx listens on 0.0.0.0 after the switch",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site socket bound to 0.0.0.0",
+        "passed":  true,
+        "detail":  "0.0.0.0"
+    },
+    {
+        "check":  "site still reachable locally",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site reachable over the network",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db manager stays on 127.0.0.1 in the config",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db manager socket stays local",
+        "passed":  true,
+        "detail":  "127.0.0.1"
+    },
+    {
+        "check":  "db manager reachable locally",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db manager not reachable over the network",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache listens on 0.0.0.0",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache vhost bound to 0.0.0.0",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache keeps the db manager local",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache serves the site over the network",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache db manager not reachable over the network",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --lan-access off",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache back to 127.0.0.1",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site still reachable locally after turning it off",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "site no longer reachable over the network",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx back to 127.0.0.1",
+        "passed":  true,
+        "detail":  "127.0.0.1"
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

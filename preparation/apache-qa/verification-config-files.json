@@ -1,0 +1,192 @@
+﻿[
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-check php8.2 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-php-bad.ini\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: PHP:  syntax error, unexpected end of file, expecting TC_DOLLAR_CURLY or TC_QUOTED_STRING or \u0027\"\u0027 in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\config-check-a136415f4b2648a9b5db2c4aeb7f1889\\php.ini on line 53\r"
+    },
+    {
+        "check":  "php.ini syntax error reported",
+        "passed":  true,
+        "detail":  "System.IO.IOException: PHP:  syntax error, unexpected end of file, expecting TC_DOLLAR_CURLY or TC_QUOTED_STRING or \u0027\"\u0027 in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\config-check-a136415f4b2648a9b5db2c4aeb7f1889\\php.ini on line 53\r"
+    },
+    {
+        "check":  "php.ini unchanged after failed check",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save php8.2 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-php-good.ini\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php 8.2 restarted, db page untouched",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "new memory_limit visible to project",
+        "passed":  true,
+        "detail":  "321M"
+    },
+    {
+        "check":  "previous php.ini backed up",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save php8.2 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-php-bad.ini\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: PHP:  syntax error, unexpected end of file, expecting TC_DOLLAR_CURLY or TC_QUOTED_STRING or \u0027\"\u0027 in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\config-check-a58cf43df3ba4cf7a2ec8181add36c33\\php.ini on line 53\r"
+    },
+    {
+        "check":  "invalid php.ini not written",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php keeps running after rejected save",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save nginx --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-nginx-good.conf\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx includes custom file and drops default",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx custom limit applied (413)",
+        "passed":  true,
+        "detail":  "413"
+    },
+    {
+        "check":  "panel --config-save nginx --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-nginx-bad.conf\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: nginx.exe: nginx: [emerg] unknown directive \"not_a_directive\" in C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/apache-qa/config/custom-nginx.conf:1\r"
+    },
+    {
+        "check":  "invalid nginx config rolled back, site up",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save nginx --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-nginx-empty.conf\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx default limit restored",
+        "passed":  true,
+        "detail":  "200"
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save apache --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-apache-good.conf\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache custom header applied",
+        "passed":  true,
+        "detail":  "qa"
+    },
+    {
+        "check":  "panel --config-save apache --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-apache-bad.conf\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: httpd.exe: AH00526: Syntax error on line 1 of C:/Users/yikai/AppData/Local/Temp/claude/D--phpstudy-pro-WWW-yikaicms-claude-yikai/b579c690-6122-4cf2-bd14-86fc300793cb/scratchpad/apache-qa/config/custom-apache.conf:\r"
+    },
+    {
+        "check":  "invalid apache config rolled back, site up",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save apache --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-apache-empty.conf\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save mysql80 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-mysql-good.ini\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql restarted with custom option",
+        "passed":  true,
+        "detail":  "67108864"
+    },
+    {
+        "check":  "panel --config-save mysql80 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-mysql-unknown.ini\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: MySQL 8.0 使用新配置启动失败。"
+    },
+    {
+        "check":  "unknown mysql option rolled back and mysql restarted",
+        "passed":  true,
+        "detail":  "System.IO.IOException: MySQL 8.0 使用新配置启动失败。 | unknown variable \u0027not_an_option=1\u0027 |  ---\u003e System.IO.IOException: php.exe: Fatal error: Uncaught PDOException: PDO::__construct(): Error while reading greeting packet. PID=38520 in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\common.php:40 | Stack trace: | #0 C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\common.php(40): PDO-\u003e__construct(\u0027mysql:host=127....\u0027, \u0027root\u0027, Object(SensitiveParameterValue), Array) | #1 C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\bootstrap.php(7): connectDatabase(Array, false) | #2 {main} |  | Next PDOException: SQLSTATE[HY000] [2006] MySQL server has gone away in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\common.php:40 | Stack trace: | #0 C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\common.php(40): PDO-\u003e__construct(\u0027mysql:host=127....\u0027, \u0027root\u0027, Object(SensitiveParameterValue), Array) | #1 C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\bootstrap.php(7): connectDatabase(Array, false) | #2 {main} |   thrown in C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\db-manager\\common.php on line 40 |    at YikaiLocal.Runtime.Run(String executable, String[] args, Int32 timeout) |    at YikaiLocal.Runtime.StartDatabase(String kind) |    at YikaiLocal.Runtime.EnsureDatabaseAsync(String kind) |    at YikaiLocal.Runtime.ApplyConfig(ConfigFile file, Boolean running) |    --- End of inner exception stack trace --- |    at YikaiLocal.Runtime.ApplyConfig(ConfigFile file, Boolean running) |    at YikaiLocal.Runtime.SaveConfigAsync(ConfigFile file, String text) |    at YikaiLocal.Runtime.SaveConfigAsync(ConfigFile file, String text) |    at YikaiLocal.Program.Main(String[] args)"
+    },
+    {
+        "check":  "error names the bad option",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-check mysql80 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-mysql-format.ini\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: 第 1 行之前缺少 [mysqld] 段落标题。\r"
+    },
+    {
+        "check":  "missing section header rejected by check",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --config-save mysql80 --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-mysql-fails.ini\"",
+        "passed":  true,
+        "detail":  "System.IO.IOException: MySQL 8.0 使用新配置启动失败。"
+    },
+    {
+        "check":  "failed mysql start rolled back and restarted",
+        "passed":  true,
+        "detail":  "System.IO.IOException: MySQL 8.0 使用新配置启动失败。 | Unknown suffix \u0027T\u0027 used for variable \u0027innodb-buffer-pool-size\u0027 (value \u00274096T\u0027) | C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\soft\\mysql\\8.0\\bin\\mysqld.exe: Error while setting value \u00274096T\u0027 to \u0027innodb-buffer-pool-size\u0027 | Parsing options for plugin \u0027InnoDB\u0027 failed. | Failed to initialize builtin plugins. |  ---\u003e System.IO.IOException: mysql80 stopped. See C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\logs. |    at YikaiLocal.Runtime.WaitPort(String key, Int32 port) |    at YikaiLocal.Runtime.StartDatabase(String kind) |    at YikaiLocal.Runtime.EnsureDatabaseAsync(String kind) |    at YikaiLocal.Runtime.ApplyConfig(ConfigFile file, Boolean running) |    --- End of inner exception stack trace --- |    at YikaiLocal.Runtime.ApplyConfig(ConfigFile file, Boolean running) |    at YikaiLocal.Runtime.SaveConfigAsync(ConfigFile file, String text) |    at YikaiLocal.Runtime.SaveConfigAsync(ConfigFile file, String text) |    at YikaiLocal.Program.Main(String[] args)"
+    },
+    {
+        "check":  "panel --config-save dbpage --input \"C:\\Users\\yikai\\AppData\\Local\\Temp\\claude\\D--phpstudy-pro-WWW-yikaicms-claude-yikai\\b579c690-6122-4cf2-bd14-86fc300793cb\\scratchpad\\apache-qa\\temp\\qa-db.ini\"",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db page restarted with new ini",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    }
+]

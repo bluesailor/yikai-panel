@@ -1,0 +1,302 @@
+﻿[
+    {
+        "check":  "panel --start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "default web server is nginx",
+        "passed":  true,
+        "detail":  "php-qacms_yikai,php-qaphp_yikai,nginx,php-db,mysql80"
+    },
+    {
+        "check":  "php processes started",
+        "passed":  true,
+        "detail":  "php-qacms_yikai,php-qaphp_yikai,nginx,php-db,mysql80"
+    },
+    {
+        "check":  "mysql80 started with environment",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "nginx serves blank php project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "http matrix nginx",
+        "passed":  true,
+        "detail":  "{\"cms /\":\"302 /install/\",\"cms /contact.html\":\"302 /install/\",\"cms /config/config.php\":\"403\",\"cms /storage/x\":\"403\",\"cms /.htaccess\":\"403\",\"cms /uploads/a.php\":\"403\",\"cms /assets/css/tailwind.css\":\"200\",\"php /\":\"200\",\"php /some/route\":\"200\",\"php /storage/a\":\"403\",\"php /.env\":\"403\",\"db /\":\"200\",\"db adminer\":\"302 zh?server=127.0.0.1:13308\\u0026username=root\\u0026db=qaphp_yikai\",\"db /common.php\":\"403\",\"db /vendor/\":\"403\",\"db /index.php/x\":\"404\"}"
+    },
+    {
+        "check":  "panel --web-server apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "switched to apache",
+        "passed":  true,
+        "detail":  "php-qacms_yikai,apache,php-qaphp_yikai,php-db,mysql80"
+    },
+    {
+        "check":  "webServer saved as apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel nginx stopped after switch",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache serves blank php project",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "apache FallbackResource routes to index.php",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "http matrix apache",
+        "passed":  true,
+        "detail":  "{\"cms /\":\"302 /install/\",\"cms /contact.html\":\"302 /install/\",\"cms /config/config.php\":\"403\",\"cms /storage/x\":\"403\",\"cms /.htaccess\":\"403\",\"cms /uploads/a.php\":\"403\",\"cms /assets/css/tailwind.css\":\"200\",\"php /\":\"200\",\"php /some/route\":\"200\",\"php /storage/a\":\"403\",\"php /.env\":\"403\",\"db /\":\"200\",\"db adminer\":\"302 zh?server=127.0.0.1:13308\\u0026username=root\\u0026db=qaphp_yikai\",\"db /common.php\":\"403\",\"db /vendor/\":\"403\",\"db /index.php/x\":\"403\"}"
+    },
+    {
+        "check":  "same outcome cms /",
+        "passed":  true,
+        "detail":  "nginx=302 /install/ apache=302 /install/"
+    },
+    {
+        "check":  "same outcome cms /contact.html",
+        "passed":  true,
+        "detail":  "nginx=302 /install/ apache=302 /install/"
+    },
+    {
+        "check":  "same outcome cms /config/config.php",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome cms /storage/x",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome cms /.htaccess",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome cms /uploads/a.php",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome cms /assets/css/tailwind.css",
+        "passed":  true,
+        "detail":  "nginx=200 apache=200"
+    },
+    {
+        "check":  "same outcome php /",
+        "passed":  true,
+        "detail":  "nginx=200 apache=200"
+    },
+    {
+        "check":  "same outcome php /some/route",
+        "passed":  true,
+        "detail":  "nginx=200 apache=200"
+    },
+    {
+        "check":  "same outcome php /storage/a",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome php /.env",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome db /",
+        "passed":  true,
+        "detail":  "nginx=200 apache=200"
+    },
+    {
+        "check":  "same outcome db adminer",
+        "passed":  true,
+        "detail":  "nginx=302 zh?server=127.0.0.1:13308\u0026username=root\u0026db=qaphp_yikai apache=302 zh?server=127.0.0.1:13308\u0026username=root\u0026db=qaphp_yikai"
+    },
+    {
+        "check":  "same outcome db /common.php",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome db /vendor/",
+        "passed":  true,
+        "detail":  "nginx=403 apache=403"
+    },
+    {
+        "check":  "same outcome db /index.php/x",
+        "passed":  true,
+        "detail":  "nginx=404 apache=403"
+    },
+    {
+        "check":  "apache adminer path info reaches database",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "web stop closes site ports",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "web stop keeps php and mysql running",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "web start restores apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "web restart replaces apache process",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service php --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php stop keeps db page php",
+        "passed":  true,
+        "detail":  "php-db,apache,mysql80"
+    },
+    {
+        "check":  "site returns 503 while php stopped",
+        "passed":  true,
+        "detail":  "503"
+    },
+    {
+        "check":  "panel --service php --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "php start restores site",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service mysql80 --action stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql80 stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql stop keeps web running",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service mysql80 --action start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql80 start",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service mysql80 --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "mysql80 restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service dbpage --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "db page restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "disabled project returns 503 on apache",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --service web --action restart",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "project re-enabled",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --web-server nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "switched back to nginx",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "no apache processes remain",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "panel --stop",
+        "passed":  true,
+        "detail":  ""
+    },
+    {
+        "check":  "stop all closes every service",
+        "passed":  true,
+        "detail":  ""
+    }
+]

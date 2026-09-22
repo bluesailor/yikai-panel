@@ -1,0 +1,11 @@
+﻿{
+    "Backup":  "D:\\yikai\\backups\\panel-before-warm-palette-20260917-160429",
+    "BackupHash":  "323A8C5E5A1A4D65B5A09B0B4EFE3821ADDF8902E625607B5C4A4190536A7DDB",
+    "Hash":  "A35B056CA077B53AD6B55CEF308E2F8918BE7292967DE76EB7B0C24AF8176A6F",
+    "PanelPid":  43116,
+    "PanelAlive":  true,
+    "ServicesBefore":  "",
+    "ServicesAfter":  "mysql80=39476,php-yikaicms=16808,php-test_yikai=41644,php-db=28852,nginx=15292",
+    "SamePids":  false,
+    "Site8081":  200
+}

@@ -1,0 +1,36 @@
+{
+  "results": [
+    {
+      "php": "8.0.2",
+      "mysql": "5.7.26",
+      "utf8_roundtrip": true
+    },
+    {
+      "php": "8.2.33",
+      "mysql": "5.7.26",
+      "utf8_roundtrip": true
+    },
+    {
+      "php": "8.5.9",
+      "mysql": "5.7.26",
+      "utf8_roundtrip": true
+    },
+    {
+      "php": "8.0.2",
+      "mysql": "8.0.12",
+      "utf8_roundtrip": true
+    },
+    {
+      "php": "8.2.33",
+      "mysql": "8.0.12",
+      "utf8_roundtrip": true
+    },
+    {
+      "php": "8.5.9",
+      "mysql": "8.0.12",
+      "utf8_roundtrip": true
+    }
+  ],
+  "checkedAt": "2026-09-15T08:28:43.8195611+08:00",
+  "scope": "Isolated newly initialized test databases only; default site remains uninstalled"
+}

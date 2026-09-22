@@ -1,0 +1,11 @@
+﻿{
+    "Version":  "0.7.0",
+    "Backup":  "D:\\yikai\\backups\\panel-before-list-refresh-20260917-180448",
+    "Hash":  "610C1E404CC8AFC6CF681F85FA03DC9FFEC50009F292BD1FE76F0DFFE5C9AE48",
+    "PanelAlive":  true,
+    "ServicesBefore":  "mysql80=37220,php-yikaicms=44608,php-test_yikai=13592,php-db=35212,nginx=27968",
+    "ServicesAfter":  "mysql80=37220,php-yikaicms=44608,php-test_yikai=13592,php-db=35212,nginx=27968",
+    "SamePids":  true,
+    "Site8081":  200,
+    "DbPage":  200
+}

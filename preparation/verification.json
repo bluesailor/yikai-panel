@@ -1,0 +1,51 @@
+{
+  "scope": "component loading, SQLite in-memory CRUD and configuration syntax only",
+  "results": [
+    {
+      "php": "8.0.2",
+      "missing": [],
+      "pdo_drivers": [
+        "mysql",
+        "sqlite"
+      ],
+      "sqlite_roundtrip": true
+    },
+    {
+      "php": "8.2.33",
+      "missing": [],
+      "pdo_drivers": [
+        "mysql",
+        "sqlite"
+      ],
+      "sqlite_roundtrip": true
+    },
+    {
+      "php": "8.5.9",
+      "missing": [],
+      "pdo_drivers": [
+        "mysql",
+        "sqlite"
+      ],
+      "sqlite_roundtrip": true
+    },
+    {
+      "pass": true,
+      "component": "mysql-5.7",
+      "versionOutput": "D:\\yikai\\soft\\mysql\\5.7\\bin\\mysqld.exe  Ver 5.7.26 for Win64 on x86_64 (MySQL Community Server (GPL))"
+    },
+    {
+      "pass": true,
+      "component": "mysql-8.0",
+      "versionOutput": "D:\\yikai\\soft\\mysql\\8.0\\bin\\mysqld.exe  Ver 8.0.12 for Win64 on x86_64 (MySQL Community Server - GPL)"
+    },
+    {
+      "pass": true,
+      "component": "nginx-config"
+    },
+    {
+      "pass": true,
+      "component": "phpmyadmin-config"
+    }
+  ],
+  "checkedAt": "2026-09-15T08:27:15.8622917+08:00"
+}

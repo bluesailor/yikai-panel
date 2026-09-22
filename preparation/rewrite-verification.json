@@ -1,0 +1,67 @@
+{
+  "scope": "Real Nginx and FastCGI rewrite requests against isolated fixtures; no CMS database or hosts changes",
+  "php": "8.2.33",
+  "checks": [
+    {
+      "pass": true,
+      "target": "/index.php",
+      "path": "/"
+    },
+    {
+      "pass": true,
+      "target": "/news.php",
+      "path": "/news.html"
+    },
+    {
+      "pass": true,
+      "target": "/article.php",
+      "path": "/news/article/123.html"
+    },
+    {
+      "pass": true,
+      "target": "/list.php",
+      "path": "/list/12/page/3.html"
+    },
+    {
+      "pass": true,
+      "target": "/list.php",
+      "path": "/product/widget.html"
+    },
+    {
+      "pass": true,
+      "target": "/product.php",
+      "path": "/product/123.html"
+    },
+    {
+      "pass": true,
+      "target": "/news.php",
+      "path": "/en/news.html"
+    },
+    {
+      "pass": true,
+      "target": "/product.php",
+      "path": "/ja/product/123.html"
+    },
+    {
+      "pass": true,
+      "target": "/contact.php",
+      "path": "/contact.html"
+    },
+    {
+      "pass": true,
+      "target": "/page.php",
+      "path": "/about/team.html"
+    },
+    {
+      "pass": true,
+      "target": "/api/v1/index.php",
+      "path": "/api/v1/contents"
+    },
+    {
+      "pass": true,
+      "target": "/install/index.php",
+      "path": "/install/index.php"
+    }
+  ],
+  "checkedAt": "2026-09-15T08:27:16.6094118+08:00"
+}

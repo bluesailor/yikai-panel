@@ -1,0 +1,20 @@
+[
+  {
+    "passed": true,
+    "http": 8081,
+    "action": "--start",
+    "mysql": 3309
+  },
+  {
+    "passed": true,
+    "http": 8081,
+    "action": "--stop",
+    "mysql": 3309
+  },
+  {
+    "passed": true,
+    "http": 8081,
+    "action": "--start",
+    "mysql": 3309
+  }
+]

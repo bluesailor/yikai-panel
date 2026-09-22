@@ -1,0 +1,123 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-installtest",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "create-site --http-port 80 被拒绝（exit 1）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报错指名占用 80 的程序（错误日志 111 字符）：System.IO.IOException: Port 80 is in use by httpd.exe (PID 5684).\r"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "被拒绝后没有留下项目"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "db-port 3306 被拒绝（exit 1）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报错指名占用 3306 的程序（错误日志 178 字符）：System.IO.IOException: 端口 3306 已被占用：mysqld.exe (PID 1332)\r"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "create-site --http-port 24000 成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "面板记录了指定端口并标记为固定（24000 pinned=True）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "新建项目默认是停止状态（与界面一致）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "nginx 按指定端口 24000 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "指定端口上的网站有响应（302，未安装的 CMS 会跳安装向导）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "端口被占用时启动失败（exit 1）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "固定端口没有被静默改掉（仍为 24000）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "报错提到被占用的端口 24000"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "创建项目成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "未指定的项目端口被占用时自动避让（24001 -\u003e 24002）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "db-port 改为 24200 成功（exit 0）：mysql80 port=24200 changed=True updated=portcms.yikai,portwp.yikai manual=yikaicms.yikai,portother.yikai"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "输出标明端口已变更"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "YikaiCMS 与 WordPress 夹具都被同步（mysql80 port=24200 changed=True updated=portcms.yikai,portwp.yikai manual=yikaicms.yikai,portother.yikai）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "端口对不上的站点列入手动检查"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "配置记录新端口并固定（24200 pinned=True）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "my.ini 使用新端口（24200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "YikaiCMS 配置的 DB_PORT 已改（找到 24200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "WordPress 配置的 DB_HOST 已改（host:24200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不匹配的站点配置未被改动"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "改动前已备份（1 个目录）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 在新端口 24200 上监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "URL 规则由 UI 检查程序断言（Runtime.WebUrl：http+80 / https+443 省略端口）"
+                   }
+               ],
+    "failed":  false
+}

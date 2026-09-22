@@ -1,0 +1,115 @@
+﻿{
+    "phase":  "run",
+    "root":  "D:\\yikai-min2-test",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "安装退出码 0（实际 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含 CMS 模板"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不含默认站点"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "wwwroot 目录已建立"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "PHP 8.5 已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "MySQL 8.0 已安装"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "首次启动项目列表为空（实际 0 个）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "默认 PHP 版本为 8.5（实际 8.5）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "创建项目成功（exit 0：）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "项目目录里有 CMS（config/version.php 存在）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "CMS 安装向导存在"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "CMS 版本号可读（1.20.0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "CMS 已缓存（1 个缓存目录）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "没有把下载的 CMS 写回模板目录（保持最小包形态）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "启动成功（exit 0）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "项目使用 PHP 8.5（实际 8.5）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "网站在 8081 监听"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "自动安装已写出 config/config.php"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "自动安装已写出 installed.lock"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "网站首页直接返回 200（已安装，不再跳安装向导；实际 200）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "后台入口有响应（302）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "后台登录页返回 200"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面返回 200（8878）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "session 目录已创建（数据库页面能存住会话）"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面给出了 CSRF 令牌"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_yikai\u0026lang=zh\u0026download=demo_yikai-20260921-194940-b1bf98.sql\"}"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "备份文件已生成（2 个）"
+                   }
+               ],
+    "failed":  false
+}

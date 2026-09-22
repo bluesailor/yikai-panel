@@ -1,0 +1,37 @@
+[
+  {
+    "status": "downloaded",
+    "bytes": 33452452,
+    "sha256": "D0BD189522FA50255EE94ED4B340ED4330F5AE33A90A74205275B0F0B221D388",
+    "url": "https://downloads.php.net/~windows/releases/archives/php-8.2.33-nts-Win32-vs16-x64.zip",
+    "name": "php-8.2.33-nts-Win32-vs16-x64.zip"
+  },
+  {
+    "status": "downloaded",
+    "bytes": 2774788,
+    "sha256": "159294214D403F34F0BB4AE598801AB1F6A0D8C8DA707F8F08748E294A222A01",
+    "url": "https://nginx.org/download/nginx-1.30.4.zip",
+    "name": "nginx-1.30.4.zip"
+  },
+  {
+    "status": "downloaded",
+    "bytes": 16431330,
+    "sha256": "2D2E13C735366D318425C78E4EE2CC8FC648D77FABA3DDEA2CD516E43885733F",
+    "url": "https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.zip",
+    "name": "phpMyAdmin-5.2.3-all-languages.zip"
+  },
+  {
+    "status": "downloaded",
+    "bytes": 101,
+    "sha256": "D1D3728C54A5D5C2CE4AA041E2585654AF7C520C3CA531B2B48B9DE668C12CD4",
+    "url": "https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.zip.sha256",
+    "name": "phpMyAdmin-5.2.3-all-languages.zip.sha256"
+  },
+  {
+    "status": "downloaded",
+    "bytes": 25635768,
+    "sha256": "CC0FF0EB1DC3F5188AE6300FAEF32BF5BEEBA4BDD6E8E445A9184072096B713B",
+    "url": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+    "name": "vc_redist.x64.exe"
+  }
+]
