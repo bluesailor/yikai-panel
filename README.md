@@ -168,3 +168,25 @@ redistribution, and commercial use, subject to its notice and attribution requir
 Panel / 易开面板” names and logos are governed separately by the [trademark policy](TRADEMARKS.md).
 Third-party components retain their own licenses; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 YikaiCMS is a separate product and is **not** part of this repository.
+
+---
+
+## 日本語
+
+**Yikai Panel（易开面板）**は、Windows 向けのローカル PHP 開発環境です。1つのインストーラーと
+1つの画面から、Nginx または Apache、PHP 8.0 / 8.2 / 8.5、MySQL 5.7 / 8.0、SQLite を使う
+複数の Web サイトを実行できます。
+
+- プロジェクトを作成すると、フォルダー、データベース、仮想ホスト、hosts エントリを自動で準備します。
+- プロジェクトごとにドメイン（`name.yikai`）、PHP バージョン、データベース、HTTPS 証明書、リライトルールを個別に管理できます。
+- 開発用ポート（8081 / 8443 / 3308）が使用中なら自動で空きポートを選びます。80 / 443 / 3306 に固定することもでき、競合時は使用中のプロセスを表示します。
+- ポート診断、LAN 共有、ローカル認証局による SSL 証明書、PHP 拡張機能の切り替え、元の環境を変更しない PHPStudy 移行に対応しています。
+- UI は中国語、英語、日本語に対応し、ライト／ダークテーマと文字サイズを変更できます。
+
+インストーラーは [GitHub Releases](https://github.com/bluesailor/yikai-panel/releases/latest) からダウンロードできます
+（Windows 10 / 11 x64、管理者権限は不要です）。ソースからビルドする場合は .NET 9 SDK が必要です。
+
+本プロジェクトは [Apache License 2.0](LICENSE) で公開されています。「Yikai Panel / 易开面板」の名称と
+ロゴは [商標ポリシー](TRADEMARKS.md) の対象です。第三者コンポーネントのライセンスは
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) を参照してください。YikaiCMS は別製品であり、
+このリポジトリには含まれていません。
