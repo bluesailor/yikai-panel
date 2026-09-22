@@ -39,13 +39,12 @@ function Is-Publishable([string]$rel) {
         if ($rel -match '^preparation\\[^\\]+\\[^\\]+\.(ps1|md|json|py)$') { return $true }
         return $false
     }
-    if ($top -eq 'website' -and $rel -match '\\dist\\') { return $false }
     if ($rel -match '\\(bin|obj)\\') { return $false }
     return $true
 }
 
 $allowedTop = @(
-    '.github', 'src', 'docs', 'design', 'preparation', 'website', 'images',
+    '.github', 'src', 'docs', 'design', 'preparation', 'images',
     'README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md',
     'LICENSE', 'NOTICE', 'TRADEMARKS.md', 'THIRD-PARTY-NOTICES.md',
     '.gitignore', '.gitattributes'

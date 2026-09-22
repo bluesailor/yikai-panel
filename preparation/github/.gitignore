@@ -36,7 +36,6 @@ preparation/**/*.sqlite3
 
 # ---- 旧 QA 日志与构建产物（保留结构化报告，去掉过程日志）----
 preparation/**/*.txt
-website/dist/
 
 # ---- preparation 下的 PHP 夹具（含曾用于测试的 YikaiCMS 安装向导副本，绝不发布）----
 preparation/**/*.php
