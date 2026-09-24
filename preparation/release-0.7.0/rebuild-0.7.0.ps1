@@ -1,8 +1,9 @@
 ﻿param(
     [switch]$SkipPublish,
-    [switch]$SkipVerify
+    [switch]$SkipVerify,
+    [string]$Version = ''
 )
-# 一条命令重出 0.7.0 的两个安装包并跑完整验收。
+# 一条命令重出两个安装包并跑完整验收。版本号默认取 src\YikaiPHP.csproj 的 <Version>（也可用 -Version 指定）。
 # 步骤与 docs\release.md 的检查清单一致：发布面板 → 重组负载 → 编译安装器 → 替换交付产物 → 验收。
 # 说明：
 #   · 本机可能同时跑着正式环境（另一套面板）。脚本不改它，也不停它；验收沙盒用 8081/8878，
@@ -14,6 +15,12 @@ $src = 'D:\yikai-soft\dev\yikai-panel\src'
 $iscc = Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'
 $packages = 'D:\yikai\packages'
 $log = Join-Path $base 'evidence\rebuild.log'
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    $Version = ([xml](Get-Content (Join-Path $src 'YikaiPHP.csproj') -Raw -Encoding UTF8)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+}
+if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "版本号无效：$Version" }
+$fullName = "YikaiPanel-$Version-setup-x64"
+$minimalName = "YikaiPanel-$Version-minimal-setup-x64"
 if (-not (Test-Path (Split-Path $log))) { New-Item -ItemType Directory -Path (Split-Path $log) -Force | Out-Null }
 Start-Transcript -Path $log -Force | Out-Null
 
@@ -34,8 +41,11 @@ Write-Host "面板 SHA-256：$panelHash"
 
 # 官网首屏的实拍图跟着面板走：发布完面板就重拍一次，否则官网还显示旧界面
 $shots = 'D:\yikai-soft\dev\yikai-panel\preparation\panel-dev\update-site-screenshots.ps1'
-if (Test-Path $shots) {
-    try { & powershell -NoProfile -ExecutionPolicy Bypass -File $shots } catch { Write-Host ("NOTE 官网截图未更新：" + $_.Exception.Message) }
+# 公开截图只能拍演示环境（D:\yikai-demo，只有一个 YikaiCMS 项目），不能拍开发机 D:\yikai 的真实项目列表
+if (-not (Test-Path 'D:\yikai-demo\config\panel.json')) {
+    Write-Host 'NOTE 跳过官网截图（没有 D:\yikai-demo 演示环境；公开截图不能用 D:\yikai 的真实项目）'
+} elseif (Test-Path $shots) {
+    try { & powershell -NoProfile -ExecutionPolicy Bypass -File $shots -Root 'D:\yikai-demo' } catch { Write-Host ("NOTE 官网截图未更新：" + $_.Exception.Message) }
 } else { Write-Host 'NOTE 跳过官网截图（找不到 update-site-screenshots.ps1）' }
 
 Step '2/6 重组负载'
@@ -43,22 +53,22 @@ Step '2/6 重组负载'
 & (Join-Path $base 'assemble-minimal.ps1') -Force | Select-Object -Last 4
 
 Step '3/6 编译两个安装器'
-& $iscc "/DPayload=$(Join-Path $base 'build\YikaiPanel')" "/DOutputDir=$(Join-Path $base 'build\out')" '/DOutputBase=YikaiPanel-0.7.0-setup-x64' (Join-Path $base 'installer\yikai-panel.iss') | Select-Object -Last 2
-& $iscc '/DNoDefaultSite' "/DPayload=$(Join-Path $base 'build\YikaiPanel-minimal')" "/DOutputDir=$(Join-Path $base 'build\out-minimal')" '/DOutputBase=YikaiPanel-0.7.0-minimal-setup-x64' (Join-Path $base 'installer\yikai-panel.iss') | Select-Object -Last 2
+& $iscc "/DPayload=$(Join-Path $base 'build\YikaiPanel')" "/DOutputDir=$(Join-Path $base 'build\out')" "/DAppVersion=$Version" "/DOutputBase=$fullName" (Join-Path $base 'installer\yikai-panel.iss') | Select-Object -Last 2
+& $iscc '/DNoDefaultSite' "/DPayload=$(Join-Path $base 'build\YikaiPanel-minimal')" "/DOutputDir=$(Join-Path $base 'build\out-minimal')" "/DAppVersion=$Version" "/DOutputBase=$minimalName" (Join-Path $base 'installer\yikai-panel.iss') | Select-Object -Last 2
 
 Step '4/6 验收（完整包四段 + 最简包 + 一键搭站 + 路径改写 + 后台补丁）'
 if (-not $SkipVerify) {
     & (Join-Path $base 'acceptance.ps1') -Phase clean | Select-Object -Last 1
-    & (Join-Path $base 'acceptance.ps1') -Phase all | Select-Object -Last 3
+    & (Join-Path $base 'acceptance.ps1') -Phase all -Installer (Join-Path $base "build\out\$fullName.exe") | Select-Object -Last 3
     & (Join-Path $base 'verify-minimal.ps1') -Phase clean | Select-Object -Last 1
-    & (Join-Path $base 'verify-minimal.ps1') -Phase run | Select-Object -Last 3
+    & (Join-Path $base 'verify-minimal.ps1') -Phase run -Installer (Join-Path $base "build\out-minimal\$minimalName.exe") | Select-Object -Last 3
     & (Join-Path $base 'verify-minimal-download.ps1') -Phase clean | Select-Object -Last 1
-    & (Join-Path $base 'verify-minimal-download.ps1') -Phase run | Select-Object -Last 3
+    & (Join-Path $base 'verify-minimal-download.ps1') -Phase run -Installer (Join-Path $base "build\out-minimal\$minimalName.exe") | Select-Object -Last 3
     & (Join-Path $base 'verify-noop-rewrite.ps1') | Select-Object -Last 2
 } else { Write-Host '跳过（-SkipVerify）' }
 
 Step '5/6 替换交付产物（D:\yikai\packages）'
-foreach ($name in 'YikaiPanel-0.7.0-setup-x64.exe', 'YikaiPanel-0.7.0-minimal-setup-x64.exe') {
+foreach ($name in "$fullName.exe", "$minimalName.exe") {
     $from = if ($name -like '*minimal*') { Join-Path $base "build\out-minimal\$name" } else { Join-Path $base "build\out\$name" }
     $to = Join-Path $packages $name
     Copy-Item $from $to -Force

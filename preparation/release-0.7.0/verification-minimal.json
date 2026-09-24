@@ -128,7 +128,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "MySQL 8.0 在 3310 监听"
+                       "check":  "MySQL 8.0 在 3308 监听"
                    },
                    {
                        "passed":  true,

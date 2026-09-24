@@ -105,7 +105,11 @@ $cfg.cmsPackageUrl = $CmsUrl
 [IO.File]::WriteAllText($cfgFile, ($cfg | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
 $result = RunPanel @('--root', $Root, '--create-site', 'demo', '--php', '8.5', '--database', 'mysql80', '--template', 'yikaicms', '--title', 'demo')
 Check ($result.Code -eq 0) "创建项目成功（exit $($result.Code)：$($result.Out.Trim().Substring(0,[Math]::Min(120,$result.Out.Trim().Length)))）"
-$siteDir = Join-Path $Root 'wwwroot\demo.yikai'
+# 不带后缀的名字按面板规则补后缀（0.7.3 起默认 .localhost），项目目录以面板配置里记录的为准
+$created = @((Get-Content $cfgFile -Raw -Encoding UTF8 | ConvertFrom-Json).sites) | Where-Object { $_.title -eq 'demo' } | Select-Object -First 1
+Check ($null -ne $created) '面板配置里登记了新项目'
+Check ($created.domain -eq 'demo.localhost') "不带后缀的名字默认补 .localhost（实际 $($created.domain)）"
+$siteDir = if ($created) { $created.directory } else { Join-Path $Root 'wwwroot\demo.localhost' }
 Check (Test-Path (Join-Path $siteDir 'config\version.php')) '项目目录里有 CMS（config/version.php 存在）'
 Check (Test-Path (Join-Path $siteDir 'install\index.php')) 'CMS 安装向导存在'
 $version = (Get-Content (Join-Path $siteDir 'config\version.php') -Raw) -replace '(?s).*CMS_VERSION''\s*,\s*''([0-9.]+)''.*', '$1'

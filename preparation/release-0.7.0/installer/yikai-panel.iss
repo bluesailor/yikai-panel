@@ -1,4 +1,4 @@
-﻿; 易开面板 0.7.0 完整环境包安装脚本（Inno Setup 6）
+﻿; 易开面板完整环境包安装脚本（Inno Setup 6；版本号由 rebuild 脚本用 /DAppVersion 传入）
 ;
 ; 设计要点：
 ;   · 安装器只负责铺文件。数据库初始化、配置生成、hosts 同步都由面板首次启动时完成，
@@ -10,7 +10,9 @@
 ;   · 默认不用管理员权限安装（面板自己会在需要时请求提权完成 hosts 与防火墙操作）。
 
 #define AppName "易开面板"
-#define AppVersion "0.7.0"
+#ifndef AppVersion
+  #define AppVersion "0.7.4"
+#endif
 #define AppPublisher "易开面板"
 #define AppExeName "YikaiLocal.exe"
 ; 负载目录、输出位置可由 ISCC /D 覆盖：#define 包在 #ifndef 里，便于用同一份脚本编译
@@ -22,7 +24,7 @@
   #define OutputDir "D:\yikai\packages"
 #endif
 #ifndef OutputBase
-  #define OutputBase "YikaiPanel-0.7.0-setup-x64"
+  #define OutputBase "YikaiPanel-" + AppVersion + "-setup-x64"
 #endif
 
 [Setup]
@@ -31,7 +33,7 @@ AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
-VersionInfoVersion=0.7.0.0
+VersionInfoVersion={#AppVersion}.0
 VersionInfoProductName={#AppName}
 VersionInfoDescription={#AppName} {#AppVersion} 安装程序
 DefaultDirName={code:GetDefaultDir}

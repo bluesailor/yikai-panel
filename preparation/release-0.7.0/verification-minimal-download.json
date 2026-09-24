@@ -40,6 +40,14 @@
                    },
                    {
                        "passed":  true,
+                       "check":  "面板配置里登记了新项目"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "不带后缀的名字默认补 .localhost（实际 demo.localhost）"
+                   },
+                   {
+                       "passed":  true,
                        "check":  "项目目录里有 CMS（config/version.php 存在）"
                    },
                    {
@@ -104,7 +112,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_yikai\u0026lang=zh\u0026download=demo_yikai-20260921-194940-b1bf98.sql\"}"
+                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_localhost\u0026lang=zh\u0026download=demo_localhost-20260925-011324-cb434d.sql\"}"
                    },
                    {
                        "passed":  true,

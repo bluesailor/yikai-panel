@@ -2,7 +2,7 @@
     [string]$Build = 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\build\YikaiPanel',
     [switch]$Force
 )
-# 组装 0.7.0 完整环境包的负载树。只放客户需要的东西：
+# 组装完整环境包的负载树（版本号由 rebuild 脚本从 src\YikaiPHP.csproj 读出并传给安装器）。只放客户需要的东西：
 #   排除开发状态（panel.json、生成的 panel-*.conf/ini、data、logs、temp、backups、SSL 证书）、
 #   旧构建 EXE、以及面板已不再使用的 phpMyAdmin（数据库页面改用 db-manager + Adminer）。
 $ErrorActionPreference = 'Stop'
@@ -69,8 +69,19 @@ foreach ($pair in @(@('apache-LICENSE.txt','LICENSE'), @('apache-NOTICE.txt','NO
     Copy-Item "D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\license\$($pair[0])" (Join-Path $payload "apache\2.4.39\$($pair[1])") -Force
 }
 
+# HeidiSQL 便携版（GPL-2.0，桌面数据库客户端）：从官方压缩包校验后解压，不拿开发机上的 soft\heidisql——
+# 那里的 portable_settings.txt 存着本机保存的数据库会话和密码，Backups\ 与 tabs.ini 是本机的查询记录。
+$heidiZip = 'D:\yikai\packages\HeidiSQL_12.21_64_Portable.zip'
+$heidiSha = 'FECB76A69E29A53EA05B1D57FC2F7B7AAED5B8F889556C6ECA545E2A800DF1AB'
+if (-not (Test-Path $heidiZip)) { throw "缺少 $heidiZip（从 https://www.heidisql.com/download.php 下载 12.21 64 位便携版）" }
+if ((Get-FileHash $heidiZip -Algorithm SHA256).Hash -ne $heidiSha) { throw "HeidiSQL 压缩包校验失败：$heidiZip" }
+Expand-Archive -LiteralPath $heidiZip -DestinationPath (Join-Path $payload 'heidisql') -Force
+foreach ($name in @('portable.lock','heidisql.exe','gpl.txt','license.txt')) {
+    if (-not (Test-Path (Join-Path $payload "heidisql\$name"))) { throw "HeidiSQL 负载缺少 $name" }
+}
+
 # 组装后自检：负载里不能出现开发状态或绝对路径残留（php.ini 的路径由安装器按目标根改写）
-$forbidden = Get-ChildItem $Build -Recurse -Force -Include 'panel.json','panel-nginx.conf','panel-apache.conf','panel-mysql*.ini','installed.lock','config.php','*.log','*.pid' -File |
+$forbidden = Get-ChildItem $Build -Recurse -Force -Include 'panel.json','panel-nginx.conf','panel-apache.conf','panel-mysql*.ini','installed.lock','config.php','*.log','*.pid','portable_settings.txt','tabs.ini' -File |
     Where-Object { $_.FullName -notlike '*\packages\yikaicms\*' -and $_.Name -ne 'config.php.example' }
 $stray = Get-ChildItem $Build -Recurse -Force -File -Filter 'YikaiLocal-*.exe'
 Write-Host ("forbidden files: " + ($forbidden | ForEach-Object { $_.FullName.Replace($Build,'') }) -join ', ')

@@ -100,7 +100,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "install: uninstall entry registered (易开面板 0.7.0)"
+                       "check":  "install: uninstall entry registered (易开面板 0.7.4)"
                    },
                    {
                        "passed":  true,
@@ -116,7 +116,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "run: MySQL 8.0 listening on 3310"
+                       "check":  "run: MySQL 8.0 listening on 3308"
                    },
                    {
                        "passed":  true,
