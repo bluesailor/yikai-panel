@@ -6,7 +6,21 @@
 
 面板读取：https://panel.yikai.cn/update/latest.json
 
-当前仅在用户点击“检查更新”时请求。服务器尚未配置，客户端会显示“更新服务尚未就绪，请稍后再试”。本次没有配置服务器或发布在线文件。
+当前仅在用户点击“检查更新”时请求。2026-09-25 起在线更新已启用，清单指向 0.7.4（`update/YikaiLocal-0.7.4.exe`）。
+清单和下载都必须是 HTTPS（客户端拒绝非 https 的 `downloadUrl`），站点证书失效时客户端会显示“更新服务尚未就绪”。
+
+官网服务器是 IIS：`update/` 目录下放一个只作用于该目录的 `web.config`，声明 `.json` 的 MIME 类型并禁用缓存
+（IIS 默认不认识的扩展名会返回 404.3）：
+
+```xml
+<staticContent>
+  <remove fileExtension=".json" />
+  <mimeMap fileExtension=".json" mimeType="application/json; charset=utf-8" />
+  <clientCache cacheControlMode="DisableCache" />
+</staticContent>
+```
+
+发布新版本的顺序：先上传新 EXE，回读核对 SHA-256，最后再覆盖 `latest.json`。
 
 ## 服务端最小配置
 
