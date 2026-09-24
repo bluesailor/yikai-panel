@@ -11,7 +11,7 @@ namespace YikaiLocal;
 //     英文字母、数字、- 和 _，且以字母或数字开头；中文、空格等一律跳过；
 //   · 隐藏目录（.git 等）跳过。
 // 域名要合法，所以目录名会做两步换算：统一转小写；下划线换成连字符（域名里不能有 _）。
-// 换算结果会显示在对话框的“域名”列里，例如 my_shop-2 → my-shop-2.yikai。
+// 换算结果会显示在对话框的“域名”列里，例如 my_shop-2 → my-shop-2.localhost。
 // 同名冲突：带点的目录优先占用域名。例如同时存在 yikaiflow 和 yikaiflow.yikai 时，
 // yikaiflow.yikai 得到该域名，yikaiflow 会被跳过并说明原因。
 //
@@ -50,9 +50,9 @@ public sealed partial class Settings
             }
             else
             {
-                if(!includePlainNames){Skip("plain-name",Tr("名字不带点（勾选“同时添加不带点的目录”可自动补 .yikai）","no dot in the name (enable “also add folders without a dot” to append .yikai)","ドットなし（オプションで .yikai を補えます）"));continue;}
+                if(!includePlainNames){Skip("plain-name",Tr("名字不带点（勾选“同时添加不带点的目录”可自动补 .localhost）","no dot in the name (enable “also add folders without a dot” to append .localhost)","ドットなし（オプションで .localhost を補えます）"));continue;}
                 if(!PlainNamePattern.IsMatch(name)){Skip("plain-name-invalid",Tr("名字只能用英文字母、数字、- 和 _，且以字母或数字开头结尾（不能是中文）","use letters, digits, - and _ only, starting and ending with a letter or digit","英数字・-・_ のみ、先頭と末尾は英数字（日本語不可）"));continue;}
-                domain=name.ToLowerInvariant().Replace('_','-')+".yikai";
+                domain=name.ToLowerInvariant().Replace('_','-')+Settings.DefaultSuffix;
                 if(!ValidDomain(domain)){Skip("plain-name-invalid",Tr("换算出来的域名不合法（名字太长？）","the resulting domain is not usable (name too long?)","生成したドメインが不正（名前が長すぎますか）"));continue;}
             }
             var full=Path.GetFullPath(directory);

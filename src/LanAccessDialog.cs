@@ -18,7 +18,7 @@ public sealed partial class MainForm
 
         var enable=new CheckBox{Name="enableLanAccess",Text=T("允许同一局域网内的其他电脑访问本机项目","Let other computers on this network open my projects","同じ LAN の他の PC からプロジェクトを開けるようにする"),Checked=settings.LanAccess,Dock=DockStyle.Fill,Margin=Padding.Empty};
         layout.Controls.Add(enable,0,0);
-        var note=L(T("只放开项目的网站端口。数据库管理页面、MySQL 和 PHP 仍然只在本机可用。\n同事用下面的 http 地址访问；.yikai 域名和 HTTPS 证书只对本机有效，局域网内请用 http 地址。","Only the project web ports are opened. The database manager, MySQL and PHP stay on this computer.\nColleagues use the http addresses below; the .yikai domain and the local certificate only work on this computer.","公開するのはプロジェクトの Web ポートだけです。DB 管理、MySQL、PHP はこの PC のままです。\n同僚は下の http アドレスを使います。.yikai ドメインと証明書はこの PC 専用です。"),9);
+        var note=L(T("只放开项目的网站端口。数据库管理页面、MySQL 和 PHP 仍然只在本机可用。\n同事用下面的 http 地址访问；.yikai / .localhost 域名和 HTTPS 证书只对本机有效，局域网内请用 http 地址。","Only the project web ports are opened. The database manager, MySQL and PHP stay on this computer.\nColleagues use the http addresses below; the .yikai / .localhost domains and the local certificate only work on this computer.","公開するのはプロジェクトの Web ポートだけです。DB 管理、MySQL、PHP はこの PC のままです。\n同僚は下の http アドレスを使います。.yikai / .localhost ドメインと証明書はこの PC 専用です。"),9);
         note.ForeColor=Muted;note.TextAlign=ContentAlignment.TopLeft;note.AutoEllipsis=false;layout.Controls.Add(note,0,1);
 
         var firewallRow=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false,Margin=Padding.Empty};layout.Controls.Add(firewallRow,0,2);

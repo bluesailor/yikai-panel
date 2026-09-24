@@ -304,9 +304,10 @@ public sealed partial class Runtime(Settings settings)
     }
     public bool HasHosts(Site site)
     {
-        var file=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"drivers","etc","hosts");
-        return File.ReadLines(file).Any(l=>Regex.IsMatch(l,@"^\s*127\.0\.0\.1\s+"+Regex.Escape(site.Domain)+@"(?:\s|$)",RegexOptions.IgnoreCase));
+        return !Settings.NeedsHosts(site.Domain)||File.ReadLines(HostsFile).Any(l=>HasHostsEntry(l,site.Domain));
     }
+    static string HostsFile=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"drivers","etc","hosts");
+    static bool HasHostsEntry(string line,string domain)=>Regex.IsMatch(line,@"^\s*127\.0\.0\.1\s+"+Regex.Escape(domain)+@"(?:\s|$)",RegexOptions.IgnoreCase);
     // 网站地址：http+80 / https+443 时省略端口号（常用端口下就是干净的 http://demo.yikai/）。
     // 全面板拼站点地址都走这里（含局域网地址与 SSL 窗口），避免各处规则不一致。
     public static string WebUrl(string scheme,string host,int port)=>
@@ -316,17 +317,33 @@ public sealed partial class Runtime(Settings settings)
         ?WebUrl("https",HasHosts(site)?site.Domain:"127.0.0.1",site.HttpsPort)
         :WebUrl("http",HasHosts(site)?site.Domain:"127.0.0.1",site.HttpPort);
     public string DatabaseUrl(Site site) => $"http://127.0.0.1:{Settings.DbManagerPort}/?site={Uri.EscapeDataString(site.Id)}&lang={Settings.Language}";
+    // 只有项目域名与面板管理的 hosts 区块不一致时才需要请求管理员权限。
+    public static bool HostsSyncRequired(Settings settings)=>HostsSyncRequired(settings,File.ReadAllText(HostsFile));
+    public static bool HostsSyncRequired(Settings settings,string contents)
+    {
+        const string blockPattern=@"(?ms)^# BEGIN YIKAI LOCAL\r?\n(.*?)^# END YIKAI LOCAL(?:\r?\n)?";
+        var blocks=Regex.Matches(contents,blockPattern);
+        // .localhost 域名由浏览器直接解析到本机，不写进 hosts。
+        var sites=settings.Sites.Where(site=>Settings.NeedsHosts(site.Domain)).ToList();
+        if(blocks.Count==0)return sites.Any(site=>!contents.Split('\n').Any(line=>HasHostsEntry(line,site.Domain)));
+        if(blocks.Count!=1)return true;
+        var actual=blocks[0].Groups[1].Value.Split('\n',StringSplitOptions.RemoveEmptyEntries).Select(line=>Regex.Replace(line.Trim(),@"\s+"," ")).Where(line=>line.Length>0).Order(StringComparer.OrdinalIgnoreCase);
+        var expected=sites.Select(site=>"127.0.0.1 "+site.Domain).Order(StringComparer.OrdinalIgnoreCase);
+        return !actual.SequenceEqual(expected,StringComparer.OrdinalIgnoreCase);
+    }
     public static void SyncHosts(Settings settings)
     {
         if(settings.Sites.Any(s=>!Settings.ValidDomain(s.Domain))) throw new IOException("Invalid hostname");
-        var file=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"drivers","etc","hosts");
+        var file=HostsFile;
         var old=File.ReadAllText(file);
+        if(!HostsSyncRequired(settings,old))return;
         var clean=Regex.Replace(old,@"(?ms)^# BEGIN YIKAI LOCAL\r?\n.*?^# END YIKAI LOCAL(?:\r?\n)?","");
-        foreach(var site in settings.Sites)
+        var sites=settings.Sites.Where(s=>Settings.NeedsHosts(s.Domain)).ToList();
+        foreach(var site in sites)
             foreach(var line in clean.Split('\n'))
                 if(Regex.IsMatch(line.Split('#')[0],@"(?:^|\s)"+Regex.Escape(site.Domain)+@"(?:\s|$)",RegexOptions.IgnoreCase) && !Regex.IsMatch(line,@"^\s*127\.0\.0\.1\s")) throw new IOException("Existing hosts entry conflicts: "+site.Domain);
         Directory.CreateDirectory(Path.Combine(settings.Root,"backups"));
         File.Copy(file,Path.Combine(settings.Root,"backups","hosts-"+DateTime.Now.ToString("yyyyMMdd-HHmmssfff")+".txt"));
-        File.WriteAllText(file,clean.TrimEnd()+"\r\n\r\n# BEGIN YIKAI LOCAL\r\n"+string.Join("\r\n",settings.Sites.Select(s=>"127.0.0.1 "+s.Domain))+"\r\n# END YIKAI LOCAL\r\n",new UTF8Encoding(false));
+        File.WriteAllText(file,clean.TrimEnd()+"\r\n\r\n# BEGIN YIKAI LOCAL\r\n"+string.Join("\r\n",sites.Select(s=>"127.0.0.1 "+s.Domain))+"\r\n# END YIKAI LOCAL\r\n",new UTF8Encoding(false));
     }
 }

@@ -31,18 +31,19 @@ public sealed partial class MainForm
             {facts.Add((T("数据库","Database","データベース"),T("库 ","DB ","DB ")+site.DatabaseName+T(" · 用户 "," · user "," · ユーザー ")+(string.IsNullOrEmpty(site.DatabaseUser)?settings.MysqlUser+T("（共用）"," (shared)","（共有）"):site.DatabaseUser)+(HeidiSqlAvailable?T("，点击用 HeidiSQL 客户端打开"," — click to open in HeidiSQL","（クリックで HeidiSQL を開く）"):""),false));databaseLine=facts.Count-1;}
         else if(site.Database=="sqlite"){facts.Add((T("数据库","Database","データベース"),"SQLite · storage/database.sqlite"+(HeidiSqlAvailable?T("，点击用 HeidiSQL 客户端打开"," — click to open in HeidiSQL","（クリックで HeidiSQL を開く）"):""),false));databaseLine=facts.Count-1;}
         facts.Add((T("目录","Folder","フォルダー"),site.Directory,false));directoryLine=facts.Count-1;
-        facts.Add((T("域名","Domain","ドメイン"),runtime.HasHosts(site)?T($"{site.Domain} 已连接，点击打开网站",$"{site.Domain} connected — click to open",$"{site.Domain} 接続済み（クリックで開く）"):T("未同步，点击用本机地址打开网站","Not synced — click to open via localhost","未同期（クリックで localhost から開く）"),false));domainLine=facts.Count-1;
+        var hostsSynced=runtime.HasHosts(site);
+        facts.Add((T("域名","Domain","ドメイン"),hostsSynced?T($"{site.Domain} 已连接，点击打开网站",$"{site.Domain} connected — click to open",$"{site.Domain} 接続済み（クリックで開く）"):T("未同步，点击同步域名到 hosts","Not synced — click to sync domain to hosts","未同期（クリックして hosts に登録）"),false));domainLine=facts.Count-1;
         if(HttpsFact(site) is {} https)facts.Add(https);
         info.CaptionWidth=CaptionColumn;
         info.Text=string.Join("\n",facts.Select(f=>f.Caption+"\t"+f.Value));
         info.WarnLines=facts.Select((f,i)=>(f,i)).Where(x=>x.f.Warning).Select(x=>x.i).ToArray();
         projectCard.RowStyles[3].Height=info.LineHeight*facts.Count+8;
-        // 目录和域名可以直接点：一个打开文件夹，一个打开网站。
+        // 目录和域名可以直接点；域名未同步时复用顶部“同步域名”的提权流程。
         info.ClearActions();
         if(databaseLine>=0&&HeidiSqlAvailable)info.SetAction(databaseLine,()=>{if(!busy)_ = OpenInHeidiSql(site);});
         info.SetAction(directoryLine,()=>{if(!busy&&Directory.Exists(site.Directory))Open(site.Directory);});
-        info.SetAction(domainLine,()=>{if(!busy)_ = OpenSite(false);});
-        serviceTips.SetToolTip(info,string.Join("\n",facts.Select(f=>f.Caption+"："+f.Value))+"\n"+T("点击目录打开文件夹，点击域名打开网站。","Click the folder to open it, click the domain to open the website.","フォルダー行でフォルダーを、ドメイン行でサイトを開けます。"));
+        info.SetAction(domainLine,()=>{if(!busy)_ = hostsSynced?OpenSite(false):SyncHosts();});
+        serviceTips.SetToolTip(info,string.Join("\n",facts.Select(f=>f.Caption+"："+f.Value))+"\n"+(hostsSynced?T("点击目录打开文件夹，点击域名打开网站。","Click the folder to open it, click the domain to open the website.","フォルダー行でフォルダーを、ドメイン行でサイトを開けます。"):T("点击目录打开文件夹，点击域名同步到 hosts。","Click the folder to open it, click the domain to sync hosts.","フォルダー行でフォルダーを開き、ドメイン行で hosts に登録できます。")));
     }
     // 卡片上的 HTTPS 行：证书来源与有效期；证书缺失或快到期时用警示色。
     (string Caption,string Value,bool Warning)? HttpsFact(Site site)

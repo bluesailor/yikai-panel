@@ -128,6 +128,9 @@ public sealed partial class Settings
     public string DatabasePassword(string kind)=>(kind=="mysql57"?Mysql57Password:Mysql80Password)??MysqlPassword;
     public void SetDatabasePassword(string kind,string password){if(kind=="mysql57")Mysql57Password=password;else Mysql80Password=password;Save();}
     public string SqlitePath(Site site) => Path.Combine(site.Directory, "storage", "database.sqlite");
+    // 新项目默认用 .localhost：浏览器直接解析到本机，不用写 hosts，也就不用管理员权限。
+    public const string DefaultSuffix=".localhost";
+    public static bool NeedsHosts(string domain)=>!domain.EndsWith(".localhost",StringComparison.OrdinalIgnoreCase)&&!domain.Equals("localhost",StringComparison.OrdinalIgnoreCase);
     public static bool ValidDomain(string domain) => domain.Length <= 253 && Regex.IsMatch(domain, @"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{1,62}$");
     static readonly string[] ReservedDatabases=["mysql","information_schema","performance_schema","sys"];
     static readonly string[] ReservedUsers=["root","mysql.sys","mysql.session","mysql.infoschema"];
@@ -170,8 +173,8 @@ public sealed partial class Settings
     {
         if(!new[]{"mysql80","mysql57","sqlite"}.Contains(database)||!new[]{"8.0","8.2","8.5"}.Contains(php))throw new InvalidOperationException("Unsupported runtime selection.");
         name = name.Trim().ToLowerInvariant();
-        var domain = name.Contains('.') ? name : name + ".yikai";
-        if (!ValidDomain(domain)) throw new InvalidOperationException("Use a name such as demo or demo.yikai.");
+        var domain = name.Contains('.') ? name : name + DefaultSuffix;
+        if (!ValidDomain(domain)) throw new InvalidOperationException("Use a name such as demo or demo.localhost.");
         if (Sites.Any(s => s.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException("The site already exists.");
         if(!new[]{"yikaicms","php","import","wordpress"}.Contains(template))throw new InvalidOperationException("Invalid project type.");
         if(template=="yikaicms" && php=="8.0")throw new InvalidOperationException("YikaiCMS requires PHP 8.2 or later.");

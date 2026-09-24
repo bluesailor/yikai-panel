@@ -2,6 +2,8 @@
 
 public sealed partial class MainForm
 {
+    // 顶部“工具 / 配置”下拉与按钮之间留一点空隙，贴着按钮底边弹出时两者边框连在一起，看着像一块。
+    int MenuGap=>Px(6);
     void AttachEnvironmentTools(Button button)
     {
         // 工具：一次性操作（导入、打开数据库页面、看日志）。
@@ -15,7 +17,7 @@ public sealed partial class MainForm
         AddMenuItem(menu.Items,T("运行日志","Runtime logs","実行ログ"),"logs",()=>Open(Path.Combine(settings.Root,"logs")));menu.Items[^1].Name="runtimeLogsMenu";
         AddMenuItem(menu.Items,T("端口排查","Port check","ポート確認"),"search",()=>ShowPortDiagnostics());menu.Items[^1].Name="portDiagnosticsMenu";
         menu.Opening+=(_,_) => {databaseItem.Enabled=settings.Sites.Count>0;importItem.Visible=PhpStudyDetection.Detected();};
-        button.Click+=(_,_)=>menu.Show(button,new Point(0,button.Height));button.Disposed+=(_,_)=>menu.Dispose();
+        button.Click+=(_,_)=>menu.Show(button,new Point(0,button.Height+MenuGap));button.Disposed+=(_,_)=>menu.Dispose();
     }
     // 配置：会改变环境行为的设置（配置文件、Web 服务器、默认版本、root 密码）。
     void AttachEnvironmentConfig(Button button)
@@ -37,7 +39,7 @@ public sealed partial class MainForm
             var at=menu.Items.IndexOf(choicesEnd);
             foreach(var choice in new[]{WebServerMenu(),DefaultPhpMenu(),DefaultMysqlMenu()}){choice.Tag="runtime-choice";menu.Items.Insert(at++,choice);}
         };
-        button.Click+=(_,_)=>menu.Show(button,new Point(0,button.Height));button.Disposed+=(_,_)=>menu.Dispose();
+        button.Click+=(_,_)=>menu.Show(button,new Point(0,button.Height+MenuGap));button.Disposed+=(_,_)=>menu.Dispose();
     }
     // 数据库管理页面（备份、恢复、查看数据、Adminer）：只启动它需要的服务，不启动整套环境。
     Task OpenDatabaseManager()=>Work(async()=>{

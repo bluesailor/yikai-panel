@@ -92,12 +92,12 @@ internal static class Program
             }
             if(args.Contains("--stop")){using var operation=Runtime.Lock(settings);runtime.Adopt();runtime.StopAsync().GetAwaiter().GetResult();return 0;}
             // 扫描目录添加项目：--scan-sites [--directory <目录>] [--php <版本>] [--include-plain]
-            // --include-plain：名字不带点的目录也添加（自动补 .yikai，仅限英文、数字、- 和 _）
+            // --include-plain：名字不带点的目录也添加（自动补 .localhost，仅限英文、数字、- 和 _）
             if(args.Contains("--scan-sites"))
             {
                 var folder=Option("--directory")??Path.Combine(settings.Root,"wwwroot");
                 var outcome=settings.AddSitesFromFolder(folder,Option("--php")??settings.PhpDefault,args.Contains("--include-plain"));
-                // folder= 是源目录名：不带点的目录名和域名不一样（my_shop-2 → my-shop-2.yikai），要能对上
+                // folder= 是源目录名：不带点的目录名和域名不一样（my_shop-2 → my-shop-2.localhost），要能对上
                 var addedLine=(Site site)=>$"added {site.Domain} folder={Path.GetFileName(site.Directory)} template={site.Template} db={site.Database}/{site.DatabaseName} php={site.Php} port={site.HttpPort}";
                 foreach(var site in outcome.Added)Console.WriteLine(addedLine(site));
                 // 跳过原因带一个固定英文标识（plain-name / name-conflict / not-a-domain …），验收脚本按它判断，

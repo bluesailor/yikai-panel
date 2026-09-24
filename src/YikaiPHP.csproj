@@ -8,6 +8,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>YikaiLocal</RootNamespace>
     <AssemblyName>YikaiLocal</AssemblyName>
-    <Version>0.7.0</Version><Product>易开面板</Product><ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Version>0.7.4</Version><Product>易开面板</Product><ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 <ItemGroup><EmbeddedResource Include="Assets\brand.png" /><EmbeddedResource Include="Assets\app.ico" /></ItemGroup><ItemGroup><EmbeddedResource Include="Assets\\DatabaseTools\\*" /></ItemGroup></Project>

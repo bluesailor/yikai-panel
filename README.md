@@ -10,6 +10,8 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 [官网](https://panel.yikai.cn) · [下载安装包](https://panel.yikai.cn) · [问题反馈](https://github.com/bluesailor/yikai-panel/issues)
 
+当前源码版本 **0.7.4** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
+
 </div>
 
 ---
@@ -21,14 +23,20 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 面向不熟悉服务器配置的人：不用命令行、不用 Docker、不用 WSL、不用自己配 Nginx 和 php.ini。
 
 - **一条路走到能访问**：新建项目 → 自动建目录、建库、建站点配置 → 点“打开网站”。
-- **每个项目独立**：自己的域名（`xxx.yikai`）、PHP 版本、数据库、HTTPS、伪静态规则，互不影响。
+  项目类型可选空白 PHP（默认）、YikaiCMS 最新版、WordPress 最新版（从 wordpress.org 官方下载并校验，自动生成 `wp-config.php`），或接入已有目录。
+- **每个项目独立**：自己的域名、PHP 版本、数据库、HTTPS、伪静态规则，互不影响。
+- **域名不用管 hosts**：名字不带后缀时默认补 `.localhost`（如 `demo.localhost`），浏览器直接解析到本机，不写 hosts、不弹管理员授权。
+  需要 `.yikai` 这类域名时，勾选新建对话框里的“同步 hosts”，建完自动写入（Windows 会请求一次管理员授权）。
+  注意 `.localhost` 只有浏览器认，命令行 curl 或 PHP 在 Windows 上解析不到这个域名。
+- **检测更新**：YikaiCMS / WordPress 项目可一键查询官方最新版本，只显示结果，不改动站点文件。
+- **桌面数据库客户端**：装有 HeidiSQL 便携版（`soft\heidisql`）时，点项目的“数据库”一行即可用它直接连上该项目的 MySQL 或 SQLite，连接信息自动填好。
 - **端口自己会让路**：默认从 8081 / 8443 / 3308 这类开发端口起步，被占用时自动避开；
   需要生产式地址时可以把端口指定成 80 / 443 / 3306 并固定（被占用会直接告诉你占用者是谁）。
 - **出问题能自查**：“工具 → 端口排查”列出每个端口现在被谁占着（进程名 + PID）并支持一键复制诊断信息；
   启动失败会指名端口占用者并附上服务日志。
 - **从 PHPStudy 搬项目**：扫描现有 PHPStudy 站点，把文件与数据库（含空表、视图、触发器、存储过程）复制成独立项目，原环境不动。
 - **扫描目录快速导入**：已经在本机、从别处复制过来的站点目录，不用一个个接入——点“新建 / 接入项目 → 扫描目录快速导入”，选个目录，面板列出里面的子目录让你勾选，一次登记成项目。
-  名字带点的目录直接用目录名当域名（`demo.yikai`）；不带点的英文/数字/`-`/`_` 名字可以勾选“同时添加不带点的目录”自动补 `.yikai`（`yikaiflow` → `yikaiflow.yikai`），中文、空格、隐藏目录会跳过并逐条写明原因。登记只写面板配置：不复制文件、不覆盖目录里已有的 `index.php`。
+  名字带点的目录直接用目录名当域名（`demo.yikai`）；不带点的英文/数字/`-`/`_` 名字可以勾选“同时添加不带点的目录”自动补 `.localhost`（`yikaiflow` → `yikaiflow.localhost`），中文、空格、隐藏目录会跳过并逐条写明原因。登记只写面板配置：不复制文件、不覆盖目录里已有的 `index.php`。
 - **三语界面**：中文 / English / 日本語，深浅主题、字号、编程字体都可调。
 
 ## 一键部署 YikaiCMS
@@ -152,8 +160,14 @@ powershell -ExecutionPolicy Bypass -File preparation\github\check-publish.ps1
 **Yikai Panel** is a local PHP development environment for Windows: one installer, one window, and you
 can run multiple websites with Nginx or Apache, PHP 8.0 / 8.2 / 8.5, MySQL 5.7 / 8.0 and SQLite.
 
-- Create a project and it makes the folder, the database, the vhost and the hosts entry for you.
-- Every project keeps its own domain (`name.yikai`), PHP version, database, HTTPS certificate and rewrite rules.
+- Create a project and it makes the folder, the database and the vhost for you. Project types: blank PHP,
+  the latest YikaiCMS, the latest WordPress (downloaded from wordpress.org and checksum-verified), or an existing folder.
+- Every project keeps its own domain, PHP version, database, HTTPS certificate and rewrite rules.
+- Names without a suffix become `name.localhost`, which browsers resolve to this computer on their own: no hosts
+  file and no admin prompt. For `.yikai`-style domains, keep “Sync hosts” checked and the entry is written after
+  creation (one Windows admin prompt). `.localhost` works in browsers only; curl and PHP on Windows cannot resolve it.
+- One-click update check for YikaiCMS / WordPress projects, and one-click HeidiSQL connection when the portable
+  HeidiSQL is present in `soft\heidisql`.
 - Development ports (8081 / 8443 / 3308) move out of the way automatically; you can pin standard ports
   (80 / 443 / 3306) instead, and the panel will tell you exactly which process holds a port if it is taken.
 - A built-in port diagnostics window, LAN access for colleagues, SSL certificates from a local root CA,
@@ -177,8 +191,10 @@ YikaiCMS is a separate product and is **not** part of this repository.
 1つの画面から、Nginx または Apache、PHP 8.0 / 8.2 / 8.5、MySQL 5.7 / 8.0、SQLite を使う
 複数の Web サイトを実行できます。
 
-- プロジェクトを作成すると、フォルダー、データベース、仮想ホスト、hosts エントリを自動で準備します。
-- プロジェクトごとにドメイン（`name.yikai`）、PHP バージョン、データベース、HTTPS 証明書、リライトルールを個別に管理できます。
+- プロジェクトを作成すると、フォルダー、データベース、仮想ホストを自動で準備します。種類は空の PHP、最新の YikaiCMS、最新の WordPress（wordpress.org から取得して検証）、既存フォルダーから選べます。
+- プロジェクトごとにドメイン、PHP バージョン、データベース、HTTPS 証明書、リライトルールを個別に管理できます。
+- 末尾なしの名前は `name.localhost` になり、ブラウザーが自動でこの PC に解決するため hosts も管理者権限も不要です。`.yikai` などのドメインは「hosts を同期」で作成後に登録します（管理者の確認が 1 回表示されます）。`.localhost` はブラウザー専用で、Windows 上の curl や PHP からは解決できません。
+- YikaiCMS / WordPress の更新確認、`soft\heidisql` に HeidiSQL ポータブル版がある場合のワンクリック接続に対応しています。
 - 開発用ポート（8081 / 8443 / 3308）が使用中なら自動で空きポートを選びます。80 / 443 / 3306 に固定することもでき、競合時は使用中のプロセスを表示します。
 - ポート診断、LAN 共有、ローカル認証局による SSL 証明書、PHP 拡張機能の切り替え、元の環境を変更しない PHPStudy 移行に対応しています。
 - UI は中国語、英語、日本語に対応し、ライト／ダークテーマと文字サイズを変更できます。

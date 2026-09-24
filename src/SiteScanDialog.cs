@@ -4,7 +4,7 @@ namespace YikaiLocal;
 
 // “扫描目录添加项目”：选一个目录（默认 wwwroot），把子目录列出来勾选后批量登记。
 // 名字带点的目录（demo.yikai）直接用目录名当域名；不带点的目录默认跳过，
-// 勾选“同时添加不带点的目录”后，纯英文/数字/-/_ 的名字自动补上 .yikai。
+// 勾选“同时添加不带点的目录”后，纯英文/数字/-/_ 的名字自动补上 .localhost。
 // 登记只写面板配置：不复制文件、不覆盖已有 index.php、不改动目录内容。
 public sealed partial class MainForm
 {
@@ -67,9 +67,9 @@ public sealed partial class MainForm
         note.Margin=Padding.Empty;layout.Controls.Add(note,0,1);
 
         var includePlain=new CheckBox{Name="scanFolderIncludePlain",AutoSize=true,FlatStyle=FlatStyle.System,Checked=false,
-            Text=T("同时添加名字不带点的目录（自动补上 .yikai；名字只能用英文字母、数字、- 和 _，且不能是中文）",
-                   "Also add folders without a dot (append .yikai; names must use letters, digits, - or _ only)",
-                   "ドットなしのフォルダーも追加（.yikai を補います。名前は英数字・-・_ のみ）")};
+            Text=T("同时添加名字不带点的目录（自动补上 .localhost；名字只能用英文字母、数字、- 和 _，且不能是中文）",
+                   "Also add folders without a dot (append .localhost; names must use letters, digits, - or _ only)",
+                   "ドットなしのフォルダーも追加（.localhost を補います。名前は英数字・-・_ のみ）")};
         includePlain.Margin=new Padding(0,4,0,0);layout.Controls.Add(includePlain,0,2);
 
         var grid=new DataGridView{Name="scanFolderList",Dock=DockStyle.Fill,AutoGenerateColumns=false,AllowUserToAddRows=false,AllowUserToDeleteRows=false,MultiSelect=false,SelectionMode=DataGridViewSelectionMode.FullRowSelect,RowHeadersVisible=false,BackgroundColor=Palette.Surface,AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill};

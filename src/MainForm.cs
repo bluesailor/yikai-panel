@@ -67,7 +67,14 @@ public sealed partial class MainForm : Form
         var old=control.Font;control.Font=font;
         if(ReferenceEquals(control.Font,old))font.Dispose();else old.Dispose();
     }
-    void OnProgress(string value){if(IsHandleCreated&&!IsDisposed)BeginInvoke(()=>{if(!progress.IsDisposed)progress.Text=value;});}
+    void OnProgress(string value){if(IsHandleCreated&&!IsDisposed)BeginInvoke(()=>{if(!progress.IsDisposed){progress.Text=DescribeProgress(value);if(busy)progress.ForeColor=Ink;}});}
+    // 运行日志是英文原文（写进 panel.log），状态行上把启动步骤说成人话：只看到 “MySQL 8.0” 不知道在干什么。
+    string DescribeProgress(string value)
+    {
+        if(value=="Ready")return T("环境已就绪","Environment ready","環境の準備完了");
+        if(System.Text.RegularExpressions.Regex.IsMatch(value,@"^(MySQL|PHP) [\d.]+( · .+)?$"))return T($"正在启动 {value}…",$"Starting {value}…",$"{value} を起動中…");
+        return value;
+    }
     Label L(string text,float size=10,bool bold=false)=>new IconLabel(){Text=text,Font=new Font(Font.FontFamily,Fs(size),bold?FontStyle.Bold:FontStyle.Regular),ForeColor=Ink,Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft,AutoEllipsis=true};
     Button B(string text,Action click,bool primary=false,string icon="")
     {
@@ -118,7 +125,7 @@ public sealed partial class MainForm : Form
         var count=settings.Sites.Count(runtime.IsRunning);summary.Text=T($"项目 {settings.Sites.Count} · 运行 {count}",$"Projects {settings.Sites.Count} · Running {count}",$"プロジェクト {settings.Sites.Count} · 起動 {count}");
         status.Text=busy?T("正在处理…","Working…","処理中…"):T("环境运行中","Environment running","環境は稼働中");
         var s=Selected;heading.Text=s?.ToString()??(settings.Sites.Count==0?T("添加你的第一个项目","Add your first project","最初のプロジェクトを追加"):T("选择左侧项目","Select a project","プロジェクトを選択"));address.Text=s==null?"":runtime.SiteUrl(s);
-        var cms=s==null?null:CmsVersion.Detect(s.Directory);heading.Badge=cms==null?"":"YikaiCMS "+cms;serviceTips.SetToolTip(heading,cms==null?"":T("YikaiCMS 版本：","YikaiCMS version: ","YikaiCMS バージョン：")+cms);
+        var installation=s==null?null:SiteUpdates.Detect(s.Directory);heading.Badge=installation==null?"":installation.Product+" "+installation.Version;serviceTips.SetToolTip(heading,installation==null?"":T("已安装版本：","Installed version: ","インストール済みバージョン：")+installation.Product+" "+installation.Version);
         UpdateProjectFacts(s);
         foreach(var b in new[]{open,admin,database,folder,edit,remove,rewrite,start,stop})b.Enabled=!busy&&s!=null;
         if(s!=null){start.Enabled=!busy&&!runtime.IsRunning(s);stop.Enabled=!busy&&runtime.IsRunning(s);admin.Enabled=!busy;database.Enabled=!busy&&s.Database!="none";}
@@ -130,6 +137,7 @@ public sealed partial class MainForm : Form
         if(!busy&&!runtime.AnyRunning){status.Text=T("环境已停止","Environment stopped","環境は停止中");status.ForeColor=Muted;}
         else if(!busy&&!runtime.Running){status.Text=T("部分服务未运行，请检查状态栏","Some services are stopped; check the status bar","一部のサービスが停止中です");status.ForeColor=Palette.Warning;}
         else status.ForeColor=Ink;
+        if(!busy)progress.ForeColor=Muted;
         SetIcon(status,busy?"sync":!runtime.AnyRunning?"stop":runtime.Running?"check":"warning",status.ForeColor);
         // 定时刷新只在列表内容或运行状态变化时重画，避免每 1.5 秒整表重绘造成闪烁。
         var listState=string.Join("|",projects.Items.Cast<Site>().Select(p=>p.Id+""+p+""+p.Domain+""+p.Php+""+p.Starred+""+runtime.IsRunning(p)+""+p.Https));
@@ -151,10 +159,10 @@ public sealed partial class MainForm : Form
         SetIcon(label,running?"dot":warning?"warning":"stop",label.ForeColor);
         serviceTips.SetToolTip(label,$"{name}\n{state}\n127.0.0.1:{port}\nPID: {runtime.ServicePid(key)?.ToString()??"—"}");
     }
-    async Task Work(Func<Task> action)
+    async Task Work(Func<Task> action,string? successMessage=null)
     {
         if(busy)return;busy=true;actions.ForEach(b=>b.Enabled=false);projects.Enabled=search.Enabled=language.Enabled=false;RefreshState();
-        try{using var operation=Runtime.Lock(settings);runtime.Adopt();await action();progress.Text=T("已完成","Done","完了");}
+        try{using var operation=Runtime.Lock(settings);runtime.Adopt();await action();progress.Text=successMessage??T("已完成","Done","完了");}
         catch(Exception e){progress.Text=e.Message;MessageBox.Show(this,e.Message,"易开面板",MessageBoxButtons.OK,MessageBoxIcon.Error);}
         finally{busy=false;actions.ForEach(b=>b.Enabled=true);projects.Enabled=search.Enabled=language.Enabled=true;RefreshState();}
     }
@@ -180,7 +188,14 @@ public sealed partial class MainForm : Form
         thread.Start();
     }
     void UpdateTray(){var old=tray.ContextMenuStrip;var menu=new ContextMenuStrip{ForeColor=Palette.Text};menu.Items.Add(T("打开面板","Show panel","パネルを開く"),null,(_,_)=>ShowPanel());menu.Items.Add(T("退出并停止环境","Exit and stop","停止して終了"),null,async(_,_)=>{await Work(()=>runtime.StopAsync());if(runtime.AnyRunning)return;exit=true;Close();});tray.ContextMenuStrip=menu;old?.Dispose();}
-    Task SyncHosts()=>Work(async()=>{var info=new ProcessStartInfo(Environment.ProcessPath!){UseShellExecute=true,Verb="runas",WindowStyle=ProcessWindowStyle.Hidden};info.ArgumentList.Add("--root");info.ArgumentList.Add(settings.Root);info.ArgumentList.Add("--sync-hosts");using var p=Process.Start(info)??throw new IOException("Cannot start domain helper.");await p.WaitForExitAsync();if(p.ExitCode!=0)throw new IOException(File.ReadAllText(Path.Combine(settings.Root,"logs","panel-last-error.txt")));});
+    Task SyncHosts()=>Work(async()=>await SyncHostsCore(),T("域名已同步","Domains synced","ドメインを同期しました"));
+    // 新建项目 / 改域名后在同一个 Work 里直接调用；返回 false 表示用户在 UAC 里点了“否”。
+    async Task<bool> SyncHostsCore(bool cancelIsError=true)
+    {
+        try{await RunHostsHelper();return true;}
+        catch(System.ComponentModel.Win32Exception e) when(e.NativeErrorCode==1223&&!cancelIsError){return false;}
+    }
+    Task RunHostsHelper()=>Task.Run(async()=>{if(!Runtime.HostsSyncRequired(settings))return;var info=new ProcessStartInfo(Environment.ProcessPath!){UseShellExecute=true,Verb="runas",WindowStyle=ProcessWindowStyle.Hidden};info.ArgumentList.Add("--root");info.ArgumentList.Add(settings.Root);info.ArgumentList.Add("--sync-hosts");using var p=Process.Start(info)??throw new IOException("Cannot start domain helper.");await p.WaitForExitAsync();if(p.ExitCode!=0)throw new IOException(File.ReadAllText(Path.Combine(settings.Root,"logs","panel-last-error.txt")));});
     async Task RemoveProject()
     {
         if(Selected is not {} s)return;
