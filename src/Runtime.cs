@@ -129,6 +129,11 @@ public sealed partial class Runtime(Settings settings)
         catch (IOException) { return ""; }
     }
     string Php => Path.Combine(Root,"soft","php",InternalPhpVersion,"php.exe");
+    // 面板启动的 php-cgi 一律关掉 OPcache：PHP 8.5 起 OPcache 编进主程序且默认开启，Windows 上同版本的多个
+    // php-cgi 共用一块共享内存，地址随机化（ASLR）让后起的进程接不上时直接报
+    // “Opcode handlers are unusable due to ASLR” 退出（两个 PHP 8.5 站点，或站点 + 数据库页面，就会随机起不来）。
+    // 本地开发也不需要字节码缓存：改完代码立即生效。
+    const string NoOpcache="opcache.enable=0";
     // 分配端口时保留正在运行的监听端口：已安装项目依赖它们。
     void PreparePorts()
     {
@@ -197,14 +202,14 @@ public sealed partial class Runtime(Settings settings)
         else Log($"MySQL {Settings.DatabaseVersion(site.Database)} not running · database deferred · {site.Domain}");
         Log($"PHP {site.Php} · {site.Domain}");
         var siteIni=SitePhpIni(site);
-        Start("php-"+site.Id,Path.Combine(Root,"soft","php",site.Php,"php-cgi.exe"),"-c",siteIni,"-b",$"127.0.0.1:{site.FastCgiPort}");
+        Start("php-"+site.Id,Path.Combine(Root,"soft","php",site.Php,"php-cgi.exe"),"-c",siteIni,"-d",NoOpcache,"-b",$"127.0.0.1:{site.FastCgiPort}");
         await WaitPort("php-"+site.Id,site.FastCgiPort);
     }
     async Task StartDatabasePage()
     {
         // 数据库页面脚本随面板更新；本机被手动改过时保留原文件，只记录日志，不阻止启动。
         try{BundledDatabaseTools.Ensure(Root);}catch(IOException e){Log("Database tools not updated · "+e.Message);}
-        Start("php-db",Path.Combine(Root,"soft","php",InternalPhpVersion,"php-cgi.exe"),"-c",Path.Combine(Root,"config","phpmyadmin-php.ini"),"-b",$"127.0.0.1:{Settings.DbFastCgiPort}");
+        Start("php-db",Path.Combine(Root,"soft","php",InternalPhpVersion,"php-cgi.exe"),"-c",Path.Combine(Root,"config","phpmyadmin-php.ini"),"-d",NoOpcache,"-b",$"127.0.0.1:{Settings.DbFastCgiPort}");
         await WaitPort("php-db",Settings.DbFastCgiPort);
     }
     // 默认一起启动：所选 Web 服务器、启用项目的 PHP、所选 MySQL，以及项目用到的另一版本 MySQL。
