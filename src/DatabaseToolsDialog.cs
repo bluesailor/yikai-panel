@@ -8,7 +8,8 @@ public sealed partial class MainForm
     {
         // 工具：一次性操作（导入、打开数据库页面、看日志）。
         var menu=new ContextMenuStrip{Font=Font};
-        AddMenuItem(menu.Items,T("从 PHPStudy 导入","Import from PHPStudy","PHPStudy から取込"),"folder",()=>ShowPhpStudyImport());var importItem=menu.Items[0];importItem.Name="importPhpStudy";
+        AddMenuItem(menu.Items,T("接入已有目录","Connect an existing folder","既存フォルダーを接続"),"folder",()=>ProjectDialog(null,"import"));menu.Items[^1].Name="attachExistingFolder";
+        AddMenuItem(menu.Items,T("从 PHPStudy 导入","Import from PHPStudy","PHPStudy から取込"),"folder",()=>ShowPhpStudyImport());var importItem=menu.Items[^1];importItem.Name="importPhpStudy";
         AddMenuItem(menu.Items,T("扫描目录添加项目","Scan a folder for projects","フォルダーをスキャンして追加"),"search",()=>ScanFolderForProjects());menu.Items[^1].Name="scanSitesMenu";
         // 两条数据库入口按“在哪管理”分开命名：一条是浏览器里的网页管理，一条是桌面客户端（HeidiSQL）。
         AddMenuItem(menu.Items,T("网页管理数据库","Database manager (web)","データベース管理（Web）"),"database",()=>_ = OpenDatabaseManager());var databaseItem=menu.Items[^1];databaseItem.Name="databaseManagerMenu";

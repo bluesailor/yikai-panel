@@ -42,7 +42,7 @@ public sealed partial class Settings
     public string Root { get; set; } = "";
     public string Language { get; set; } = "zh";
     public string WebServer { get; set; } = "nginx";
-    public string PhpDefault { get; set; } = "8.2";
+    public string PhpDefault { get; set; } = "8.5";
     public string MysqlActive { get; set; } = "mysql80";
     public bool AutoStart { get; set; } = true;
     public bool MinimizeToTray { get; set; } = true;
@@ -70,10 +70,11 @@ public sealed partial class Settings
     public string MysqlPassword { get; set; } = "123456";
     public string? Mysql80Password { get; set; }
     public string? Mysql57Password { get; set; }
-    // 新建 YikaiCMS 项目后自动完成安装（用 CMS 自带的安装接口），后台账号默认 admin / yikai888
+    // 新建 YikaiCMS 项目后自动完成安装（用 CMS 自带的安装接口），后台账号默认 admin / admin888；
+    // “重置后台管理员”也恢复成这组账号密码
     public bool AutoInstallCms { get; set; } = true;
     public string CmsAdminUser { get; set; } = "admin";
-    public string CmsAdminPassword { get; set; } = "yikai888";
+    public string CmsAdminPassword { get; set; } = "admin888";
     // CMS 模板下载地址（最小包不带模板，新建 YikaiCMS 项目时按需下载）
     public string CmsPackageUrl { get; set; } = "https://down.yikai.cn/soft/yikaicms/yikaicms-latest.zip";
     public List<Site> Sites { get; set; } = [];
@@ -87,8 +88,8 @@ public sealed partial class Settings
         settings.Root = root;
         settings.Normalize();
         // 精简安装（最小包只带一个 PHP 版本）时，把默认版本落到实际存在的版本上：
-        // 否则默认站点与新项目会指向没装的 8.2，启动时报错。
-        foreach(var candidate in new[]{settings.PhpDefault,"8.2","8.5","8.0"})
+        // 否则默认站点与新项目会指向没装的 PHP，启动时报错。
+        foreach(var candidate in new[]{settings.PhpDefault,"8.5","8.2","8.0"})
             if(File.Exists(Path.Combine(root,"soft","php",candidate,"php-cgi.exe"))){settings.PhpDefault=candidate;break;}
         // 默认站点只在确实有内容时登记：完整包随包带默认站点，最小包不带（第一次新建项目时在线获取 CMS 模板）
         var defaultSite = Path.Combine(root, "wwwroot", "yikaicms.yikai");
@@ -105,8 +106,10 @@ public sealed partial class Settings
     {
         if(SchemaVersion < 2) SchemaVersion = 2;
         if(Language is not ("zh" or "en" or "ja")) Language = "zh";
+        // 0.7.6 起默认后台密码由 yikai888 改为 admin888；配置里还是旧默认值的，跟着换（用户自己改过的不动）
+        if(CmsAdminPassword == "yikai888") CmsAdminPassword = "admin888";
         if(WebServer is not ("nginx" or "apache")) WebServer = "nginx";
-        if(PhpDefault is not ("8.0" or "8.2" or "8.5")) PhpDefault = "8.2";
+        if(PhpDefault is not ("8.0" or "8.2" or "8.5")) PhpDefault = "8.5";
         if(MysqlActive is not ("mysql57" or "mysql80")) MysqlActive = "mysql80";
         if(Theme is not ("light" or "dark" or "system")) Theme = "light";
         FontSize = Math.Clamp(FontSize <= 0 ? 10f : FontSize, 9f, 13f);

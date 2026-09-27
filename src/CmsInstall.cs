@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace YikaiLocal;
 
 // 一键部署 YikaiCMS：项目创建后自动调用 CMS 自带的安装接口（POST /install/index.php, action=install），
-// 数据库连接用面板为该项目准备好的信息，后台账号默认 admin / yikai888。
+// 数据库连接用面板为该项目准备好的信息，后台账号默认 admin / admin888（panel.json 的 cmsAdminUser / cmsAdminPassword）。
 // 失败不阻塞项目创建：把 CMS 返回的原因写进日志，用户仍可在浏览器里完成安装。
 public sealed partial class Runtime
 {

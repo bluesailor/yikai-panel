@@ -5,23 +5,23 @@ public sealed partial class MainForm
     // initialKind：从“接入已有目录”入口打开时预选该类型（null 时按新建处理）
     void ProjectDialog(Site? site,string? initialKind=null)
     {
-        using var dialog=new Form{Name="projectEditor",Text=site==null?(initialKind=="import"?T("接入已有目录","Connect a folder","既存フォルダーを接続"):T("添加项目","Add project","追加")):T("项目设置","Project settings","設定"),ClientSize=new Size(760,692),Font=Font,AutoScaleMode=AutoScaleMode.Dpi,StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false,Icon=Icon};
+        using var dialog=new Form{Name="projectEditor",Text=site==null?(initialKind=="import"?T("接入已有目录","Connect a folder","既存フォルダーを接続"):T("新建项目","New project","新規プロジェクト")):T("项目设置","Project settings","設定"),ClientSize=new Size(760,692),Font=Font,AutoScaleMode=AutoScaleMode.Dpi,StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false,Icon=Icon};
         var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(24),ColumnCount=2,RowCount=12,Margin=Padding.Empty};layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,168));layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));dialog.Controls.Add(layout);
         for(var i=0;i<10;i++)layout.RowStyles.Add(new RowStyle(SizeType.Absolute,52));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,64));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,60));
         var title=new TextBox{Name="projectName",Text=site?.Title??""};var domain=new TextBox{Name="projectDomain",Text=site?.Domain??"",PlaceholderText="demo"+Settings.DefaultSuffix};
         InputFrame Input(TextBox editor)=>new(editor){Dock=DockStyle.Top,Height=36,Margin=new Padding(0,0,0,16)};
         Choice Select(string name,string[] values,int index){var c=new Choice{Name=name,Dock=DockStyle.Top,Height=36,Margin=new Padding(0,0,0,16)};c.Items.AddRange(values);c.SelectedIndex=index;return c;}
-        string[] kinds=["php","yikaicms","wordpress","import"];var kind=Select("projectKind",[T("空白 PHP","Blank PHP","空の PHP"),T("YikaiCMS（最新版）","YikaiCMS (latest)","YikaiCMS（最新版）"),T("WordPress（最新版）","WordPress (latest)","WordPress（最新版）"),T("接入已有目录","Existing folder","既存フォルダー")],Math.Max(0,Array.IndexOf(kinds,site?.Template??initialKind??"php")));string Kind()=>kinds[Math.Max(0,kind.SelectedIndex)];kind.Enabled=site==null;
+        string[] kinds=["php","yikaicms","wordpress","import"];var kind=Select("projectKind",[T("空白 PHP","Blank PHP","空の PHP"),T("YikaiCMS（最新版）","YikaiCMS (latest)","YikaiCMS（最新版）"),T("WordPress（最新版）","WordPress (latest)","WordPress（最新版）"),T("接入已有目录","Existing folder","既存フォルダー")],Math.Max(0,Array.IndexOf(kinds,site?.Template??initialKind??"yikaicms")));string Kind()=>kinds[Math.Max(0,kind.SelectedIndex)];kind.Enabled=site==null;
         // 只列实际装了的版本：最小包可能只有 8.5
         var installedPhp=runtime.InstalledPhpVersions;if(installedPhp.Length==0)installedPhp=["8.2"];
         var version=Select("projectPhp",installedPhp,0);
-        // 新项目使用“默认 PHP 版本”；YikaiCMS 需要 8.2+，默认 8.0 时回落到 8.2。用户手动改过版本后不再覆盖。
-        string DefaultPhp(){var wanted=Kind()=="yikaicms"&&settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault;return installedPhp.Contains(wanted)?wanted:installedPhp[0];}
+        // 新建项目优先使用 PHP 8.5；未安装时回退到实际存在的版本。已有项目保留原版本。
+        string DefaultPhp(){var wanted=installedPhp.Contains("8.5")?"8.5":Kind()=="yikaicms"&&settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault;return installedPhp.Contains(wanted)?wanted:installedPhp[0];}
         version.SelectedItem=site?.Php??DefaultPhp();bool versionTouched=false,applyingDefault=false;
         version.SelectedIndexChanged+=(_,_)=>{if(!applyingDefault)versionTouched=true;};
         kind.SelectedIndexChanged+=(_,_)=>{if(site!=null||versionTouched)return;applyingDefault=true;version.SelectedItem=DefaultPhp();applyingDefault=false;};
         var engine=Select("projectDatabase",["MySQL 8.0","MySQL 5.7","SQLite"],site?.Database=="mysql57"?1:site?.Database=="sqlite"?2:0);engine.Enabled=site==null;
-        // 项目数据库：新建时可自定义数据库名、专属用户和密码（默认按域名生成，密码随机）；已有项目只显示，不在这里修改。
+        // 项目数据库：新建时可自定义数据库名、专属用户和密码（默认按项目名生成同名数据库与用户，密码随机）；已有项目只显示，不在这里修改。
         var dbName=new TextBox{Name="projectDatabaseName",Text=site?.DatabaseName??"",ReadOnly=site!=null,MaxLength=64};
         var dbUser=new TextBox{Name="projectDatabaseUser",Text=site==null?"":site.DatabaseUser??settings.MysqlUser+T("（共用 root）"," (shared root)","（共有 root）"),ReadOnly=site!=null,MaxLength=32};
         var dbPassword=new TextBox{Name="projectDatabasePassword",Text=site==null?Settings.GeneratePassword():site.DatabasePassword??"—",ReadOnly=site!=null,MaxLength=64};
@@ -60,6 +60,20 @@ public sealed partial class MainForm
         var syncHosts=new CheckBox{Name="projectSyncHosts",Text=T("同步 hosts","Sync hosts","hosts を同期"),Checked=true,AutoSize=true,Margin=new Padding(0,10,0,0),Visible=site==null};
         if(site==null)extras.Controls.Add(syncHosts);
         string Host(){var value=domain.Text.Trim().ToLowerInvariant();return value.Contains('.')?value:value+Settings.DefaultSuffix;}
+        string DefaultDatabaseName()
+        {
+            // 数据库名与用户相同，均由项目名生成；点号等分隔符转下划线，控制在 MySQL 用户名的 32 字符内。
+            var stem=System.Text.RegularExpressions.Regex.Replace(title.Text.Trim().ToLowerInvariant(),"[^a-z0-9]+","_").Trim('_');
+            if(stem.Length==0)stem=System.Text.RegularExpressions.Regex.Replace(Host(),"[^a-z0-9]+","_").Trim('_');
+            if(stem.Length>32)stem=stem[..23]+"_"+Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(stem)))[..8].ToLowerInvariant();
+            var database=engine.SelectedIndex==1?"mysql57":"mysql80";
+            for(var n=1;;n++)
+            {
+                var suffix=n==1?"":"_"+n;
+                var candidate=stem[..Math.Min(stem.Length,32-suffix.Length)]+suffix;
+                if(settings.DatabaseProblem(database,candidate,candidate,"safe")==null)return candidate;
+            }
+        }
         domain.TextChanged+=(_,_)=>syncHosts.Enabled=Settings.NeedsHosts(Host());syncHosts.Enabled=Settings.NeedsHosts(Host());
         // 端口校验：空=自动；非空则查范围、与面板自身/其它项目冲突，以及是否被别的程序占用。
         // 占用判定用 PortDiagnostics：面板自己的 Web 服务器占用不算（编辑运行中的项目时就是它）。
@@ -94,10 +108,10 @@ public sealed partial class MainForm
             {
                 var mysql=engine.SelectedIndex!=2;
                 foreach(var box in new[]{dbName,dbUser,dbPassword})box.Enabled=mysql;regenerate.Enabled=mysql;
-                // 用户没手动改过时，数据库名和用户名跟随域名生成。
+                // 用户没手动改过时，数据库名和用户名从项目名生成。
                 applyingDbDefault=true;
-                if(!dbNameTouched)dbName.Text=valid?Settings.DatabaseNameFor(System.Text.RegularExpressions.Regex.Replace(host,"[^a-z0-9]","_")):"";
-                if(!dbUserTouched)dbUser.Text=dbName.Text.Length>0?Settings.DatabaseUserFor(dbName.Text):"";
+                if(!dbNameTouched)dbName.Text=valid?DefaultDatabaseName():"";
+                if(!dbUserTouched)dbUser.Text=dbName.Text;
                 applyingDbDefault=false;
                 if(mysql&&valid)dbProblem=settings.DatabaseProblem(engine.SelectedIndex==1?"mysql57":"mysql80",dbName.Text.Trim(),dbUser.Text.Trim(),dbPassword.Text);
             }
@@ -118,9 +132,101 @@ public sealed partial class MainForm
             if(importing)importedFolder=picker.SelectedPath;else newParent=picker.SelectedPath;
             UpdateFields();
         };
-        kind.SelectedIndexChanged+=(_,_)=>UpdateFields();version.SelectedIndexChanged+=(_,_)=>UpdateFields();domain.TextChanged+=(_,_)=>UpdateFields();engine.SelectedIndexChanged+=(_,_)=>UpdateFields();port.TextChanged+=(_,_)=>UpdateFields();
+        kind.SelectedIndexChanged+=(_,_)=>UpdateFields();version.SelectedIndexChanged+=(_,_)=>UpdateFields();title.TextChanged+=(_,_)=>UpdateFields();domain.TextChanged+=(_,_)=>UpdateFields();engine.SelectedIndexChanged+=(_,_)=>UpdateFields();port.TextChanged+=(_,_)=>UpdateFields();
         foreach(var box in new[]{dbName,dbUser,dbPassword})box.TextChanged+=(_,_)=>{if(!applyingDbDefault)UpdateFields();};UpdateFields();
         save.Click+=(_,_)=>{UpdateFields();if(save.Enabled)dialog.DialogResult=DialogResult.OK;};
+        if(site==null&&initialKind==null)
+        {
+            // 日常新建只问名称与程序；高级字段沿用原编辑器，展开时才显示。
+            var quick=new TableLayoutPanel{Name="quickCreateProject",Dock=DockStyle.Fill,Padding=new Padding(24),ColumnCount=1,RowCount=6,Margin=Padding.Empty};
+            quick.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            foreach(var height in new[]{28,48,28,48,68,52})quick.RowStyles.Add(new RowStyle(SizeType.Absolute,height));
+            var quickName=new TextBox{Name="quickProjectName",MaxLength=100,PlaceholderText=T("英文、数字、. 或 -，如 mysite1","Letters, digits, . or -, e.g. mysite1","英数字・.・-、例：mysite1")};
+            var quickKind=Select("quickProjectKind",[T("YikaiCMS（最新版）","YikaiCMS (latest)","YikaiCMS（最新版）"),T("WordPress（最新版）","WordPress (latest)","WordPress（最新版）")],0);
+            var quickNameFrame=Input(quickName);quickNameFrame.Margin=Padding.Empty;quickKind.Margin=Padding.Empty;
+            var quickHint=L("",9);quickHint.Name="quickProjectHint";quickHint.Dock=DockStyle.Fill;quickHint.AutoSize=false;quickHint.ForeColor=Muted;quickHint.Margin=new Padding(0,4,0,0);
+            var quickFooter=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=Padding.Empty};
+            quickFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));quickFooter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));
+            var more=new ThemeButton{Name="moreProjectSettings",Text=T("更多设置…","More settings…","詳細設定…"),Dock=DockStyle.Fill,Margin=new Padding(0,2,8,2)};
+            var confirm=new ThemeButton{Name="confirmQuickProject",Text=T("确认创建","Create project","作成する"),Dock=DockStyle.Fill,Margin=new Padding(8,2,0,2),BackColor=Palette.Accent};
+            quickFooter.Controls.Add(more,0,0);quickFooter.Controls.Add(confirm,1,0);
+            quick.Controls.Add(L(T("项目名称","Project name","プロジェクト名"),10),0,0);
+            quick.Controls.Add(quickNameFrame,0,1);
+            quick.Controls.Add(L(T("站点程序","Site software","サイトの種類"),10),0,2);
+            quick.Controls.Add(quickKind,0,3);
+            quick.Controls.Add(quickHint,0,4);
+            quick.Controls.Add(quickFooter,0,5);
+            // 项目名只收英文字母、数字、点和中划线：带点的直接当域名（如 shop.yikai），不带点的补 .localhost。
+            string SuggestedDomain(string name)
+            {
+                if(name.Contains('.'))return name.Trim().ToLowerInvariant();
+                var slug=System.Text.RegularExpressions.Regex.Replace(name.Trim().ToLowerInvariant(),"[^a-z0-9]+","-").Trim('-');
+                if(slug.Length==0)slug="site-"+Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(name)))[..8].ToLowerInvariant();
+                if(slug.Length>50)slug=slug[..50].TrimEnd('-');
+                var candidate=slug+Settings.DefaultSuffix;
+                for(var n=2;settings.Sites.Any(s=>s.Domain.Equals(candidate,StringComparison.OrdinalIgnoreCase))||Directory.Exists(Path.Combine(settings.Root,"wwwroot",candidate));n++)
+                    candidate=slug+"-"+n+Settings.DefaultSuffix;
+                return candidate;
+            }
+            void RefreshQuick()
+            {
+                var name=quickName.Text.Trim();
+                var problem=QuickNameProblem(name);
+                confirm.Enabled=name.Length>0&&problem==null;
+                quickHint.ForeColor=problem==null?Muted:Palette.Warning;
+                quickHint.Text=name.Length==0
+                    ? T("项目名只能用英文字母、数字、点（.）和中划线（-）。不带点时自动生成 .localhost 域名；带点时直接作为域名（如 shop.yikai）。默认 PHP 8.5、MySQL 8.0。","Use letters, digits, dots (.) and hyphens (-). Without a dot a .localhost domain is generated; with a dot the name is used as the domain (e.g. shop.yikai). Defaults: PHP 8.5 and MySQL 8.0.","英字・数字・ドット（.）・ハイフン（-）のみ使えます。ドットなしは .localhost ドメインを生成し、ドットありはそのままドメインになります（例：shop.yikai）。既定は PHP 8.5 / MySQL 8.0 です。")
+                    : problem ?? SuggestedDomain(name)+"  ·  PHP "+DefaultPhp()+"  ·  MySQL 8.0"+(installedPhp.Contains("8.5")?"":T("（未安装 PHP 8.5）"," (PHP 8.5 not installed)","（PHP 8.5 は未インストール）"));
+            }
+            string? QuickNameProblem(string name)
+            {
+                if(name.Length==0)return null;
+                if(!System.Text.RegularExpressions.Regex.IsMatch(name,"^[A-Za-z0-9.-]+$"))
+                    return T("项目名只能用英文字母、数字、点（.）和中划线（-），不能有中文、空格或其他符号。","Only letters, digits, dots (.) and hyphens (-) are allowed — no spaces or other characters.","英字・数字・ドット（.）・ハイフン（-）以外は使えません（日本語・空白・記号は不可）。");
+                var candidate=SuggestedDomain(name);
+                if(!char.IsAsciiLetterOrDigit(name[0])||!char.IsAsciiLetterOrDigit(name[^1])||name.Contains("..")||!Settings.ValidDomain(candidate))
+                    return T("开头和结尾要用字母或数字，点不能连用；带点时最后一段要以字母开头、至少两个字符，如 shop.yikai。","Start and end with a letter or digit, no double dots; with a dot the last part must start with a letter and have at least two characters, e.g. shop.yikai.","先頭と末尾は英数字、ドットの連続は不可。ドットありの場合、最後の部分は英字で始まる 2 文字以上にします（例：shop.yikai）。");
+                if(name.Contains('.')&&(settings.Sites.Any(s=>s.Domain.Equals(candidate,StringComparison.OrdinalIgnoreCase))||Directory.Exists(Path.Combine(settings.Root,"wwwroot",candidate))))
+                    return T($"{candidate} 已被其他项目或同名文件夹使用，请换一个。",$"{candidate} is already used by another project or folder.",$"{candidate} は他のプロジェクトかフォルダーで使用中です。");
+                return null;
+            }
+            void ApplyQuick()
+            {
+                var name=quickName.Text.Trim();
+                title.Text=name;
+                domain.Text=SuggestedDomain(name);
+                kind.SelectedIndex=quickKind.SelectedIndex==0?1:2;
+                version.SelectedItem=DefaultPhp();
+                engine.SelectedIndex=0;
+                UpdateFields();
+            }
+            quickName.TextChanged+=(_,_)=>RefreshQuick();
+            quickKind.SelectedIndexChanged+=(_,_)=>RefreshQuick();
+            more.Click+=(_,_)=>{
+                if(quickName.Text.Trim().Length>0)ApplyQuick();
+                quick.Visible=false;layout.Visible=true;layout.AutoScroll=true;
+                // Palette.Show 在弹出前按 DPI / 字号缩放过整个窗口；这里也须使用同一比例。
+                var scale=DeviceDpi/96f*Palette.LayoutScale;
+                var work=Screen.FromControl(this).WorkingArea;
+                var border=new Size(dialog.Width-dialog.ClientSize.Width,dialog.Height-dialog.ClientSize.Height);
+                var margin=(int)Math.Ceiling(32*scale);
+                dialog.ClientSize=new Size(
+                    Math.Min((int)Math.Ceiling(900*scale),Math.Max(1,work.Width-border.Width-2*margin)),
+                    Math.Min((int)Math.Ceiling(790*scale),Math.Max(1,work.Height-border.Height-2*margin)));
+                var owner=dialog.Owner?.Bounds??Bounds;
+                dialog.Location=new Point(
+                    Math.Clamp(owner.Left+(owner.Width-dialog.Width)/2,work.Left,Math.Max(work.Left,work.Right-dialog.Width)),
+                    Math.Clamp(owner.Top+(owner.Height-dialog.Height)/2,work.Top,Math.Max(work.Top,work.Bottom-dialog.Height)));
+                dialog.AcceptButton=save;title.Focus();
+            };
+            confirm.Click+=(_,_)=>{
+                if(quickName.Text.Trim().Length==0||QuickNameProblem(quickName.Text.Trim())!=null)return;
+                ApplyQuick();
+                if(save.Enabled)dialog.DialogResult=DialogResult.OK;
+                else quickHint.Text=hint.Text;
+            };
+            layout.Visible=false;dialog.Controls.Add(quick);dialog.ClientSize=new Size(540,320);dialog.AcceptButton=confirm;dialog.Shown+=(_,_)=>quickName.Focus();RefreshQuick();
+        }
         if(Palette.Show(dialog,this)!=DialogResult.OK)return;
         var chosenDomain=Host();var chosenPhp=version.Text;var chosenEngine=engine.SelectedIndex;var chosenKind=Kind();var chosenPath=path.Text;var chosenTitle=title.Text;
         var chosenDbName=dbName.Text.Trim();var chosenDbUser=dbUser.Text.Trim();var chosenDbPassword=dbPassword.Text;

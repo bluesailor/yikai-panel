@@ -2,23 +2,6 @@
 
 public sealed partial class MainForm
 {
-    // 左栏底部“新建 / 接入项目”按钮：点开是一个菜单。
-    // 新建/接入之外，把批量入口（扫描目录、PHPStudy 导入）也放在这里 —— 用户最常问的就是
-    // “我现成的站点目录怎么一次加进来”，入口只放在“工具”菜单里不容易找到。
-    void AttachAddProjectMenu(Button button)
-    {
-        var menu=new ContextMenuStrip{Font=Font};
-        AddMenuItem(menu.Items,T("新建 YikaiCMS / WordPress / 空白 PHP","New YikaiCMS, WordPress or blank PHP","新規プロジェクト（YikaiCMS / WordPress / PHP）"),"add",()=>ProjectDialog(null));menu.Items[^1].Name="addNewProject";
-        AddMenuItem(menu.Items,T("接入已有目录","Connect an existing folder","既存フォルダーを接続"),"folder",()=>ProjectDialog(null,"import"));menu.Items[^1].Name="attachExistingFolder";
-        AddMenuItem(menu.Items,T("扫描目录快速导入（批量）","Scan a folder to import many projects","フォルダーをスキャンして一括追加"),"search",()=>ScanFolderForProjects());menu.Items[^1].Name="scanFolderMenu";
-        menu.Items.Add(new ToolStripSeparator());
-        AddMenuItem(menu.Items,T("从 PHPStudy 导入","Import from PHPStudy","PHPStudy から取込"),"folder",()=>ShowPhpStudyImport());var phpStudyItem=menu.Items[^1];phpStudyItem.Name="importPhpStudy";
-        menu.Opening+=(_,_)=>{if(busy){menu.Close();return;}phpStudyItem.Visible=PhpStudyDetection.Detected();};
-        // 按钮在左下角，菜单往上弹，否则会被窗口底部截掉
-        button.Click+=(_,_)=>menu.Show(button,new Point(0,0),ToolStripDropDownDirection.AboveRight);
-        button.Disposed+=(_,_)=>menu.Dispose();
-    }
-
     void AttachProjectMenu()
     {
         var menu=new ContextMenuStrip{Font=Font};projects.ContextMenuStrip=menu;
@@ -37,6 +20,7 @@ public sealed partial class MainForm
                 menu.Items.Add(new ToolStripSeparator());
                 Add(start.Text,"play",()=>start.PerformClick(),start.Enabled);Add(stop.Text,"stop",()=>stop.PerformClick(),stop.Enabled);Add(edit.Text,"settings",()=>edit.PerformClick());
                 Add(T("后台入口设置","Admin entry settings","管理入口設定"),"settings",()=>_ = ConfigureBackend(site));
+                if(site.Template=="yikaicms")Add(T($"重置后台管理员（{settings.CmsAdminUser} / {settings.CmsAdminPassword}）…",$"Reset admin account ({settings.CmsAdminUser} / {settings.CmsAdminPassword})…",$"管理者をリセット（{settings.CmsAdminUser} / {settings.CmsAdminPassword}）…"),"login",()=>ResetCmsAdmin(site),CmsInstalled(site));
                 Add(T("重新计算目录大小","Recalculate folder size","容量を再計算"),"disk",()=>_ = MeasureSelectedDirectory(true));
                 Add(T("伪静态配置","URL rewrite","リライトルール"),"settings",()=>RewriteDialog(site));
                 Add(T("复制网址","Copy URL","URL をコピー"),"globe",()=>Clipboard.SetText(runtime.SiteUrl(site)));

@@ -2,8 +2,9 @@ namespace YikaiLocal;
 
 public sealed partial class MainForm
 {
-    ProjectInfoLabel backendDetail=null!,directoryDetail=null!,siteUpdateDetail=null!;
-    Button backendSettings=null!,directoryRefresh=null!,checkSiteUpdate=null!;
+    ProjectInfoLabel backendDetail=null!,directoryDetail=null!,siteUpdateDetail=null!,adminAccountDetail=null!;
+    Button backendSettings=null!,directoryRefresh=null!,checkSiteUpdate=null!,resetAdmin=null!;
+    TableLayoutPanel projectDetails=null!;
     readonly Dictionary<string,DirectorySizeResult> directorySizes=new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string,string> directoryErrors=new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string,SiteUpdateResult> siteUpdateResults=new(StringComparer.OrdinalIgnoreCase);
@@ -14,28 +15,35 @@ public sealed partial class MainForm
     void AddProjectDetails(TableLayoutPanel card,int row)
     {
         // 与上面的信息行共用标题列宽；整块限制在卡片内容宽度内，右侧按钮不会被拉到宽屏边缘。
-        var details=new TableLayoutPanel{Dock=DockStyle.Fill,MaximumSize=new Size(Px(CardContentWidth),0),ColumnCount=2,RowCount=3,Margin=Padding.Empty};details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));details.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,Px(300)));for(var i=0;i<3;i++)details.RowStyles.Add(new RowStyle(SizeType.Absolute,Px(40)));
+        // 行：0 后台 · 1 管理员（仅已装 YikaiCMS）· 2 容量 · 3 更新（仅识别出 CMS / WordPress）；隐藏的行高度设为 0，不留空档。
+        var details=new TableLayoutPanel{Dock=DockStyle.Fill,MaximumSize=new Size(Px(CardContentWidth),0),ColumnCount=2,RowCount=4,Margin=Padding.Empty};details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));details.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,Px(300)));for(var i=0;i<4;i++)details.RowStyles.Add(new RowStyle(SizeType.Absolute,Px(40)));projectDetails=details;
         ProjectInfoLabel Detail(string name)=>new(){Name=name,Font=new Font(Font.FontFamily,Fs(9.5f)),ForeColor=Ink,Dock=DockStyle.Fill,CaptionWidth=CaptionColumn};
-        backendDetail=Detail("backendDetail");directoryDetail=Detail("directoryDetail");siteUpdateDetail=Detail("siteUpdateDetail");
+        backendDetail=Detail("backendDetail");directoryDetail=Detail("directoryDetail");siteUpdateDetail=Detail("siteUpdateDetail");adminAccountDetail=Detail("adminAccountDetail");
+        resetAdmin=B(T("重置管理员","Reset admin","管理者をリセット"),()=>{if(Selected is {} s&&CmsInstalled(s))ResetCmsAdmin(s);},icon:"lock");resetAdmin.Name="resetCmsAdmin";
         backendSettings=B(T("后台入口","Admin entry","管理入口"),()=>{if(Selected is {} s)_=ConfigureBackend(s);},icon:"settings");backendSettings.Name="backendSettings";
         directoryRefresh=B(T("重新计算","Recalculate","再計算"),()=>_ = MeasureSelectedDirectory(true),icon:"sync");directoryRefresh.Name="refreshDirectorySize";
         checkSiteUpdate=B(T("检测更新","Check updates","更新を確認"),()=>_ = CheckSelectedSiteUpdate(),icon:"sync");checkSiteUpdate.Name="checkSiteUpdate";
-        foreach(var button in new[]{backendSettings,directoryRefresh,checkSiteUpdate}){button.Font=new Font(Font.FontFamily,Fs(9f));button.Dock=DockStyle.Fill;button.FlatAppearance.BorderSize=0;button.BackColor=Palette.Card;button.Margin=new Padding(0,0,24,6);}
-        details.Controls.Add(backendDetail,0,0);details.Controls.Add(backendSettings,1,0);details.Controls.Add(directoryDetail,0,1);details.Controls.Add(directoryRefresh,1,1);card.Controls.Add(details,0,row);
-        details.Controls.Add(siteUpdateDetail,0,2);details.Controls.Add(checkSiteUpdate,1,2);
+        foreach(var button in new[]{backendSettings,resetAdmin,directoryRefresh,checkSiteUpdate}){button.Font=new Font(Font.FontFamily,Fs(9f));button.Dock=DockStyle.Fill;button.FlatAppearance.BorderSize=0;button.BackColor=Palette.Card;button.Margin=new Padding(0,0,24,6);}
+        details.Controls.Add(backendDetail,0,0);details.Controls.Add(backendSettings,1,0);details.Controls.Add(adminAccountDetail,0,1);details.Controls.Add(resetAdmin,1,1);details.Controls.Add(directoryDetail,0,2);details.Controls.Add(directoryRefresh,1,2);card.Controls.Add(details,0,row);
+        details.Controls.Add(siteUpdateDetail,0,3);details.Controls.Add(checkSiteUpdate,1,3);
+        serviceTips.SetToolTip(resetAdmin,T("把后台管理员恢复成默认账号密码：启用账号、设为超级管理员、关闭两步验证、解除登录锁定。","Restore the admin account to the default user and password: enable it, make it a super administrator, turn off two-step verification and clear login lockouts.","管理者を既定のユーザーとパスワードに戻します（有効化・スーパー管理者・2 段階認証の解除・ログインロック解除）。"));
         serviceTips.SetToolTip(directoryRefresh,T("计算项目目录内文件的总大小；不包含独立 MySQL 数据，跳过目录链接。","File sizes in the project folder; excludes external MySQL data and links.","フォルダー内のファイル容量。外部 MySQL データとリンクは対象外。"));
         serviceTips.SetToolTip(checkSiteUpdate,T("仅检测 YikaiCMS / WordPress 核心程序更新；不会下载或安装。","Checks YikaiCMS / WordPress core updates only; does not download or install.","YikaiCMS / WordPress 本体の更新のみ確認します。ダウンロードやインストールは行いません。"));
     }
     void RefreshProjectDetails()
     {
         if(building||IsDisposed||backendDetail==null)return;
-        var site=Selected;backendSettings.Enabled=directoryRefresh.Enabled=!busy&&site!=null;
+        var site=Selected;backendSettings.Enabled=directoryRefresh.Enabled=resetAdmin.Enabled=!busy&&site!=null;
+        var cms=site!=null&&CmsInstalled(site);
+        resetAdmin.Visible=adminAccountDetail.Visible=cms;projectDetails.RowStyles[1].Height=cms?Px(40):0;
+        adminAccountDetail.Text=cms?T("管理员","Admin user","管理者")+"\t"+T($"忘记密码或账号被锁时，可恢复为 {settings.CmsAdminUser} / {settings.CmsAdminPassword}",$"Forgot the password or locked out? Restore {settings.CmsAdminUser} / {settings.CmsAdminPassword}",$"パスワードを忘れた・ロックされた場合は {settings.CmsAdminUser} / {settings.CmsAdminPassword} に戻せます"):"";
         var admin=T("后台","Admin","管理")+"\t";var capacity=T("容量","Size","容量")+"\t";
         backendDetail.Text=site==null?"":admin+(string.IsNullOrWhiteSpace(site.AdminPath)?T("点击右侧按钮识别，或打开后台时自动记录","Detected when you open the admin page","管理画面を開くと自動検出"):site.AdminPath+T(" · 已记录"," · Saved"," · 記録済み"));
         serviceTips.SetToolTip(backendDetail,site==null?"":site.AdminPath+"\n"+site.AdminPathSource+(site.AdminPathRecordedAt is {} date?"\n"+date.ToLocalTime().ToString("g"):""));
-        if(site==null){directoryDetail.Text=siteUpdateDetail.Text="";checkSiteUpdate.Visible=false;projectCard.RowStyles[4].Height=Px(84);directoryCancellation?.Cancel();return;}
+        if(site==null){directoryDetail.Text=siteUpdateDetail.Text="";checkSiteUpdate.Visible=false;projectDetails.RowStyles[3].Height=0;projectCard.RowStyles[4].Height=Px(84);directoryCancellation?.Cancel();return;}
         var installation=SiteUpdates.Detect(site.Directory);
-        checkSiteUpdate.Visible=installation!=null;projectCard.RowStyles[4].Height=Px(installation==null?84:124);
+        checkSiteUpdate.Visible=installation!=null;projectDetails.RowStyles[3].Height=installation==null?0:Px(40);
+        projectCard.RowStyles[4].Height=Px(84+(installation==null?0:40)+(cms?40:0));
         siteUpdateDetail.ForeColor=Ink;
         if(installation==null)siteUpdateDetail.Text="";
         else

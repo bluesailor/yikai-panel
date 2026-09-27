@@ -11,8 +11,9 @@ public static class BundledDatabaseTools
         // <root>/temp/sessions-phpmyadmin，PHP 不会自建它。缺了目录 session 起不来（session_start 返回 false），
         // CSRF 每次请求都会重新生成，备份 / 恢复 / 执行 SQL 全部被挡成 403。这里每次启动都补建一次。
         Directory.CreateDirectory(Path.Combine(root,"temp","sessions-phpmyadmin"));
-        EnsureFiles(root,["common.php","index.php","install-prefill.php","adminer.php","phpstudy-transfer.php","database-transfer.php","database-scan.php","root-config-sync.php"]);
+        EnsureFiles(root,["common.php","index.php","install-prefill.php","adminer.php","phpstudy-transfer.php","database-transfer.php","database-scan.php","root-config-sync.php","cms-admin-reset.php"]);
     }
+    public static void EnsureCmsAdminTool(string root)=>EnsureFiles(root,["cms-admin-reset.php"]);
     public static void EnsureImportTools(string root)=>EnsureFiles(root,["phpstudy-transfer.php","database-transfer.php","database-scan.php"]);
     static void EnsureFiles(string root,string[] names)
     {

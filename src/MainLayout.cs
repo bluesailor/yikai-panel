@@ -38,9 +38,8 @@ public sealed partial class MainForm
         var filter=new CheckBox{Name="starFilter",Text=T("仅看星标","Starred only","スターのみ"),Dock=DockStyle.Fill,Checked=starredOnly,Font=new Font(Font.FontFamily,Fs(10f)),Margin=Padding.Empty};filter.CheckedChanged+=(_,_)=>{starredOnly=filter.Checked;PopulateProjects();};searchArea.Controls.Add(filter,0,1);left.Controls.Add(searchArea,0,2);search.TextChanged+=(_,_)=>PopulateProjects();
         projects=new ListBox{Name="projects",Dock=DockStyle.Fill,BorderStyle=BorderStyle.None,DrawMode=DrawMode.OwnerDrawFixed,ItemHeight=Px(76),IntegralHeight=false,BackColor=Palette.Surface,Margin=new Padding(0,8,0,12)};
         projects.DrawItem+=DrawProject;projects.SelectedIndexChanged+=(_,_)=>{if(!building){selectedId=Selected?.Id;RefreshState();}};left.Controls.Add(projects,0,3);AttachProjectMenu();AttachProjectStars();
-        // 左栏底部是唯一的添加入口：点开菜单里既有新建/接入，也有“扫描目录快速导入”批量添加（见 AttachAddProjectMenu）。
-        // 末尾的 ▾ 是提示“这里点开是菜单”，不是直接进新建窗口。
-        var add=(ThemeButton)B(T("新建 / 接入项目 ▾","Add project ▾","新規 / 接続 ▾"),()=>{ },primary:true,icon:"add");add.Name="addProject";add.Dock=DockStyle.Bottom;add.Height=Px(48);add.Margin=Padding.Empty;add.CenterContent=true;add.CornerRadius=8f;add.Font=new Font(Font.FontFamily,Fs(10.5f),FontStyle.Bold);left.Controls.Add(add,0,4);AttachAddProjectMenu(add);
+        // 主要入口直接打开简化的新建窗口；接入、扫描和 PHPStudy 导入留在顶部“工具”。
+        var add=(ThemeButton)B(T("新建项目","New project","新規プロジェクト"),()=>ProjectDialog(null),primary:true,icon:"add");add.Name="addProject";add.Dock=DockStyle.Bottom;add.Height=Px(48);add.Margin=Padding.Empty;add.CenterContent=true;add.CornerRadius=8f;add.Font=new Font(Font.FontFamily,Fs(10.5f),FontStyle.Bold);left.Controls.Add(add,0,4);
 
         // 顶部不再放“本地项目”标题和项目数量：左栏已有名称和“项目 N · 运行 N”，这里只留一行环境状态。
         var right=new TableLayoutPanel{Name="projectWorkspace",AutoScroll=true,Dock=DockStyle.Fill,BackColor=Palette.Workspace,Padding=new Padding(24,16,24,12),ColumnCount=1,RowCount=4,Margin=Padding.Empty};

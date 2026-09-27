@@ -20,7 +20,7 @@ public sealed partial class MainForm
         if(site==null)
         {
             chips.Set();info.WarnLines=[];info.CaptionWidth=0;info.ClearActions();
-            info.Text=T("新建 YikaiCMS、空白 PHP，或接入已有目录。","Create YikaiCMS, a blank PHP project, or connect a folder.","YikaiCMS、PHP、既存フォルダーを追加できます。");
+            info.Text=T("新建 YikaiCMS 或 WordPress；其它选项在“更多设置”，接入已有目录在“工具”。","Create YikaiCMS or WordPress. More options are in More settings; connect a folder from Tools.","YikaiCMS または WordPress を作成。詳細設定や既存フォルダーの接続は「ツール」から。");
             projectCard.RowStyles[3].Height=info.LineHeight+8;serviceTips.SetToolTip(info,"");return;
         }
         var running=runtime.IsRunning(site);

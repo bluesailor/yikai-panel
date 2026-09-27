@@ -86,7 +86,7 @@ dotnet publish YikaiPHP.csproj -c Release -r win-x64 `
 | `Card` / `Selected` / `Input` | `#FFFFFF` | 项目卡片、选中项目、输入框 |
 | `Divider` / `Border` | `#E8E4DD` / `#DDD8CF` | 卡片与选中项细边框 / 按钮与输入框边框 |
 | `ButtonFill` / `ButtonHover` / `ButtonPressed` | `#F7F5F1` / `#EDE9E3` / `#E4DFD7` | 普通按钮 |
-| `Accent` / `AccentHover` / `OnAccent` | `#2B2A27` / `#3B3935` / `#FAF9F6` | 主按钮（新建 / 接入项目） |
+| `Accent` / `AccentHover` / `OnAccent` | `#2B2A27` / `#3B3935` / `#FAF9F6` | 主按钮（新建项目） |
 | `Brand` / `Link` | `#A04830` | 网址、YikaiCMS 版本徽标、星标、输入焦点框 |
 | `Text` / `Secondary` | `#1F1E1C` / `#6B665F` | 正文 / 辅助文字 |
 | `Success` / `Warning` | `#2F6B4A` / `#85581A` | 运行中 / 警告状态 |
@@ -95,4 +95,4 @@ dotnet publish YikaiPHP.csproj -c Release -r win-x64 `
 
 截图与三语界面检查：`preparation/ui-warm-palette/`。数据库管理网页（`Assets/DatabaseTools/style.css`）尚未同步此配色。
 
-按钮规则（src/ThemeButton.cs）：带图标的按钮图标 + 文字靠左；纯文字按钮（对话框底部等）居中；主按钮（Accent 近黑底）文字加粗、无浅色描边，禁用时保持同一形态、底色按 32% 浓度淡化；默认圆角 6，左栏“新建 / 接入项目”为 48 高、圆角 8、内容居中；键盘焦点为赤陶色圆角描边。截图：preparation/ui-dialog-buttons/。
+按钮规则（src/ThemeButton.cs）：带图标的按钮图标 + 文字靠左；纯文字按钮（对话框底部等）居中；主按钮（Accent 近黑底）文字加粗、无浅色描边，禁用时保持同一形态、底色按 32% 浓度淡化；默认圆角 6，左栏“新建项目”为 48 高、圆角 8、内容居中；键盘焦点为赤陶色圆角描边。截图：preparation/ui-dialog-buttons/。

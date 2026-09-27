@@ -10,7 +10,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 [官网](https://panel.yikai.cn) · [下载安装包](https://panel.yikai.cn) · [问题反馈](https://github.com/bluesailor/yikai-panel/issues)
 
-当前源码版本 **0.7.4** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
+当前版本 **0.7.7** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
 
 </div>
 
@@ -22,8 +22,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 两套 MySQL、SQLite、数据库管理页面、HTTPS 本地证书、伪静态编辑、PHP 扩展勾选、局域网访问。
 面向不熟悉服务器配置的人：不用命令行、不用 Docker、不用 WSL、不用自己配 Nginx 和 php.ini。
 
-- **一条路走到能访问**：新建项目 → 自动建目录、建库、建站点配置 → 点“打开网站”。
-  项目类型可选空白 PHP（默认）、YikaiCMS 最新版、WordPress 最新版（从 wordpress.org 官方下载并校验，自动生成 `wp-config.php`），或接入已有目录。
+- **一条路走到能访问**：点“新建项目”，填写项目名（建议英文或数字），选最新版 YikaiCMS 或 WordPress，确认后自动建目录、建库、建站点配置。默认 PHP 8.5、MySQL 8.0；域名自动生成为 `.localhost`，数据库名和数据库用户均由项目名生成且同名（项目名中的点号转为下划线）。其它选项（包括空白 PHP）在“更多设置”。WordPress 从 wordpress.org 官方下载并校验，自动生成 `wp-config.php`。接入已有目录在顶部“工具”。
 - **每个项目独立**：自己的域名、PHP 版本、数据库、HTTPS、伪静态规则，互不影响。
 - **域名不用管 hosts**：名字不带后缀时默认补 `.localhost`（如 `demo.localhost`），浏览器直接解析到本机，不写 hosts、不弹管理员授权。
   需要 `.yikai` 这类域名时，勾选新建对话框里的“同步 hosts”，建完自动写入（Windows 会请求一次管理员授权）。
@@ -35,7 +34,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 - **出问题能自查**：“工具 → 端口排查”列出每个端口现在被谁占着（进程名 + PID）并支持一键复制诊断信息；
   启动失败会指名端口占用者并附上服务日志。
 - **从 PHPStudy 搬项目**：扫描现有 PHPStudy 站点，把文件与数据库（含空表、视图、触发器、存储过程）复制成独立项目，原环境不动。
-- **扫描目录快速导入**：已经在本机、从别处复制过来的站点目录，不用一个个接入——点“新建 / 接入项目 → 扫描目录快速导入”，选个目录，面板列出里面的子目录让你勾选，一次登记成项目。
+- **扫描目录快速导入**：已经在本机、从别处复制过来的站点目录，不用一个个接入——点“工具 → 扫描目录添加项目”，选个目录，面板列出里面的子目录让你勾选，一次登记成项目。
   名字带点的目录直接用目录名当域名（`demo.yikai`）；不带点的英文/数字/`-`/`_` 名字可以勾选“同时添加不带点的目录”自动补 `.localhost`（`yikaiflow` → `yikaiflow.localhost`），中文、空格、隐藏目录会跳过并逐条写明原因。登记只写面板配置：不复制文件、不覆盖目录里已有的 `index.php`。
 - **三语界面**：中文 / English / 日本語，深浅主题、字号、编程字体都可调。
 
@@ -46,7 +45,9 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 1. 从官方地址下载最新版 YikaiCMS（默认 `https://down.yikai.cn/soft/yikaicms/yikaicms-latest.zip`，可在 `config/panel.json` 的 `cmsPackageUrl` 改）并缓存到 `soft/cache`，同版本不重复下载；
 2. 建目录、建数据库（MySQL 8.0 / 5.7 或 SQLite，可带项目专属数据库账号）；
 3. 启动后调用 CMS 自带的安装接口写 `config/config.php`、建表并创建管理员；
-4. 页面提示 `CMS 已安装 · 后台 admin / yikai888`，直接点“打开后台”就能登录。
+4. 页面提示 `CMS 已安装 · 后台 admin / admin888`，直接点“打开后台”就能登录。
+
+忘了后台密码、账号被锁或两步验证丢了：在项目上点右键 →“重置后台管理员（admin / admin888）”，一键恢复成默认账号密码（启用账号、设为超级管理员、关闭它的两步验证、解除登录锁定；账号不存在时自动新建，其他管理员不动）。
 
 后台账号可在 `panel.json` 里改（`cmsAdminUser` / `cmsAdminPassword`），关掉自动安装用 `autoInstallCms: false`。
 下载失败时不再阻塞：会改写日志说明原因（含 HTTP 状态码），此时项目仍可在浏览器里用安装向导完成；本机已有缓存或随包模板时优先离线使用。
@@ -55,7 +56,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 ## 最小环境包（nginx + PHP 8.5 + MySQL 8.0）
 
-`packages\YikaiPanel-0.7.0-minimal-setup-x64.exe`（约 80 MB，完整包约 171 MB）：
+`YikaiPanel-<版本>-minimal-setup-x64.exe`（约 80 MB，完整包约 165 MB，含 HeidiSQL）：
 
 - 只带 Nginx、PHP 8.5、MySQL 8.0、面板本体、数据库页面；不含 Apache、MySQL 5.7、PHP 8.0 / 8.2、CMS 模板与默认站点；
 - 首次新建 YikaiCMS 项目时在线获取 CMS（需要联网），之后走缓存；
