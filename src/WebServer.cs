@@ -15,13 +15,14 @@ public sealed partial class Runtime
     public string[] InstalledPhpVersions=>PhpVersions.Where(PhpInstalled).ToArray();
     public bool MysqlInstalled(string kind)=>File.Exists(Path.Combine(Root,"soft","mysql",Settings.DatabaseVersion(kind),"bin","mysqld.exe"));
     // 面板自己用哪个 PHP 跑数据库页面与检查脚本：优先 8.2（完整包），否则用默认版本，再否则用已安装的最高版本。
+    // 注意 8.2 必须排在“默认版本”前面：新建项目默认 PHP 8.5 后，按默认版本选会让数据库页面换成 8.5（0.7.6–0.7.8 的 bug）。
     // 最小包可以只带 PHP 8.5，这条规则保证面板自身功能不依赖某个固定版本。
     public string InternalPhpVersion => InternalPhpVersionFor(Settings);
     // 静态版本：PhpStudyImport 等非 Runtime 代码也要用同一套解析
     public static string InternalPhpVersionFor(Settings settings)
     {
         var root=settings.Root;
-        foreach(var candidate in new[]{settings.PhpDefault,"8.2","8.5","8.0"})
+        foreach(var candidate in new[]{"8.2",settings.PhpDefault,"8.5","8.0"})
             if(File.Exists(Path.Combine(root,"soft","php",candidate,"php-cgi.exe")))return candidate;
         return settings.PhpDefault;
     }

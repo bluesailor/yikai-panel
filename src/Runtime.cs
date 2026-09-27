@@ -209,7 +209,8 @@ public sealed partial class Runtime(Settings settings)
     {
         // 数据库页面脚本随面板更新；本机被手动改过时保留原文件，只记录日志，不阻止启动。
         try{BundledDatabaseTools.Ensure(Root);}catch(IOException e){Log("Database tools not updated · "+e.Message);}
-        Start("php-db",Path.Combine(Root,"soft","php",InternalPhpVersion,"php-cgi.exe"),"-c",Path.Combine(Root,"config","phpmyadmin-php.ini"),"-d",NoOpcache,"-b",$"127.0.0.1:{Settings.DbFastCgiPort}");
+        // 随包的 phpmyadmin-php.ini 把 extension_dir 写死成某个版本；这里按实际使用的 PHP 版本覆盖，避免 8.5 加载 8.2 的扩展（弹“无法定位程序输入点”）。
+        Start("php-db",Path.Combine(Root,"soft","php",InternalPhpVersion,"php-cgi.exe"),"-c",Path.Combine(Root,"config","phpmyadmin-php.ini"),"-d",NoOpcache,"-d","extension_dir="+Slash(Path.Combine(Root,"soft","php",InternalPhpVersion,"ext")),"-b",$"127.0.0.1:{Settings.DbFastCgiPort}");
         await WaitPort("php-db",Settings.DbFastCgiPort);
     }
     // 默认一起启动：所选 Web 服务器、启用项目的 PHP、所选 MySQL，以及项目用到的另一版本 MySQL。

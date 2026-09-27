@@ -1,3 +1,7 @@
+# 易开面板 0.7.9 — 开发中
+
+- 修复：默认 PHP 版本是 8.5 时（0.7.6 起新装默认如此），数据库页面的 php-cgi 会换成 8.5，但随包 `phpmyadmin-php.ini` 的扩展目录写死为 8.2，启动时弹出“无法定位程序输入点 empty_fcall_info 于 …\8.2\ext\php_curl.dll”。现在面板自用的 PHP 优先 8.2（与注释约定一致），并且启动数据库页面时按实际版本传入 `extension_dir`，版本怎么换都不会加载错扩展。
+
 # 易开面板 0.7.8 — 已发布（2026-09-27）
 
 - 修复：面板启动的 php-cgi 一律关闭 OPcache（`-d opcache.enable=0`）。PHP 8.5 起 OPcache 编进主程序且默认开启，Windows 上已有 PHP 8.5 的 php-cgi 在跑时，再起一个会因共享内存地址随机化报“Opcode handlers are unusable due to ASLR”直接退出——同时跑两个 PHP 8.5 站点、或 PHP 8.5 站点加数据库页面时会随机启动失败（最简包只有 PHP 8.5，新建项目也默认 8.5）。本地开发不需要字节码缓存，关闭后改完代码立即生效。
