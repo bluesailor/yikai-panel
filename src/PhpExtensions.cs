@@ -29,7 +29,8 @@ public sealed partial class Runtime
         var list=new List<PhpExtensionInfo>();
         var folder=Path.Combine(Root,"soft","php",version,"ext");
         if(!Directory.Exists(folder))return list;
-        var ini=File.Exists(PhpIniPath(version))?File.ReadAllText(PhpIniPath(version)):"";
+        // 统一换行再匹配：随包 php.ini 是 CRLF，而正则的 $ 只认 \n 前的位置，不统一会把所有扩展都读成“未启用”
+        var ini=File.Exists(PhpIniPath(version))?File.ReadAllText(PhpIniPath(version)).ReplaceLineEndings("\n"):"";
         foreach(var file in Directory.EnumerateFiles(folder,"php_*.dll").Select(Path.GetFileName).OrderBy(f=>f,StringComparer.OrdinalIgnoreCase))
         {
             var name=ExtensionNameOf(file!);
