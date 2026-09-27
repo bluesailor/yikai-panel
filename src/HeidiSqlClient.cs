@@ -58,13 +58,30 @@ public sealed partial class MainForm
         return sb.Append(salt).ToString();
     }
 
-    // 新建 YikaiCMS / WordPress 项目前准备程序文件，进度显示在状态栏。
-    async Task<string?> DownloadProjectSource(string kind)
+    // 新建 YikaiCMS / WordPress 项目前准备程序文件。
+    // 下载时在左侧列表顶部放一个占位行（项目名 + 进度 + 进度条），比状态栏里的一行字醒目；下载结束就移除。
+    // 下载放到线程池里跑：在界面线程上跑时，每读一块数据都要排进消息队列，Windows 只在队列空时重绘，
+    // 进度数字会一直停在 0%，直到下载完或鼠标一动才刷新。
+    async Task<string?> DownloadProjectSource(string kind,Site placeholder)
     {
-        var report=new Progress<string>(text=>{if(!IsDisposed)progress.Text=text;});
-        return kind switch{
-            "yikaicms"=>await ProjectSources.YikaiCmsAsync(settings,report,CancellationToken.None),
-            "wordpress"=>await ProjectSources.WordPressAsync(settings,report,CancellationToken.None),
-            _=>null};
+        if(kind is not ("yikaicms" or "wordpress"))return null;
+        pendingProject=placeholder;pendingProgress=T("准备下载…","Preparing download…","ダウンロード準備中…");
+        projects.Items.Insert(0,placeholder);projects.TopIndex=0;
+        var report=new Progress<string>(text=>{
+            if(IsDisposed)return;
+            progress.Text=text;pendingProgress=text;
+            if(projects.Items.Count>0&&ReferenceEquals(projects.Items[0],pendingProject))projects.Invalidate(projects.GetItemRectangle(0));
+        });
+        try
+        {
+            return kind=="yikaicms"
+                ?await Task.Run(()=>ProjectSources.YikaiCmsAsync(settings,report,CancellationToken.None))
+                :await Task.Run(()=>ProjectSources.WordPressAsync(settings,report,CancellationToken.None));
+        }
+        finally
+        {
+            if(!IsDisposed&&projects.Items.Contains(placeholder))projects.Items.Remove(placeholder);
+            pendingProject=null;pendingProgress="";
+        }
     }
 }

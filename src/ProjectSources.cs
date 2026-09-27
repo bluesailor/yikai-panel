@@ -5,8 +5,9 @@ using System.Text.Json;
 
 namespace YikaiLocal;
 
-// 新建项目的程序来源：YikaiCMS 优先从面板配置的下载地址（默认 down.yikai.cn，国内更稳）取最新版，
-// 该地址不可用时改用 GitHub Release（按 SHA-256 校验），再不行回落随包模板；
+// 新建项目的程序来源：YikaiCMS 依次尝试——本机还没有模板时先取面板配置的下载地址（默认 down.yikai.cn）；
+// 否则先问 YikaiCMS 官方更新服务器（国内，给出版本、完整包地址与 SHA-256），再退到 GitHub Release（SHA-256），
+// 再退到 down.yikai.cn，最后用本机已有版本；
 // WordPress 取 wordpress.org 官方最新版（按官方 .sha1 校验）。解压结果缓存在 soft\cache，同版本不重复下载。
 public static class ProjectSources
 {
@@ -51,6 +52,9 @@ public static class ProjectSources
             if(mirrored!=null)return mirrored;
         }
         var local=NewestLocal(settings);
+        // 先走 YikaiCMS 官方更新服务器（国内机房）：它给出最新版本、国内下载地址和 SHA-256。
+        // GitHub 在中国大陆经常很慢，只在更新服务器不可用时才用。
+        if(await UpdateServerCmsAsync(settings,local,status,token) is {} fromUpdateServer)return fromUpdateServer;
         try
         {
             using var client=Client();
@@ -73,6 +77,40 @@ public static class ProjectSources
             var mirrored=await MirrorCmsAsync(settings,status,token,(string?)null);
             if(mirrored!=null)return mirrored;
             status.Report("YikaiCMS · "+Tr(settings,"无法获取最新版，使用本机已有版本","Latest version unavailable; using the local copy","最新版を取得できないためローカル版を使用"));return local;
+        }
+    }
+
+    const string CmsUpdateCheck="https://update.yikaicms.com/api/update/check.php";
+
+    // 从 YikaiCMS 更新服务器取最新完整包：check.php 返回 latest_version、download_url（完整包）和 hash（sha256:...）。
+    // 本机已有同版本或更新的模板直接用本机的；服务器不可用、不给完整包地址或校验值时返回 null，交给 GitHub 兜底。
+    static async Task<string?> UpdateServerCmsAsync(Settings settings,string local,IProgress<string> status,CancellationToken token)
+    {
+        try
+        {
+            using var client=Client();
+            status.Report("YikaiCMS · "+Tr(settings,"检查最新版本…","Checking for the latest version…","最新版を確認中…"));
+            var have=CmsVersion.Detect(local);
+            var query=$"{CmsUpdateCheck}?version={Uri.EscapeDataString(have??"1.0.0")}&channel=stable&domain=localhost&site_name=&php=8.2&source=yikai-panel";
+            using var doc=JsonDocument.Parse(await client.GetStringAsync(query,token));
+            if(!doc.RootElement.TryGetProperty("code",out var code)||code.ValueKind!=JsonValueKind.Number||code.GetInt32()!=0)return null;
+            if(!doc.RootElement.TryGetProperty("data",out var data)||data.ValueKind!=JsonValueKind.Object)return null;
+            var version=data.TryGetProperty("latest_version",out var v)?v.GetString():null;
+            if(version==null||!Version.TryParse(version,out var latest))return null;
+            if(have!=null&&Version.TryParse(have,out var haveVersion)&&haveVersion>=latest)return local;
+            var target=Path.Combine(settings.Root,"soft","cache","yikaicms-"+latest);
+            if(File.Exists(Path.Combine(target,"config","version.php")))return target;
+            var url=data.TryGetProperty("download_url",out var u)?u.GetString():null;
+            var hash=data.TryGetProperty("hash",out var h)?h.GetString():null;
+            if(url==null||hash==null||!hash.StartsWith("sha256:")||hash.Length!=71)return null;
+            if(!Uri.TryCreate(url,UriKind.Absolute,out var uri)||uri.Scheme!="https"||!uri.Host.Equals("update.yikaicms.com",StringComparison.OrdinalIgnoreCase))return null;
+            await DownloadAndExtract(client,url,hash[7..],SHA256.Create(),target,"YikaiCMS "+latest,settings,status,token);
+            if(!File.Exists(Path.Combine(target,"config","version.php")))return null;
+            return target;
+        }
+        catch(Exception e) when(e is HttpRequestException or IOException or InvalidDataException or JsonException or KeyNotFoundException or InvalidOperationException or TaskCanceledException)
+        {
+            return null;
         }
     }
 

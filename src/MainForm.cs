@@ -26,6 +26,7 @@ public sealed partial class MainForm : Form
     Label webState=null!,phpState=null!,mysql80State=null!,mysql57State=null!,managerState=null!;
     string? selectedId;
     string projectListState="";
+    Site? pendingProject;string pendingProgress="";
     bool busy,exit,building;
     static Color Ink=>Palette.Text;
     static Color Muted=>Palette.Secondary;
@@ -115,6 +116,19 @@ public sealed partial class MainForm : Form
         using var boldFont=new Font(Font,FontStyle.Bold);TextRenderer.DrawText(e.Graphics,s.ToString(),boldFont,new Rectangle(textX,e.Bounds.Y+Px(9),e.Bounds.Right-Px(44)-textX,Px(30)),Ink,TextFormatFlags.EndEllipsis|TextFormatFlags.VerticalCenter);
         var line=new Rectangle(textX,e.Bounds.Y+Px(39),e.Bounds.Right-Px(8)-textX,Px(26));var right=line.Right;
         if(HttpsBadge(s) is {} badge)right=DrawRowBadge(e.Graphics,right,line,badge.Text,badge.Color,rowBack,Font.FontFamily,Fs(8f));
+        if(ReferenceEquals(s,pendingProject))
+        {
+            // 下载中的占位行：第二行显示进度文字，底部画一条进度条（从文字里取百分比）
+            // 列表很窄：有百分比时只写“下载中 60%”，其余阶段（检查版本、解压）写阶段本身，去掉前面的产品名
+            var match=System.Text.RegularExpressions.Regex.Match(pendingProgress,@"(\d{1,3})%");
+            var stage=pendingProgress.Contains(" · ")?pendingProgress[(pendingProgress.LastIndexOf(" · ")+3)..]:pendingProgress;
+            var text=match.Success?T("下载中 ","Downloading ","ダウンロード中 ")+match.Groups[1].Value+"%":stage;
+            TextRenderer.DrawText(e.Graphics,text,Font,new Rectangle(line.X,line.Y,Math.Max(20,right-line.X),line.Height),Palette.Link,TextFormatFlags.EndEllipsis|TextFormatFlags.VerticalCenter);
+            var bar=new Rectangle(textX,e.Bounds.Bottom-Px(9),Math.Max(20,e.Bounds.Right-Px(20)-textX),Px(4));
+            using(var track=new SolidBrush(Palette.Divider))e.Graphics.FillRectangle(track,bar);
+            if(match.Success){var done=bar with{Width=bar.Width*Math.Min(100,int.Parse(match.Groups[1].Value))/100};using var fill=new SolidBrush(Palette.Accent);e.Graphics.FillRectangle(fill,done);}
+            return;
+        }
         TextRenderer.DrawText(e.Graphics,s.Domain+"  ·  PHP "+s.Php,Font,new Rectangle(line.X,line.Y,Math.Max(20,right-line.X),line.Height),Muted,TextFormatFlags.EndEllipsis|TextFormatFlags.VerticalCenter);
         DrawProjectStar(e.Graphics,e.Bounds,s.Starred);
         if((e.State&DrawItemState.Focus)!=0)e.DrawFocusRectangle();
