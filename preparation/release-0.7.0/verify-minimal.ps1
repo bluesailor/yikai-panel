@@ -1,11 +1,11 @@
 ﻿param(
     [string]$Root = 'D:\yikai-min-test',
-    [string]$Php = '8.2',
+    [string]$PhpVersion = '8.2',
     [string]$Installer = 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\build\out-minimal\YikaiPanel-0.7.0-minimal-setup-x64.exe',
     [ValidateSet('run','clean')]
     [string]$Phase = 'run'
 )
-# 最小包验收：Nginx + 一个 PHP 版本（-Php，默认 8.2）+ MySQL 8.0，不含 Apache / MySQL 5.7 / 其它 PHP 版本 / 24 MB 运行库安装器。
+# 最小包验收：Nginx + 一个 PHP 版本（-PhpVersion，默认 8.2）+ MySQL 8.0，不含 Apache / MySQL 5.7 / 其它 PHP 版本 / 24 MB 运行库安装器。
 # 关键验证点：
 #   1) 装出来的目录里确实没有多余组件；
 #   2) 面板在只有一个 PHP 版本的环境里能自愈默认版本（phpDefault、默认站点、数据库页面都用随包版本）；
@@ -87,10 +87,11 @@ Check ($code -eq 0) "安装退出码 0（实际 $code）"
 
 Step 'installed components'
 Check (Test-Path $panel) '面板程序已安装'
-Check (Test-Path (Join-Path $Root "soft\php\$Php\php-cgi.exe")) "PHP $Php 已安装"
+Check (Test-Path (Join-Path $Root "soft\php\$PhpVersion\php-cgi.exe")) "PHP $PhpVersion 已安装"
 Check (Test-Path (Join-Path $Root 'soft\mysql\8.0\bin\mysqld.exe')) 'MySQL 8.0 已安装'
 Check (Test-Path (Join-Path $Root 'soft\nginx\nginx.exe')) 'Nginx 已安装'
-foreach ($absent in @('soft\apache','soft\php\8.0','soft\php\8.2','soft\mysql\5.7','soft\phpmyadmin','soft\prerequisites')) {
+$otherPhp = @(@('8.0','8.2','8.5') | Where-Object { $_ -ne $PhpVersion } | ForEach-Object { "soft\php\$_" })
+foreach ($absent in @('soft\apache') + $otherPhp + @('soft\mysql\5.7','soft\phpmyadmin','soft\prerequisites')) {
     Check (-not (Test-Path (Join-Path $Root $absent))) "不含 $absent"
 }
 Check (-not (Get-ChildItem $Root -Recurse -Filter 'vc_redist*.exe' -ErrorAction SilentlyContinue)) '不含 24 MB 的 VC++ 运行库安装器'
@@ -98,16 +99,16 @@ Check (Test-Path (Join-Path $Root 'soft\nginx\logs')) 'nginx logs 目录已建�
 
 Step 'bundled VC runtime DLLs'
 foreach ($dll in @('vcruntime140.dll','vcruntime140_1.dll','msvcp140.dll')) {
-    Check (Test-Path (Join-Path $Root "soft\php\$Php\$dll")) "PHP 目录随包 $dll"
+    Check (Test-Path (Join-Path $Root "soft\php\$PhpVersion\$dll")) "PHP 目录随包 $dll"
 }
 $dbIni = Get-Content (Join-Path $Root 'config\phpmyadmin-php.ini') -Raw
-Check ($dbIni -match ('soft/php/' + [regex]::Escape($Php) + '/ext')) "数据库页面 php.ini 指向 PHP $Php"
+Check ($dbIni -match ('soft/php/' + [regex]::Escape($PhpVersion) + '/ext')) "数据库页面 php.ini 指向 PHP $PhpVersion"
 
 Step 'PHP loads extensions with bundled runtime'
-$php = Join-Path $Root "soft\php\$Php\php.exe"
+$php = Join-Path $Root "soft\php\$PhpVersion\php.exe"
 # php.exe 在 stderr 上的提示会被 $ErrorActionPreference=Stop 变成终止错误，这里单独放宽
 $previous = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-$phpOut = (& $php -c (Join-Path $Root "soft\php\$Php\php.ini") -m 2>&1 | Out-String)
+$phpOut = (& $php -c (Join-Path $Root "soft\php\$PhpVersion\php.ini") -m 2>&1 | Out-String)
 $ErrorActionPreference = $previous
 Check ($phpOut -notmatch 'is not compatible with this PHP build') 'PHP 未抱怨运行库版本不匹配（说明随包 DLL 版本够新）'
 $loaded = ($phpOut -split "`r?`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
@@ -117,7 +118,7 @@ foreach ($ext in @('mysqli','pdo_mysql','intl','mbstring','curl','openssl','zip'
 
 Step 'runtime DLLs come from the program folder, not System32'
 $psi = [System.Diagnostics.ProcessStartInfo]::new($php)
-$psi.Arguments = '-c "' + (Join-Path $Root "soft\php\$Php\php.ini") + '" -r "sleep(6);"'
+$psi.Arguments = '-c "' + (Join-Path $Root "soft\php\$PhpVersion\php.ini") + '" -r "sleep(6);"'
 $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
 $proc = [System.Diagnostics.Process]::Start($psi)
 Start-Sleep -Milliseconds 1500
@@ -126,15 +127,15 @@ $loaded = (Get-Process -Id $proc.Id -ErrorAction SilentlyContinue).Modules |
     Select-Object ModuleName, FileName
 $proc.WaitForExit(15000) | Out-Null
 foreach ($module in $loaded) {
-    $expected = Join-Path $Root "soft\php\$Php"
+    $expected = Join-Path $Root "soft\php\$PhpVersion"
     Check ($module.FileName -like "$expected*") ("$($module.ModuleName) 从程序目录加载：" + $module.FileName)
 }
 
-Step "panel starts with only PHP $Php"
+Step "panel starts with only PHP $PhpVersion"
 $code = RunExe $panel @('--root',$Root,'--start') 600
 Check ($code -eq 0) "面板 --start 退出码 0（实际 $code）"
 $cfg = Get-Content (Join-Path $Root 'config\panel.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-Check ($cfg.phpDefault -eq $Php) "默认 PHP 版本自愈为 $Php（实际 $($cfg.phpDefault)）"
+Check ($cfg.phpDefault -eq $PhpVersion) "默认 PHP 版本自愈为 $PhpVersion（实际 $($cfg.phpDefault)）"
 # 最小包不带默认站点：第一次启动后面板里应该是空的，项目由用户自己新建（新建 YikaiCMS 时在线取模板）
 Check (@($cfg.sites).Count -eq 0) "最小包不带默认站点（启动后项目数 $(@($cfg.sites).Count)）"
 $listen = (Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue).LocalPort
@@ -148,7 +149,7 @@ for ($i = 0; $i -lt 30 -and $dbStatus -ne 200; $i++) {
     $dbStatus = HttpStatus "http://127.0.0.1:$($cfg.dbManagerPort)/"
     if ($dbStatus -ne 200) { Start-Sleep -Milliseconds 700 }
 }
-Check ($dbStatus -eq 200) "数据库页面返回 200（由 PHP $Php 提供；实际 $dbStatus）"
+Check ($dbStatus -eq 200) "数据库页面返回 200（由 PHP $PhpVersion 提供；实际 $dbStatus）"
 # 没有项目时数据库页面也要给出说明页，不能 500（最小包首次安装就是这个状态）
 Check (Test-Path (Join-Path $Root 'temp\sessions-phpmyadmin')) 'session 目录已创建（数据库页面能存住会话）'
 $dbPage = Invoke-WebRequest -Uri "http://127.0.0.1:$($cfg.dbManagerPort)/" -UseBasicParsing -TimeoutSec 20

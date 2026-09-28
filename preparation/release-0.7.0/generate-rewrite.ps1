@@ -33,15 +33,17 @@ location /admin/ {
 }
 '@
 if ($generated -notmatch 'location /admin/') {
-    $anchor = "`n# 默认处理（首页 / 与无扩展名"
+    # 锚点只取“默认处理（”：2.0.2 起注释改为“默认处理（无扩展名…”，1.20.x 为“默认处理（首页 / 与无扩展名…”
+    $anchor = "`n# 默认处理（"
     if ($generated -notmatch [regex]::Escape($anchor)) { throw '找不到“默认处理”注释，无法确定补丁插入位置' }
     $generated = $generated.Replace($anchor, $adminPatch + $anchor)
 }
 if ($generated -notmatch 'location /admin/') { throw '后台目录补丁未写入' }
 if ($Backup -and (Test-Path $Target)) {
-    $backup = Join-Path 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\evidence' ('yikaicms-rewrite-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.conf')
-    Copy-Item $Target $backup
-    Write-Host "旧规则已备份：$backup"
+    # 变量名不能叫 $backup：PowerShell 不分大小写，会撞上开关参数 $Backup
+    $backupFile = Join-Path 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\evidence' ('yikaicms-rewrite-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.conf')
+    Copy-Item $Target $backupFile
+    Write-Host "旧规则已备份：$backupFile"
 }
 [IO.File]::WriteAllText($Target, $generated, [Text.UTF8Encoding]::new($false))
 Write-Host ("已生成：{0}（{1} 行，{2} 字节）" -f $Target, (($generated -split "`n").Count), (Get-Item $Target).Length)

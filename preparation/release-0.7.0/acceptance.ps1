@@ -91,9 +91,9 @@ if ($Phase -in 'install','all') {
     foreach ($version in @('8.0','8.5')) {
         Check ((Get-Content (Join-Path $Root "soft\php\$version\php.ini") -Raw) -notmatch 'D:/yikai/') "install: PHP $version php.ini rewritten"
     }
-    Check (Test-Path (Join-Path $Root 'wwwroot\yikaicms.yikai\index.php')) 'install: default site template installed'
-    Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.yikai\config\config.php'))) 'install: default site has no installed config'
-    Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.yikai\installed.lock'))) 'install: default site is not pre-installed'
+    Check (Test-Path (Join-Path $Root 'wwwroot\yikaicms.localhost\index.php')) 'install: default site template installed'
+    Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.localhost\config\config.php'))) 'install: default site has no installed config'
+    Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.localhost\installed.lock'))) 'install: default site is not pre-installed'
     Check (Test-Path (Join-Path $Root 'soft\apache\2.4.39\LICENSE')) 'install: Apache LICENSE present'
     Check (Test-Path (Join-Path $Root 'soft\apache\2.4.39\NOTICE')) 'install: Apache NOTICE present'
     Check (Test-Path "$env:USERPROFILE\Desktop\易开面板.lnk") 'install: desktop shortcut created'
@@ -157,9 +157,9 @@ if ($Phase -in 'run','all') {
 if ($Phase -in 'reinstall','all') {
     if (-not (Test-Path $panel)) { throw '先运行 -Phase install' }
     # 发布检查项：重复安装不能破坏已有项目。用户态文件（网站内容、panel.json、数据库）必须原样保留。
-    $userFile = Join-Path $Root 'wwwroot\yikaicms.yikai\user-content.txt'
+    $userFile = Join-Path $Root 'wwwroot\yikaicms.localhost\user-content.txt'
     Set-Content -Path $userFile -Value 'keep me' -Encoding UTF8
-    $siteMarker = Join-Path $Root 'wwwroot\yikaicms.yikai\config\config.php'
+    $siteMarker = Join-Path $Root 'wwwroot\yikaicms.localhost\config\config.php'
     New-Item -ItemType Directory -Path (Split-Path $siteMarker) -Force | Out-Null
     Set-Content -Path $siteMarker -Value "<?php // installed site config" -Encoding UTF8
     $settingsFile = Join-Path $Root 'config\panel.json'
@@ -194,7 +194,7 @@ if ($Phase -in 'uninstall','all') {
     $settingsFile = Join-Path $Root 'config\panel.json'
     $hadSettings = Test-Path $settingsFile
     # 在网站目录里放一个用户文件，验证卸载不会删掉用户内容
-    $userFile = Join-Path $Root 'wwwroot\yikaicms.yikai\user-content.txt'
+    $userFile = Join-Path $Root 'wwwroot\yikaicms.localhost\user-content.txt'
     Set-Content -Path $userFile -Value 'keep me' -Encoding UTF8
     $code = RunExe $uninstaller @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/LOG=D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\evidence\uninstall.log')
     Check ($code -eq 0) "uninstall: exited 0 (got $code)"

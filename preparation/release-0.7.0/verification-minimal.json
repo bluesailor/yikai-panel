@@ -12,7 +12,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "PHP 8.5 已安装"
+                       "check":  "PHP 8.2 已安装"
                    },
                    {
                        "passed":  true,
@@ -32,7 +32,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "不含 soft\\php\\8.2"
+                       "check":  "不含 soft\\php\\8.5"
                    },
                    {
                        "passed":  true,
@@ -68,7 +68,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "数据库页面 php.ini 指向 PHP 8.5"
+                       "check":  "数据库页面 php.ini 指向 PHP 8.2"
                    },
                    {
                        "passed":  true,
@@ -104,15 +104,15 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "VCRUNTIME140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\VCRUNTIME140.dll"
+                       "check":  "VCRUNTIME140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.2\\VCRUNTIME140.dll"
                    },
                    {
                        "passed":  true,
-                       "check":  "MSVCP140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\MSVCP140.dll"
+                       "check":  "MSVCP140.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.2\\MSVCP140.dll"
                    },
                    {
                        "passed":  true,
-                       "check":  "VCRUNTIME140_1.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.5\\VCRUNTIME140_1.dll"
+                       "check":  "VCRUNTIME140_1.dll 从程序目录加载：D:\\yikai-min-test\\soft\\php\\8.2\\VCRUNTIME140_1.dll"
                    },
                    {
                        "passed":  true,
@@ -120,7 +120,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "默认 PHP 版本自愈为 8.5（实际 8.5）"
+                       "check":  "默认 PHP 版本自愈为 8.2（实际 8.2）"
                    },
                    {
                        "passed":  true,
@@ -144,7 +144,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "数据库页面返回 200（由 PHP 8.5 提供；实际 200）"
+                       "check":  "数据库页面返回 200（由 PHP 8.2 提供；实际 200）"
                    },
                    {
                        "passed":  true,

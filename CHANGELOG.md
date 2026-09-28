@@ -1,4 +1,10 @@
-# 易开面板 0.8.2 — 开发中
+# 易开面板 0.8.3 — 已发布（2026-09-28）
+
+- 完整包随包的 YikaiCMS 模板由 1.20.0 换成 2.0.2（官方包，SHA-256 与更新服务器、GitHub 一致；833 个 PHP 文件用 PHP 8.2 语法检查全部通过），旧模板备份在 `backups/yikaicms-template-1.20.0-*`。
+- 伪静态规则按 2.0.2 自带的 `deploy/nginx-server.conf` 重新生成：新增程序目录（vendor/includes/bin/migrations/recipes）与安装 SQL 拦截、带查询串或非 GET 请求走动态、搜索页路由；面板的 `/admin/` 补丁保留。`generate-rewrite.ps1` 的插入锚点兼容 2.0.2 的注释，并修复了带 `-Backup` 运行时变量与开关参数同名导致的报错。
+- 新装后的默认站点改为 `yikaicms.localhost`（原 `yikaicms.yikai`）、PHP 8.2：浏览器直接打开，首次启动不写 hosts、不弹管理员授权。已有安装保留原项目。
+
+# 易开面板 0.8.2 — 已随 0.8.3 发布
 
 - 默认 PHP 版本改回 8.2（完整包与最简包一致）：新安装的 `phpDefault` 为 8.2，简化新建窗口跟随默认版本（不再“装了 8.5 就用 8.5”），提示文字显示实际默认版本。已有配置保留原选择。
 - 最简包随包的 PHP 由 8.5 改为 8.2：`assemble-minimal.ps1` 与两份最简包验收脚本改用 `-Php` 参数（默认 8.2），不再写死版本号；README、开发文档与官网文案同步。

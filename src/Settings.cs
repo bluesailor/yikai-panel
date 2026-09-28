@@ -10,7 +10,7 @@ public sealed class Site
     public string Template { get; set; } = "yikaicms";
     public bool Enabled { get; set; } = true;
     public string Id { get; set; } = "yikaicms";
-    public string Domain { get; set; } = "yikaicms.yikai";
+    public string Domain { get; set; } = "yikaicms.localhost";
     public string Directory { get; set; } = "";
     public string? RewriteRules { get; set; }
     public string AdminPath { get; set; } = "";
@@ -92,12 +92,13 @@ public sealed partial class Settings
         foreach(var candidate in new[]{settings.PhpDefault,"8.2","8.5","8.0"})
             if(File.Exists(Path.Combine(root,"soft","php",candidate,"php-cgi.exe"))){settings.PhpDefault=candidate;break;}
         // 默认站点只在确实有内容时登记：完整包随包带默认站点，最小包不带（第一次新建项目时在线获取 CMS 模板）
-        var defaultSite = Path.Combine(root, "wwwroot", "yikaicms.yikai");
+        // 默认站点用 .localhost：浏览器直接解析到本机，首次启动不用写 hosts、不弹管理员授权（与新建项目的默认后缀一致）
+        var defaultSite = Path.Combine(root, "wwwroot", "yikaicms.localhost");
         var cmsTemplate = Path.Combine(root, "soft", "packages", "yikaicms", "config", "version.php");
         if (!File.Exists(path) && settings.Sites.Count == 0 && (Directory.Exists(defaultSite) || File.Exists(cmsTemplate)))
         {
             Directory.CreateDirectory(defaultSite);
-            settings.Sites.Add(new Site { Directory = defaultSite, Php = settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault });
+            settings.Sites.Add(new Site { Domain = "yikaicms.localhost", Directory = defaultSite, Php = settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault });
         }
         settings.Save();
         return settings;

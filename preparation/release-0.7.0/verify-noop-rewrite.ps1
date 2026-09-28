@@ -34,10 +34,10 @@ if ($Phase -eq 'clean') {
 
 $slashRoot = $Root.Replace('\','/')
 # 1) 变体负载：只放参与路径检查的文件，ini 里的根路径换成测试根（模拟“负载就是为这个目录做的”）
-foreach ($dir in @('config', 'soft\php\8.0', 'soft\php\8.2', 'soft\php\8.5', 'wwwroot\yikaicms.yikai')) {
+foreach ($dir in @('config', 'soft\php\8.0', 'soft\php\8.2', 'soft\php\8.5', 'wwwroot\yikaicms.localhost')) {
     New-Item -ItemType Directory -Path (Join-Path $variant $dir) -Force | Out-Null
 }
-Set-Content -Path (Join-Path $variant 'wwwroot\yikaicms.yikai\index.php') -Value "<?php // variant payload placeholder`n" -NoNewline
+Set-Content -Path (Join-Path $variant 'wwwroot\yikaicms.localhost\index.php') -Value "<?php // variant payload placeholder`n" -NoNewline
 foreach ($pair in @(@('config\phpmyadmin-php.ini','config\phpmyadmin-php.ini'), @('soft\php\8.0\php.ini','soft\php\8.0\php.ini'),
                     @('soft\php\8.2\php.ini','soft\php\8.2\php.ini'), @('soft\php\8.5\php.ini','soft\php\8.5\php.ini'))) {
     $text = Get-Content (Join-Path $Source $pair[0]) -Raw

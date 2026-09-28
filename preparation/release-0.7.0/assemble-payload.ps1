@@ -62,7 +62,7 @@ foreach ($file in @('cacert.pem','mime.types','fastcgi_params','yikaicms-rewrite
 }
 
 # 默认站点：干净的 CMS 模板副本（开发目录里的已安装站点带 config.php、installed.lock 和客户数据，不能打包）
-Copy-Tree 'D:\yikai\soft\packages\yikaicms' (Join-Path $Build 'wwwroot\yikaicms.yikai')
+Copy-Tree 'D:\yikai\soft\packages\yikaicms' (Join-Path $Build 'wwwroot\yikaicms.localhost')
 
 # Apache 组件缺 LICENSE/NOTICE（源目录没有），从发布源补进负载；放在发布源里才能每次组装都带上
 foreach ($pair in @(@('apache-LICENSE.txt','LICENSE'), @('apache-NOTICE.txt','NOTICE'))) {

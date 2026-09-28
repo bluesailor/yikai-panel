@@ -1,6 +1,6 @@
 ﻿param(
     [string]$Root = 'D:\yikai-min2-test',
-    [string]$Php = '8.2',
+    [string]$PhpVersion = '8.2',
     [string]$Installer = 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\build\out-minimal\YikaiPanel-0.7.0-minimal-setup-x64.exe',
     # 验收时用实际存在的版本化地址；正式的 -latest 别名由官网部署（见备注）
     [string]$CmsUrl = 'https://down.yikai.cn/soft/yikaicms/yikaicms-v1.20.0.zip',
@@ -88,9 +88,9 @@ Check ($proc.ExitCode -eq 0) "安装退出码 0（实际 $($proc.ExitCode)）"
 
 Step 'no bundled CMS, no default site'
 Check (-not (Test-Path (Join-Path $Root 'soft\packages\yikaicms'))) '不含 CMS 模板'
-Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.yikai'))) '不含默认站点'
+Check (-not (Test-Path (Join-Path $Root 'wwwroot\yikaicms.localhost'))) '不含默认站点'
 Check (Test-Path (Join-Path $Root 'wwwroot')) 'wwwroot 目录已建立'
-Check (Test-Path (Join-Path $Root "soft\php\$Php\php-cgi.exe")) "PHP $Php 已安装"
+Check (Test-Path (Join-Path $Root "soft\php\$PhpVersion\php-cgi.exe")) "PHP $PhpVersion 已安装"
 Check (Test-Path (Join-Path $Root 'soft\mysql\8.0\bin\mysqld.exe')) 'MySQL 8.0 已安装'
 
 Step 'empty project list on first start'
@@ -99,12 +99,12 @@ if (Test-Path $cfgFile) { Remove-Item $cfgFile -Force }
 $result = RunPanel @('--root', $Root, '--ports')
 $cfg = Get-Content $cfgFile -Raw -Encoding UTF8 | ConvertFrom-Json
 Check (@($cfg.sites).Count -eq 0) "首次启动项目列表为空（实际 $(@($cfg.sites).Count) 个）"
-Check ($cfg.phpDefault -eq $Php) "默认 PHP 版本为 $Php（实际 $($cfg.phpDefault)）"
+Check ($cfg.phpDefault -eq $PhpVersion) "默认 PHP 版本为 $PhpVersion（实际 $($cfg.phpDefault)）"
 
 Step 'create a YikaiCMS project (downloads the CMS)'
 $cfg.cmsPackageUrl = $CmsUrl
 [IO.File]::WriteAllText($cfgFile, ($cfg | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
-$result = RunPanel @('--root', $Root, '--create-site', 'demo', '--php', $Php, '--database', 'mysql80', '--template', 'yikaicms', '--title', 'demo')
+$result = RunPanel @('--root', $Root, '--create-site', 'demo', '--php', $PhpVersion, '--database', 'mysql80', '--template', 'yikaicms', '--title', 'demo')
 Check ($result.Code -eq 0) "创建项目成功（exit $($result.Code)：$($result.Out.Trim().Substring(0,[Math]::Min(120,$result.Out.Trim().Length)))）"
 # 不带后缀的名字按面板规则补后缀（0.7.3 起默认 .localhost），项目目录以面板配置里记录的为准
 $created = @((Get-Content $cfgFile -Raw -Encoding UTF8 | ConvertFrom-Json).sites) | Where-Object { $_.title -eq 'demo' } | Select-Object -First 1
@@ -124,7 +124,7 @@ $result = RunPanel @('--root', $Root, '--start')
 Check ($result.Code -eq 0) "启动成功（exit $($result.Code)）"
 $cfg = Get-Content $cfgFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $site = @($cfg.sites)[0]
-Check ($site.php -eq $Php) "项目使用 PHP $Php（实际 $($site.php)）"
+Check ($site.php -eq $PhpVersion) "项目使用 PHP $PhpVersion（实际 $($site.php)）"
 $listening = $false
 for ($i = 0; $i -lt 40 -and -not $listening; $i++) {
     Start-Sleep -Milliseconds 500

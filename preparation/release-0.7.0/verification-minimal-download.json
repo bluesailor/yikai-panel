@@ -20,7 +20,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "PHP 8.5 已安装"
+                       "check":  "PHP 8.2 已安装"
                    },
                    {
                        "passed":  true,
@@ -32,7 +32,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "默认 PHP 版本为 8.5（实际 8.5）"
+                       "check":  "默认 PHP 版本为 8.2（实际 8.2）"
                    },
                    {
                        "passed":  true,
@@ -72,7 +72,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "项目使用 PHP 8.5（实际 8.5）"
+                       "check":  "项目使用 PHP 8.2（实际 8.2）"
                    },
                    {
                        "passed":  true,
@@ -112,7 +112,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_localhost\u0026lang=zh\u0026download=demo_localhost-20260927-222815-031ef4.sql\"}"
+                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_localhost\u0026lang=zh\u0026download=demo_localhost-20260928-151605-927e0e.sql\"}"
                    },
                    {
                        "passed":  true,
