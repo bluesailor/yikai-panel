@@ -39,6 +39,9 @@ VersionInfoDescription={#AppName} {#AppVersion} 安装程序
 DefaultDirName={code:GetDefaultDir}
 DisableDirPage=no
 DisableProgramGroupPage=yes
+; 不弹“选择安装语言”：按 Windows 界面语言自动选中文 / 日语，其它系统语言用 [Languages] 里的第一项（英文）
+ShowLanguageDialog=no
+LanguageDetectionMethod=uilanguage
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
 PrivilegesRequired=lowest
@@ -57,8 +60,9 @@ CloseApplications=no
 UsePreviousAppDir=yes
 
 [Languages]
-Name: "chinese"; MessagesFile: "ChineseSimplified.isl"
+; 顺序有意义：系统语言匹配不到时用第一项。中文系统 → 中文，日文系统 → 日语，其它 → 英文。
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinese"; MessagesFile: "ChineseSimplified.isl"
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 [CustomMessages]
