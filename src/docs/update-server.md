@@ -6,7 +6,7 @@
 
 面板读取：https://panel.yikai.cn/update/latest.json
 
-当前仅在用户点击“检查更新”时请求。2026-09-25 起在线更新已启用；当前清单指向 0.8.1（`update/YikaiLocal-0.8.1.exe`，2026-09-27）。官网已启用 HTTPS（HTTP 自动跳转）。
+当前仅在用户点击“检查更新”时请求。2026-09-25 起在线更新已启用；当前清单指向 0.8.3（`update/YikaiLocal-0.8.3.exe`，2026-09-28）。官网已启用 HTTPS（HTTP 自动跳转）。
 清单和下载都必须是 HTTPS（客户端拒绝非 https 的 `downloadUrl`），站点证书失效时客户端会显示“更新服务尚未就绪”。
 
 官网服务器是 IIS：`update/` 目录下放一个只作用于该目录的 `web.config`，声明 `.json` 的 MIME 类型并禁用缓存
