@@ -142,7 +142,8 @@ public sealed partial class MainForm
             quick.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             foreach(var height in new[]{28,48,28,48,68,52})quick.RowStyles.Add(new RowStyle(SizeType.Absolute,height));
             var quickName=new TextBox{Name="quickProjectName",MaxLength=100,PlaceholderText=T("英文、数字、. 或 -，如 mysite1","Letters, digits, . or -, e.g. mysite1","英数字・.・-、例：mysite1")};
-            var quickKind=Select("quickProjectKind",[T("YikaiCMS（最新版）","YikaiCMS (latest)","YikaiCMS（最新版）"),T("WordPress（最新版）","WordPress (latest)","WordPress（最新版）")],0);
+            // 站点程序：YikaiCMS / WordPress 最新版，或空白 PHP 项目（只建目录和一个占位首页，不装程序）
+            var quickKind=Select("quickProjectKind",[T("YikaiCMS（最新版）","YikaiCMS (latest)","YikaiCMS（最新版）"),T("WordPress（最新版）","WordPress (latest)","WordPress（最新版）"),T("空白 PHP 项目","Blank PHP project","空の PHP プロジェクト")],0);
             var quickNameFrame=Input(quickName);quickNameFrame.Margin=Padding.Empty;quickKind.Margin=Padding.Empty;
             var quickHint=L("",9);quickHint.Name="quickProjectHint";quickHint.Dock=DockStyle.Fill;quickHint.AutoSize=false;quickHint.ForeColor=Muted;quickHint.Margin=new Padding(0,4,0,0);
             var quickFooter=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=Padding.Empty};
@@ -195,7 +196,7 @@ public sealed partial class MainForm
                 var name=quickName.Text.Trim();
                 title.Text=name;
                 domain.Text=SuggestedDomain(name);
-                kind.SelectedIndex=quickKind.SelectedIndex==0?1:2;
+                kind.SelectedIndex=quickKind.SelectedIndex switch{0=>1,1=>2,_=>0};
                 version.SelectedItem=DefaultPhp();
                 engine.SelectedIndex=0;
                 UpdateFields();
