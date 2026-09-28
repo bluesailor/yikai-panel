@@ -16,7 +16,7 @@ public sealed partial class MainForm
         var installedPhp=runtime.InstalledPhpVersions;if(installedPhp.Length==0)installedPhp=["8.2"];
         var version=Select("projectPhp",installedPhp,0);
         // 新建项目优先使用 PHP 8.5；未安装时回退到实际存在的版本。已有项目保留原版本。
-        string DefaultPhp(){var wanted=installedPhp.Contains("8.5")?"8.5":Kind()=="yikaicms"&&settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault;return installedPhp.Contains(wanted)?wanted:installedPhp[0];}
+        string DefaultPhp(){var wanted=Kind()=="yikaicms"&&settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault;return installedPhp.Contains(wanted)?wanted:installedPhp.Contains("8.2")?"8.2":installedPhp[0];}
         version.SelectedItem=site?.Php??DefaultPhp();bool versionTouched=false,applyingDefault=false;
         version.SelectedIndexChanged+=(_,_)=>{if(!applyingDefault)versionTouched=true;};
         kind.SelectedIndexChanged+=(_,_)=>{if(site!=null||versionTouched)return;applyingDefault=true;version.SelectedItem=DefaultPhp();applyingDefault=false;};
@@ -175,8 +175,8 @@ public sealed partial class MainForm
                 confirm.Enabled=name.Length>0&&problem==null;
                 quickHint.ForeColor=problem==null?Muted:Palette.Warning;
                 quickHint.Text=name.Length==0
-                    ? T("项目名只能用英文字母、数字、点（.）和中划线（-）。不带点时自动生成 .localhost 域名；带点时直接作为域名（如 shop.yikai）。默认 PHP 8.5、MySQL 8.0。","Use letters, digits, dots (.) and hyphens (-). Without a dot a .localhost domain is generated; with a dot the name is used as the domain (e.g. shop.yikai). Defaults: PHP 8.5 and MySQL 8.0.","英字・数字・ドット（.）・ハイフン（-）のみ使えます。ドットなしは .localhost ドメインを生成し、ドットありはそのままドメインになります（例：shop.yikai）。既定は PHP 8.5 / MySQL 8.0 です。")
-                    : problem ?? SuggestedDomain(name)+"  ·  PHP "+DefaultPhp()+"  ·  MySQL 8.0"+(installedPhp.Contains("8.5")?"":T("（未安装 PHP 8.5）"," (PHP 8.5 not installed)","（PHP 8.5 は未インストール）"));
+                    ? T($"项目名只能用英文字母、数字、点（.）和中划线（-）。不带点时自动生成 .localhost 域名；带点时直接作为域名（如 shop.yikai）。默认 PHP {DefaultPhp()}、MySQL 8.0。",$"Use letters, digits, dots (.) and hyphens (-). Without a dot a .localhost domain is generated; with a dot the name is used as the domain (e.g. shop.yikai). Defaults: PHP {DefaultPhp()} and MySQL 8.0.",$"英字・数字・ドット（.）・ハイフン（-）のみ使えます。ドットなしは .localhost ドメインを生成し、ドットありはそのままドメインになります（例：shop.yikai）。既定は PHP {DefaultPhp()} / MySQL 8.0 です。")
+                    : problem ?? SuggestedDomain(name)+"  ·  PHP "+DefaultPhp()+"  ·  MySQL 8.0";
             }
             string? QuickNameProblem(string name)
             {

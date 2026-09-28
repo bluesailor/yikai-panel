@@ -54,11 +54,11 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 命令行同样支持：`--create-site demo --template yikaicms`（加 `--no-auto-install` 可跳过自动安装）。
 
-## 最小环境包（nginx + PHP 8.5 + MySQL 8.0）
+## 最小环境包（nginx + PHP 8.2 + MySQL 8.0）
 
 `YikaiPanel-<版本>-minimal-setup-x64.exe`（约 80 MB，完整包约 165 MB，含 HeidiSQL）：
 
-- 只带 Nginx、PHP 8.5、MySQL 8.0、面板本体、数据库页面；不含 Apache、MySQL 5.7、PHP 8.0 / 8.2、CMS 模板与默认站点；
+- 只带 Nginx、PHP 8.2、MySQL 8.0、面板本体、数据库页面；不含 Apache、MySQL 5.7、PHP 8.0 / 8.5、CMS 模板与默认站点；
 - 首次新建 YikaiCMS 项目时在线获取 CMS（需要联网），之后走缓存；
 - 面板内部用哪个 PHP 会自动解析（优先 8.2，没有就用已装版本），默认 PHP 版本与默认站点也会自愈到实际存在的版本；
 - VC++ 运行库不再装 24 MB 的安装器，改为随包带 `vcruntime140.dll` / `vcruntime140_1.dll` / `msvcp140.dll`（约 750 KB，放在 PHP 目录里；MySQL 8.0 自带这几个 DLL）。

@@ -5,7 +5,7 @@
 - 产品名：**易开面板**
 - 英文名：**Yikai Panel**（对外名称）
 - 产品定位：简单好用的 Windows 本地 PHP 开发环境
-- 当前版本：0.8.1（官网与 GitHub Release 提供 0.8.1 安装包）
+- 当前开发版本：0.8.2（官网与 GitHub Release 提供 0.8.1 安装包）
 - 默认根目录：`D:\yikai`
 - 官网：<https://panel.yikai.cn>
 
@@ -27,7 +27,7 @@
 - C# / WinForms Windows x64 面板，支持系统托盘。
 - 多项目列表、搜索、星标、右键菜单、项目独立启停。
 - Nginx 或 Apache 2.4.39（二选一）、PHP 8.0 / 8.2 / 8.5、MySQL 5.7 / 8.0、SQLite。
-- 新安装默认 Nginx + PHP 8.5 + MySQL 8.0；已有配置保留原选择。状态栏可单独启动、停止、重启各服务，PHP 可按版本启停。
+- 新安装默认 Nginx + PHP 8.2 + MySQL 8.0（完整包与最简包一致）；已有配置保留原选择。状态栏可单独启动、停止、重启各服务，PHP 可按版本启停。
 - `.yikai` 本地域名和 hosts 同步；项目伪静态配置。
 - YikaiCMS / WordPress 站点可手动检测核心程序更新（只读，不自动升级；插件和主题仍在站点后台管理）。点击后，YikaiCMS 向其官方更新服务发送当前版本、站点域名和 PHP 版本；WordPress 向 WordPress.org 查询当前核心版本。
 - 中文、英文、日文的数据库简洁页面和 Adminer。

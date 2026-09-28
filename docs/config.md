@@ -11,7 +11,7 @@
 | `schemaVersion` | 配置格式版本 | `2` |
 | `language` | 界面语言 | `zh` |
 | `webServer` | Web 服务器：`nginx` 或 `apache`（Apache 2.4.39），二者共用项目端口，同一时间只运行一个 | `nginx` |
-| `phpDefault` | 新安装默认 PHP；已有配置保留原值，可从状态栏的 PHP 菜单修改。简化新建窗口优先选择已安装的 PHP 8.5，缺失时回退到可用版本 | `8.5` |
+| `phpDefault` | 新安装默认 PHP；已有配置保留原值，可从状态栏的 PHP 菜单修改。简化新建窗口使用默认版本，未安装时回退到 8.2 或其它可用版本 | `8.2` |
 | `mysqlActive` | “全部启动”时一定启动的 MySQL；项目用到的另一版本也会一起启动 | `mysql80` |
 | `autoStart` | 打开面板是否启动环境 | `true` |
 | `minimizeToTray` | 关闭窗口是否缩到托盘 | `true` |

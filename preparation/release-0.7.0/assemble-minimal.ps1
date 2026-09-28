@@ -1,14 +1,15 @@
 ﻿param(
     [string]$Build = 'D:\yikai-soft\dev\yikai-panel\preparation\release-0.7.0\build\YikaiPanel-minimal',
     [string]$Source = 'D:\yikai',
+    [string]$Php = '8.2',
     [switch]$Force
 )
-# 最小包负载：Nginx + PHP 8.5 + MySQL 8.0 + 面板 + 默认站点。
+# 最小包负载：Nginx + 一个 PHP 版本（默认 8.2，与完整包的默认版本一致；-Php 可改）+ MySQL 8.0 + 面板。
 # 与完整包的区别：
-#   · 不带 Apache、MySQL 5.7、PHP 8.0/8.2（完整包与最小包都改为随包带运行库 DLL，不再带 24 MB 安装器）；
+#   · 不带 Apache、MySQL 5.7、其它 PHP 版本（完整包与最小包都改为随包带运行库 DLL，不再带 24 MB 安装器）；
 #   · PHP 目录里随包放 3 个 VC 运行库 DLL（vcruntime140 / vcruntime140_1 / msvcp140，约 1 MB），
 #     MySQL 8.0 自带这几个 DLL，因此两者都不再依赖系统是否装过 VC++ 运行库；
-#   · 数据库页面的 php.ini 由 PHP 8.5 的配置派生（模块内 PHP 版本由面板自动解析）。
+#   · 数据库页面的 php.ini 由随包 PHP 的配置派生（模块内 PHP 版本由面板自动解析）。
 $ErrorActionPreference = 'Stop'
 if (Test-Path $Build) {
     if (-not $Force) { throw "负载树已存在：$Build（加 -Force 重来）" }
@@ -32,9 +33,9 @@ if (-not (Test-Path $publish)) { throw "缺少发布产物：$publish（先 dotn
 New-Item -ItemType Directory -Path (Join-Path $payload 'panel') -Force | Out-Null
 Copy-Item $publish (Join-Path $payload 'panel\YikaiLocal.exe') -Force
 
-# Web 服务器与运行环境：只带 Nginx、PHP 8.5、MySQL 8.0
+# Web 服务器与运行环境：只带 Nginx、一个 PHP 版本、MySQL 8.0
 Copy-Tree (Join-Path $Source 'soft\nginx') (Join-Path $payload 'nginx') -excludeDirs @('logs','temp')
-Copy-Tree (Join-Path $Source 'soft\php\8.5') (Join-Path $payload 'php\8.5')
+Copy-Tree (Join-Path $Source "soft\php\$Php") (Join-Path $payload "php\$Php")
 Copy-Tree (Join-Path $Source 'soft\mysql\8.0') (Join-Path $payload 'mysql\8.0')
 Copy-Tree (Join-Path $Source 'soft\db-manager') (Join-Path $payload 'db-manager')
 # 不随包带 CMS 模板与默认站点：新建 YikaiCMS 项目时从官网下载（见 ProjectSources.MirrorCmsAsync）
@@ -43,7 +44,7 @@ Copy-Tree (Join-Path $Source 'soft\db-manager') (Join-Path $payload 'db-manager'
 # 包内 Apache/MySQL 自带的副本是 14.16，PHP 8.5 按 14.44 构建，旧副本会让 PHP 拒绝启动
 # （PHP Warning: ... is not compatible with this PHP build linked with 14.44）。
 $vcDlls = @('vcruntime140.dll','vcruntime140_1.dll','msvcp140.dll')
-$phpDir = Join-Path $payload 'php\8.5'
+$phpDir = Join-Path $payload "php\$Php"
 $picked = @()
 foreach ($dll in $vcDlls) {
     $candidates = @(
@@ -61,18 +62,18 @@ foreach ($dll in $vcDlls) {
 }
 Write-Host ('PHP 目录随包运行库：' + ($picked -join '、'))
 
-# 随包配置：数据库页面的 php.ini 由 PHP 8.5 的配置派生（日志与会话名区分开）
+# 随包配置：数据库页面的 php.ini 由随包 PHP 的配置派生（日志与会话名区分开）
 foreach ($file in @('cacert.pem','mime.types','fastcgi_params','yikaicms-rewrite.conf','panel.defaults.json','panel.schema.json')) {
     Copy-Item (Join-Path $Source "config\$file") (Join-Path $Build "config\$file")
 }
-$dbIni = (Get-Content (Join-Path $phpDir 'php.ini') -Raw).Replace('sessions-8.5','sessions-phpmyadmin').Replace('php-8.5.log','phpmyadmin-php.log')
+$dbIni = (Get-Content (Join-Path $phpDir 'php.ini') -Raw).Replace("sessions-$Php",'sessions-phpmyadmin').Replace("php-$Php.log",'phpmyadmin-php.log')
 [IO.File]::WriteAllText((Join-Path $Build 'config\phpmyadmin-php.ini'), $dbIni, [Text.UTF8Encoding]::new($false))
-if ($dbIni -notmatch 'soft/php/8\.5/ext') { throw '数据库页面 php.ini 未指向 PHP 8.5 的扩展目录' }
+if ($dbIni -notmatch ('soft/php/' + [regex]::Escape($Php) + '/ext')) { throw "数据库页面 php.ini 未指向 PHP $Php 的扩展目录" }
 
 # wwwroot 留空：新建项目时由面板创建目录并获取 CMS
 
 # 自检：不该出现的东西一个都不能有
-$forbidden = @('soft\apache','soft\php\8.0','soft\php\8.2','soft\mysql\5.7','soft\phpmyadmin','soft\prerequisites','soft\panel\YikaiLocal-')
+$forbidden = @('soft\apache') + @(@('8.0','8.2','8.5') | Where-Object { $_ -ne $Php } | ForEach-Object { "soft\php\$_" }) + @('soft\mysql\5.7','soft\phpmyadmin','soft\prerequisites','soft\panel\YikaiLocal-')
 $leaks = $forbidden | Where-Object { Test-Path (Join-Path $Build $_) }
 if (Test-Path (Join-Path $Build 'soft\packages\yikaicms')) { throw '最小包不应包含 CMS 模板' }
 if (Test-Path (Join-Path $Build 'wwwroot\yikaicms.yikai')) { throw '最小包不应包含默认站点' }
@@ -84,7 +85,7 @@ if ($devState) { throw ('负载里出现了开发状态文件：' + (($devState 
 $files = Get-ChildItem $Build -Recurse -Force -File
 $size = ($files | Measure-Object -Property Length -Sum).Sum / 1MB
 Write-Host ("最小包负载：{0:N0} MB，{1:N0} 个文件" -f $size, $files.Count)
-Write-Host ('组件：panel、nginx、php\8.5、mysql\8.0、db-manager、config（CMS 模板与默认站点按需下载）')
+Write-Host ("组件：panel、nginx、php\$Php、mysql\8.0、db-manager、config（CMS 模板与默认站点按需下载）")
 
 # 组装自检：用随包的 PHP 跑一次，确认运行库版本合适且扩展都能加载
 # （旧运行库会让 PHP 直接拒绝启动，这一条能在打包前抓到）
