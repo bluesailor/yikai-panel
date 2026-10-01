@@ -65,6 +65,12 @@ if (-not $SkipVerify) {
     & (Join-Path $base 'verify-minimal-download.ps1') -Phase clean | Select-Object -Last 1
     & (Join-Path $base 'verify-minimal-download.ps1') -Phase run -Installer (Join-Path $base "build\out-minimal\$minimalName.exe") | Select-Object -Last 3
     & (Join-Path $base 'verify-noop-rewrite.ps1') | Select-Object -Last 2
+    # 安装时填写的默认网站信息：两个包各装一次，核对首次启动自动装好的网站与后台账号
+    foreach ($setupInstaller in (Join-Path $base "build\out\$fullName.exe"), (Join-Path $base "build\out-minimal\$minimalName.exe")) {
+        & (Join-Path $base 'verify-setup-site.ps1') -Phase clean | Select-Object -Last 1
+        & (Join-Path $base 'verify-setup-site.ps1') -Installer $setupInstaller | Select-Object -Last 3
+        & (Join-Path $base 'verify-setup-site.ps1') -Phase clean | Select-Object -Last 1
+    }
 } else { Write-Host '跳过（-SkipVerify）' }
 
 Step '5/6 替换交付产物（D:\yikai\packages）'
@@ -95,5 +101,5 @@ if (Test-Path $target) {
 
 Step '完成'
 Write-Host "面板 SHA-256：$panelHash"
-Write-Host '验收报告：verification-all.json / verification-minimal.json / verification-minimal-download.json / verification-noop.json'
+Write-Host '验收报告：verification-all.json / verification-minimal.json / verification-minimal-download.json / verification-noop.json / verification-setup-site-*.json'
 Stop-Transcript | Out-Null

@@ -21,7 +21,13 @@ internal static class Program
             var settings=Settings.Load(root);
             if(args.Contains("--sync-hosts")){Runtime.SyncHosts(settings);return 0;}
             var runtime=new Runtime(settings);runtime.Adopt();
-            if(args.Contains("--start")){using var operation=Runtime.Lock(settings);runtime.Adopt();runtime.StartAsync().GetAwaiter().GetResult();return 0;}
+            if(args.Contains("--start")){
+                using var operation=Runtime.Lock(settings);runtime.Adopt();runtime.StartAsync().GetAwaiter().GetResult();
+                // 安装时填了默认网站信息：环境起来后装好默认站点（与界面首次启动相同）
+                if(runtime.CompleteSetupSiteAsync(async _=>await ProjectSources.YikaiCmsAsync(settings,new Progress<string>(Console.WriteLine),CancellationToken.None)).GetAwaiter().GetResult() is { } setup)
+                    Console.WriteLine($"setup-site={(setup.Installed?"ok":"failed")} message={setup.Message}");
+                return 0;
+            }
             // --start-site <域名或 id>：只把某个项目设为启用并启动环境（等同界面里点这个项目的启动）。
             // 扫描进来的项目都是停止状态，脚本化启动单个项目用它。
             if(Option("--start-site") is { } startSite)

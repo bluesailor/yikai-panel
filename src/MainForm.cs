@@ -51,7 +51,7 @@ public sealed partial class MainForm : Form
         tray.Icon=Icon;tray.Text="易开面板";tray.Visible=!renderOnly;tray.DoubleClick+=(_,_)=>ShowPanel();UpdateTray();
         if(!renderOnly){Load+=(_,_)=>RestoreWindowPlacement();Microsoft.Win32.SystemEvents.UserPreferenceChanged+=OnSystemPreference;}
         FormClosing+=(_,e)=>{if(!renderOnly)SaveWindowPlacement();if(!exit&&!renderOnly&&settings.MinimizeToTray&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();}};
-        Shown+=async(_,_)=>{if(!renderOnly&&startEnvironment)await Work(()=>runtime.StartAsync());};
+        Shown+=async(_,_)=>{if(!renderOnly&&startEnvironment){await Work(()=>runtime.StartAsync());await FinishSetupSite();}};
     }
     // 主题设为“跟随系统”时，Windows 改了应用模式就跟着换。
     void OnSystemPreference(object? sender,Microsoft.Win32.UserPreferenceChangedEventArgs e)

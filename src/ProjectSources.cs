@@ -44,15 +44,11 @@ public static class ProjectSources
 
     public static async Task<string> YikaiCmsAsync(Settings settings,IProgress<string> status,CancellationToken token)
     {
-        var bundled=BundledCms(settings);
-        // 本机还没有模板（最小包不带模板，也没有下载缓存）时，直接从配置的地址取一份并缓存。
-        if(!File.Exists(Path.Combine(bundled,"config","version.php")))
-        {
-            var mirrored=await MirrorCmsAsync(settings,status,token,(string?)null);
-            if(mirrored!=null)return mirrored;
-        }
         var local=NewestLocal(settings);
+        // 本机没有可用模板时（最简包），各条路都没拿到就退到 down.yikai.cn 镜像，而不是返回一个不存在的目录
+        async Task<string> LocalOrMirror()=>File.Exists(Path.Combine(local,"config","version.php"))?local:await MirrorCmsAsync(settings,status,token,(string?)null)??local;
         // 先走 YikaiCMS 官方更新服务器（国内机房）：它给出最新版本、国内下载地址和 SHA-256。
+        // 本机没有模板（最简包）时也先问它：down.yikai.cn 的 yikaicms-latest.zip 不一定及时更新（曾停在 2.0.0），只作兜底。
         // GitHub 在中国大陆经常很慢，只在更新服务器不可用时才用。
         if(await UpdateServerCmsAsync(settings,local,status,token) is {} fromUpdateServer)return fromUpdateServer;
         try
@@ -61,15 +57,15 @@ public static class ProjectSources
             status.Report("YikaiCMS · "+Tr(settings,"检查最新版本…","Checking for the latest version…","最新版を確認中…"));
             using var doc=JsonDocument.Parse(await client.GetStringAsync(CmsReleaseApi,token));
             var tag=doc.RootElement.GetProperty("tag_name").GetString()??"";var version=tag.TrimStart('v');
-            if(!Version.TryParse(version,out var latest))return local;
-            if(CmsVersion.Detect(local) is {} have&&Version.TryParse(have,out var haveVersion)&&haveVersion>=latest)return local;
+            if(!Version.TryParse(version,out var latest))return await LocalOrMirror();
+            if(CmsVersion.Detect(local) is {} have&&Version.TryParse(have,out var haveVersion)&&haveVersion>=latest)return await LocalOrMirror();
             var target=Path.Combine(settings.Root,"soft","cache","yikaicms-"+latest);
             if(File.Exists(Path.Combine(target,"config","version.php")))return target;
             var asset=doc.RootElement.GetProperty("assets").EnumerateArray().FirstOrDefault(a=>a.GetProperty("name").GetString()==$"yikaicms-v{latest}.zip");
-            if(asset.ValueKind!=JsonValueKind.Object)return local;
+            if(asset.ValueKind!=JsonValueKind.Object)return await LocalOrMirror();
             var url=asset.GetProperty("browser_download_url").GetString()!;
             var digest=asset.TryGetProperty("digest",out var d)?d.GetString():null;
-            if(digest==null||!digest.StartsWith("sha256:"))return await MirrorCmsAsync(settings,status,token,version)??local;
+            if(digest==null||!digest.StartsWith("sha256:"))return await MirrorCmsAsync(settings,status,token,version)??await LocalOrMirror();
             await DownloadAndExtract(client,url,digest[7..],SHA256.Create(),target,"YikaiCMS "+latest,settings,status,token);
             return target;
         }

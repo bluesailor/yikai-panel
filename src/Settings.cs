@@ -100,6 +100,7 @@ public sealed partial class Settings
             Directory.CreateDirectory(defaultSite);
             settings.Sites.Add(new Site { Domain = "yikaicms.localhost", Directory = defaultSite, Php = settings.PhpDefault=="8.0"?"8.2":settings.PhpDefault });
         }
+        settings.ApplySetupFile();
         settings.Save();
         return settings;
     }

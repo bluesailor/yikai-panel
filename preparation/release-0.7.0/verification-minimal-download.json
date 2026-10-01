@@ -56,7 +56,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "CMS 版本号可读（1.20.0）"
+                       "check":  "CMS 版本号可读（2.0.3）"
                    },
                    {
                        "passed":  true,
@@ -112,7 +112,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_localhost\u0026lang=zh\u0026download=demo_localhost-20260928-181450-1e135e.sql\"}"
+                       "check":  "数据库页面能真正执行备份（CSRF 与连接都正常）：{\"ok\":true,\"message\":\"\\u5907\\u4efd\\u5df2\\u4fdd\\u5b58\",\"download\":\"\\/action.php?site=demo_localhost\u0026lang=zh\u0026download=demo_localhost-20261002-065041-02a79d.sql\"}"
                    },
                    {
                        "passed":  true,

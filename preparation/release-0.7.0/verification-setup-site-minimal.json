@@ -1,0 +1,67 @@
+﻿{
+    "installer":  "YikaiPanel-0.8.5-minimal-setup-x64.exe",
+    "root":  "D:\\yikai-setup-test",
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "check":  "install: setup exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: setup-site.txt written for the first start"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "install: setup-site.txt carries the site name and admin user (UTF-8)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: panel --start exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: default site installed on first start"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: setup-site.txt removed after it was read"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: panel.json keeps the admin user (used by reset admin)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: setup is not retried on the next start"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: default site yikaicms.localhost registered (minimal)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: default site title is the site name from setup"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "start: CMS installed.lock written"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "cms: admin user logs in with the password from setup"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "cms: site_name setting is the setup site name (got 易开测试站)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "stop: panel --stop exited 0 (got 0)"
+                   },
+                   {
+                       "passed":  true,
+                       "check":  "uninstall: sandbox uninstalled (got 0)"
+                   }
+               ],
+    "failed":  false
+}

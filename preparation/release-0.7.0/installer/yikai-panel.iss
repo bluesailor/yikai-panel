@@ -72,6 +72,40 @@ english.CreateDesktopIcon=Create a desktop shortcut
 english.LaunchApp=Start Yikai Panel
 japanese.CreateDesktopIcon=デスクトップにショートカットを作成
 japanese.LaunchApp=易开面板を起動
+; “默认网站”页：网站名称与 YikaiCMS 后台账号（面板首次启动时按这里的信息自动装好默认网站）
+chinese.SitePageTitle=默认网站
+chinese.SitePageSubtitle=填写网站名称和后台管理员账号
+chinese.SitePageIntroFull=面板第一次启动时，会用这些信息自动装好随包的 YikaiCMS 网站（yikaicms.localhost）。忘记密码时可以在面板里一键重置。
+chinese.SitePageIntroMin=面板第一次启动时，会联网下载最新版 YikaiCMS，并用这些信息装好默认网站（yikaicms.localhost）。忘记密码时可以在面板里一键重置。
+chinese.SiteNamePrompt=网站名称：
+chinese.AdminUserPrompt=管理员用户名（4-20 位字母或数字）：
+chinese.AdminPasswordPrompt=管理员密码（至少 6 位）：
+chinese.DefaultSiteName=我的网站
+chinese.SiteNameError=请填写网站名称（不超过 100 个字）。
+chinese.AdminUserError=管理员用户名只能是 4-20 位英文字母或数字。
+chinese.AdminPasswordError=管理员密码至少 6 位（最多 64 位），首尾不能有空格。
+english.SitePageTitle=Default site
+english.SitePageSubtitle=Site name and admin account
+english.SitePageIntroFull=When the panel starts for the first time, it installs the bundled YikaiCMS site (yikaicms.localhost) with these details. If you forget the password, you can reset it from the panel.
+english.SitePageIntroMin=When the panel starts for the first time, it downloads the latest YikaiCMS and installs the default site (yikaicms.localhost) with these details. If you forget the password, you can reset it from the panel.
+english.SiteNamePrompt=Site name:
+english.AdminUserPrompt=Admin user name (4-20 letters or digits):
+english.AdminPasswordPrompt=Admin password (at least 6 characters):
+english.DefaultSiteName=My Website
+english.SiteNameError=Enter a site name (up to 100 characters).
+english.AdminUserError=The admin user name must be 4-20 letters or digits.
+english.AdminPasswordError=The admin password needs 6-64 characters and cannot start or end with a space.
+japanese.SitePageTitle=既定サイト
+japanese.SitePageSubtitle=サイト名と管理者アカウント
+japanese.SitePageIntroFull=パネルの初回起動時に、同梱の YikaiCMS サイト（yikaicms.localhost）をこの内容で自動インストールします。パスワードを忘れた場合はパネルからリセットできます。
+japanese.SitePageIntroMin=パネルの初回起動時に最新の YikaiCMS をダウンロードし、この内容で既定サイト（yikaicms.localhost）をインストールします。パスワードを忘れた場合はパネルからリセットできます。
+japanese.SiteNamePrompt=サイト名：
+japanese.AdminUserPrompt=管理者ユーザー名（英数字 4-20 文字）：
+japanese.AdminPasswordPrompt=管理者パスワード（6 文字以上）：
+japanese.DefaultSiteName=マイサイト
+japanese.SiteNameError=サイト名を入力してください（100 文字以内）。
+japanese.AdminUserError=管理者ユーザー名は英数字 4-20 文字にしてください。
+japanese.AdminPasswordError=管理者パスワードは 6-64 文字で、先頭と末尾に空白は使えません。
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -121,6 +155,7 @@ Filename: "{app}\soft\panel\{#AppExeName}"; Description: "{cm:LaunchApp}"; Flags
 [Code]
 var
   DeleteUserData: Boolean;
+  SitePage: TInputQueryWizardPage;
 
 function CreateFileW(lpFileName: String; dwDesiredAccess, dwShareMode: DWORD; lpSecurityAttributes: DWORD;
   dwCreationDisposition, dwFlagsAndAttributes: DWORD; hTemplateFile: THandle): DWORD;
@@ -236,9 +271,104 @@ begin
   end;
 end;
 
+// ---- 默认网站页 ----------------------------------------------------------------
+// 只在全新安装时出现：目标目录里已有 panel.json（升级、保留数据后重装）说明网站已经在了，不再询问。
+// 静默安装（自动化验收、批量部署）不显示页面：命令行给了 /SITENAME= /ADMINUSER= /ADMINPASS= 才写设置。
+function ExistingPanelConfig(const Dir: String): Boolean;
+begin
+  Result := FileExists(AddBackslash(Dir) + 'config\panel.json');
+end;
+
+function ValidAdminUser(const Value: String): Boolean;
+var
+  I: Integer;
+  C: Char;
+begin
+  Result := (Length(Value) >= 4) and (Length(Value) <= 20);
+  for I := 1 to Length(Value) do
+  begin
+    C := Value[I];
+    if not (((C >= 'a') and (C <= 'z')) or ((C >= 'A') and (C <= 'Z')) or ((C >= '0') and (C <= '9'))) then Result := False;
+  end;
+end;
+
+// 与 CMS 登录规则一致：登录时会 trim，首尾带空格的密码装进去就登不上
+function ValidAdminPassword(const Value: String): Boolean;
+begin
+  Result := (Length(Value) >= 6) and (Length(Value) <= 64) and (Trim(Value) = Value);
+end;
+
+function ValidSiteName(const Value: String): Boolean;
+begin
+  Result := (Length(Trim(Value)) > 0) and (Length(Trim(Value)) <= 100);
+end;
+
+procedure InitializeWizard();
+begin
+  SitePage := CreateInputQueryPage(wpSelectDir, CustomMessage('SitePageTitle'), CustomMessage('SitePageSubtitle'),
+#ifdef NoDefaultSite
+    CustomMessage('SitePageIntroMin'));
+#else
+    CustomMessage('SitePageIntroFull'));
+#endif
+  // 密码明文显示并预填 admin888：本地开发环境，面板里也会显示可恢复的账号
+  SitePage.Add(CustomMessage('SiteNamePrompt'), False);
+  SitePage.Add(CustomMessage('AdminUserPrompt'), False);
+  SitePage.Add(CustomMessage('AdminPasswordPrompt'), False);
+  SitePage.Values[0] := ExpandConstant('{param:SITENAME|' + CustomMessage('DefaultSiteName') + '}');
+  SitePage.Values[1] := ExpandConstant('{param:ADMINUSER|admin}');
+  SitePage.Values[2] := ExpandConstant('{param:ADMINPASS|admin888}');
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := (SitePage <> nil) and (PageID = SitePage.ID) and ExistingPanelConfig(WizardDirValue());
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if (SitePage = nil) or (CurPageID <> SitePage.ID) then Exit;
+  if not ValidSiteName(SitePage.Values[0]) then
+  begin
+    MsgBox(CustomMessage('SiteNameError'), mbError, MB_OK); Result := False; Exit;
+  end;
+  if not ValidAdminUser(SitePage.Values[1]) then
+  begin
+    MsgBox(CustomMessage('AdminUserError'), mbError, MB_OK); Result := False; Exit;
+  end;
+  if not ValidAdminPassword(SitePage.Values[2]) then
+  begin
+    MsgBox(CustomMessage('AdminPasswordError'), mbError, MB_OK); Result := False; Exit;
+  end;
+end;
+
+// 写 config\setup-site.txt（UTF-8，每行 key=value）：面板首次启动时读入、装好默认网站，然后删掉这个文件
+procedure WriteSetupSite();
+var
+  Lines: TArrayOfString;
+  Target: String;
+begin
+  if ExistingPanelConfig(ExpandConstant('{app}')) then Exit;
+  if WizardSilent() and (ExpandConstant('{param:SITENAME|}') = '') and (ExpandConstant('{param:ADMINUSER|}') = '') and (ExpandConstant('{param:ADMINPASS|}') = '') then Exit;
+  if not (ValidSiteName(SitePage.Values[0]) and ValidAdminUser(SitePage.Values[1]) and ValidAdminPassword(SitePage.Values[2])) then
+  begin
+    Log('默认网站设置不合规，未写入（面板首次启动时不自动安装默认网站）');
+    Exit;
+  end;
+  SetArrayLength(Lines, 3);
+  Lines[0] := 'siteName=' + Trim(SitePage.Values[0]);
+  Lines[1] := 'adminUser=' + SitePage.Values[1];
+  Lines[2] := 'adminPassword=' + SitePage.Values[2];
+  Target := ExpandConstant('{app}\config\setup-site.txt');
+  if SaveStringsToUTF8File(Target, Lines, False) then Log('默认网站设置已写入：' + Target)
+  else Log('默认网站设置写入失败：' + Target);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep <> ssPostInstall then Exit;
+  WriteSetupSite();
   // 自检结果写进安装日志：静默安装（自动化验收）不弹窗，但可以从日志核对
   if not RewriteIniPaths() then
   begin

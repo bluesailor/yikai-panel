@@ -5,7 +5,7 @@
 - 产品名：**易开面板**
 - 英文名：**Yikai Panel**（对外名称）
 - 产品定位：简单好用的 Windows 本地 PHP 开发环境
-- 当前版本：0.8.4（官网与 GitHub Release 提供 0.8.4 安装包）
+- 当前版本：0.8.5（官网与 GitHub Release 提供 0.8.5 安装包）
 - 默认根目录：`D:\yikai`
 - 官网：<https://panel.yikai.cn>
 

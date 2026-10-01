@@ -10,7 +10,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 [官网](https://panel.yikai.cn) · [下载安装包](https://panel.yikai.cn) · [问题反馈](https://github.com/bluesailor/yikai-panel/issues)
 
-当前版本 **0.8.4** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
+当前版本 **0.8.5** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
 
 </div>
 
@@ -47,7 +47,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 3. 启动后调用 CMS 自带的安装接口写 `config/config.php`、建表并创建管理员；
 4. 页面提示 `CMS 已安装 · 后台 admin / admin888`，直接点“打开后台”就能登录。
 
-忘了后台密码、账号被锁或两步验证丢了：在项目上点右键 →“重置后台管理员（admin / admin888）”，一键恢复成默认账号密码（启用账号、设为超级管理员、关闭它的两步验证、解除登录锁定；账号不存在时自动新建，其他管理员不动）。
+忘了后台密码、账号被锁或两步验证丢了：在项目上点右键 →“重置后台管理员”，一键恢复成安装时设置的账号密码（默认 admin / admin888）（启用账号、设为超级管理员、关闭它的两步验证、解除登录锁定；账号不存在时自动新建，其他管理员不动）。
 
 后台账号可在 `panel.json` 里改（`cmsAdminUser` / `cmsAdminPassword`），关掉自动安装用 `autoInstallCms: false`。
 下载失败时不再阻塞：会改写日志说明原因（含 HTTP 状态码），此时项目仍可在浏览器里用安装向导完成；本机已有缓存或随包模板时优先离线使用。
@@ -77,9 +77,13 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 1. 到 [官网](https://panel.yikai.cn) 下载 `YikaiPanel-<版本>-setup-x64.exe`（约 170 MB，完整离线环境）。
 2. 双击安装：默认装到 `D:\yikai`（没有 D 盘时用安装盘下的 `yikai`），安装过程不需要管理员权限。
-3. 打开面板，第一次会自动初始化 MySQL 并启动环境（约 30–60 秒），然后就能新建网站。
+   安装向导里填写默认网站的**网站名称、后台管理员用户名和密码**（默认 admin / admin888）。
+3. 打开面板，第一次会自动初始化 MySQL 并启动环境（约 30–60 秒），并用安装时填的信息装好默认网站
+   （最简包会先联网下载最新版 YikaiCMS），然后直接点“打开后台”登录。
 
-默认值：默认网站 `yikaicms.yikai`、网站目录 `<安装目录>\wwwroot`、MySQL 8.0 root / 123456、
+静默安装可用 `/SITENAME="我的网站" /ADMINUSER=admin /ADMINPASS=admin888` 传入同样的信息；不传时保持旧行为（首次打开网站进 CMS 安装向导）。
+
+默认值：默认网站 `yikaicms.localhost`、网站目录 `<安装目录>\wwwroot`、MySQL 8.0 root / 123456、
 数据库页面 `http://127.0.0.1:8878`。详细说明见安装包内的《交付说明》。
 
 **系统要求**：Windows 10 / 11 x64。安装包内置 .NET 运行时与全部组件，使用过程不需要联网。
