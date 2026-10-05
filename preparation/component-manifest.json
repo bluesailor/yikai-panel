@@ -86,14 +86,14 @@
       "probe": "soft/db-manager/vendor/adminer.php"
     },
     {
-      "source": "https://update.yikaicms.com/packages/yikaicms-v2.0.3.zip",
+      "source": "https://update.yikaicms.com/packages/yikaicms-v2.0.4.zip",
       "name": "YikaiCMS",
       "path": "soft/packages/yikaicms",
-      "version": "2.0.3",
-      "probeSha256": "12670b84b9996d356543a8c31d89e8817ede129fee10235afbfcdbbdce22c290",
+      "version": "2.0.4",
+      "probeSha256": "e5e38b3c43b00b538dbf6a0b7e4d7eb996224c47b6088c47fc045db4fc599c26",
       "probe": "soft/packages/yikaicms/config/version.php",
-      "zipSha256": "0B146463253446BC9B470BE1E83B6D26BA442B5AF95D8EAAB1AC0B977430AFEB",
-      "replacedFrom": "2.0.2（旧模板备份在 backups/yikaicms-template-2.0.2-*）"
+      "zipSha256": "A42222DF157221379C43EC7665C806632434059AE35AF403FEE803CB74850A0C",
+      "replacedFrom": "2.0.3（旧模板备份在 backups/yikaicms-template-2.0.3-*）"
     },
     {
       "source": "https://www.heidisql.com/downloads/releases/HeidiSQL_12.21_64_Portable.zip",
