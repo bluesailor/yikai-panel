@@ -103,7 +103,13 @@ echo json_encode(['login' => $hash !== false && password_verify($argv[3], $hash)
     $uninstall = RunExe (Join-Path $Root 'unins000.exe') @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART') 300
     Check ($uninstall.Code -eq 0) "uninstall: sandbox uninstalled (got $($uninstall.Code))"
     # 卸载器把自己复制到临时目录再执行：等它真正收尾，免得 clean 和它抢着删目录
-    for ($i = 0; $i -lt 120 -and (Test-Path (Join-Path $Root 'unins000.exe')); $i++) { Start-Sleep -Milliseconds 500 }
+    # 删除中的文件会让 Test-Path 报“拒绝访问”：当作还在，继续等
+    $uninstaller = Join-Path $Root 'unins000.exe'
+    for ($i = 0; $i -lt 120; $i++) {
+        $present = try { Test-Path -LiteralPath $uninstaller -ErrorAction Stop } catch { $true }
+        if (-not $present) { break }
+        Start-Sleep -Milliseconds 500
+    }
 }
 finally {
     $left = Clear-SandboxProcesses
