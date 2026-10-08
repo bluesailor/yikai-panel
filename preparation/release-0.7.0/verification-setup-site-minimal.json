@@ -1,5 +1,5 @@
 ﻿{
-    "installer":  "YikaiPanel-0.8.7-minimal-setup-x64.exe",
+    "installer":  "YikaiPanel-0.8.8-minimal-setup-x64.exe",
     "root":  "D:\\yikai-setup-test",
     "checks":  [
                    {
