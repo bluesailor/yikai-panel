@@ -100,8 +100,9 @@ public sealed partial class MainForm
             status.Text=T("正在应用，请稍候…","Applying, please wait…","適用しています。しばらくお待ちください…");
             try
             {
+                // Work 已经持有操作锁并接管了进程；这里再 Runtime.Lock 会第二次独占打开同一个锁文件，
+                // 直接报“panel-operation.lock 正被另一进程使用”，端口根本改不了。
                 await Work(async()=>{
-                    using var operation=Runtime.Lock(settings);runtime.Adopt();
                     try{result=await runtime.ChangeDatabasePortAsync(kind,wanted);}
                     catch(Exception error){failure=error.Message;}
                 });
@@ -112,13 +113,14 @@ public sealed partial class MainForm
                 if(!dialog.IsDisposed)
                 {
                     apply.Enabled=close.Enabled=engine.Enabled=port.Enabled=true;
+                    // 先刷新下拉框与端口框（RefreshPort 会改写状态文字），再写本次结果，否则结果一闪就被盖掉
+                    engine.Items.Clear();engine.Items.AddRange([$"MySQL 8.0 · 127.0.0.1:{settings.Mysql80Port}",$"MySQL 5.7 · 127.0.0.1:{settings.Mysql57Port}"]);engine.SelectedIndex=kind=="mysql57"?1:0;
+                    RefreshPort();RefreshState();
                     status.Text=failure!=null?T("未应用：","Not applied: ","適用できませんでした：")+failure
                         :result==null?T("未完成，请查看运行日志。","Not completed; see the runtime log.","完了できませんでした。ログを確認してください。")
                         :!result.Changed?T("端口没有变化。","The port was unchanged.","ポートは変更されていません。")
                         :result.Manual.Count>0?T($"端口已改为 {result.Port}。以下项目请手动检查连接：",$"Port changed to {result.Port}. Review these project connections: ",$"ポートを {result.Port} に変更しました。次の接続を確認してください：")+string.Join(", ",result.Manual)
                         :T($"端口已改为 {result.Port}，连接验证通过；同步 {result.Updated.Count} 个项目。",$"Port changed to {result.Port} and verified; {result.Updated.Count} project configuration(s) updated.",$"ポートを {result.Port} に変更し、接続確認と {result.Updated.Count} 件の更新が完了しました。");
-                    engine.Items.Clear();engine.Items.AddRange([$"MySQL 8.0 · 127.0.0.1:{settings.Mysql80Port}",$"MySQL 5.7 · 127.0.0.1:{settings.Mysql57Port}"]);engine.SelectedIndex=kind=="mysql57"?1:0;
-                    RefreshPort();RefreshState();
                 }
             }
         };
