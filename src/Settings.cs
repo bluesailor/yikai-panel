@@ -63,6 +63,8 @@ public sealed partial class Settings
     public int DbFastCgiPort { get; set; } = 9084;
     // PHP 进程池（见 PhpPools.cs）：每组最多几个 php-cgi；各组的端口由面板分配并记在这里
     public int PhpPoolSize { get; set; } = 4;
+    // 所有项目共用的 HTTP 端口（默认 80，按域名区分项目，网址不带端口号）；0 表示关闭。被别的程序占用时自动跳过，项目仍可用各自端口访问。
+    public int SharedHttpPort { get; set; } = 80;
     public Dictionary<string,List<int>> PhpPools { get; set; } = [];
     public int Mysql57Port { get; set; } = 3307;
     public int Mysql80Port { get; set; } = 3308;
@@ -120,6 +122,7 @@ public sealed partial class Settings
         FontSize = Math.Clamp(FontSize <= 0 ? 10f : FontSize, 9f, 13f);
         PhpPoolSize = Math.Clamp(PhpPoolSize <= 0 ? 4 : PhpPoolSize, 1, 16);
         PhpPools ??= [];
+        if(SharedHttpPort is < 0 or > 65535) SharedHttpPort = 80;
         if(string.IsNullOrWhiteSpace(CodeFont)) CodeFont = "Consolas";
         CodeFontSize = Math.Clamp(CodeFontSize <= 0 ? 10f : CodeFontSize, 8f, 18f);
     }
@@ -162,7 +165,8 @@ public sealed partial class Settings
         if(port==Mysql57Port||port==Mysql80Port)return "mysql";
         foreach(var site in Sites.Where(s=>s!=exclude))
         {
-            if(site.HttpPort==port||site.FastCgiPort==port)return "site";
+            // 共用端口（默认 80）按域名区分项目，多个项目可以同时用它
+            if(site.HttpPort==port&&port!=SharedHttpPort)return "site";
             if(site.Https&&site.HttpsPort==port)return "site";
         }
         return null;

@@ -26,7 +26,8 @@ public sealed partial class Runtime
         if(!ready)return new(false,ResetText($"项目端口 {site.HttpPort} 未监听，跳过自动安装。",$"Port {site.HttpPort} is not listening; skipping the automatic install.",$"ポート {site.HttpPort} が待ち受けていないため自動インストールを省略します。"));
         // 面板自己走 127.0.0.1 请求，避免依赖 hosts 是否同步
         var baseUrl=$"http://127.0.0.1:{site.HttpPort}";
-        var publicUrl=HasHosts(site)?$"http://{site.Domain}/":baseUrl+"/";
+        // 写进 CMS 的网站地址与“打开网站”一致：共用端口（默认 80）可用时不带端口号，否则带项目自己的端口
+        var publicUrl=SiteUrl(site);
         var sqlite=site.Database=="sqlite";
         var fields=new Dictionary<string,string>
         {

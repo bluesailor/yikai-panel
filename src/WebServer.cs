@@ -143,10 +143,15 @@ public sealed partial class Runtime
         sb.Append($"IncludeOptional \"{Slash(CustomConfigPath("apache"))}\"\n");
         // 各 PHP 进程池一个 balancer，项目的 .php 交给它（与 Nginx 的 upstream 相同）
         sb.Append(ApacheBalancers());
-        var secure=Settings.Sites.Where(SslReady).ToList();
-        foreach(var port in Settings.Sites.Select(s=>s.HttpPort).Concat(secure.Select(s=>s.HttpsPort)).Distinct())sb.Append($"Listen {WebBind}:{port}\n");
+        var secure=Settings.Sites.Where(SslReady).ToList();var shared=SharedPortForConfig();
+        foreach(var port in Settings.Sites.Select(s=>s.HttpPort).Concat(secure.Select(s=>s.HttpsPort)).Append(shared).Where(p=>p>0).Distinct())sb.Append($"Listen {WebBind}:{port}\n");
         sb.Append($"Listen 127.0.0.1:{Settings.DbManagerPort}\n");
-        foreach(var (site,port,ssl) in Settings.Sites.Select(s=>(s,s.HttpPort,false)).Concat(secure.Select(s=>(s,s.HttpsPort,true))))
+        // 共用端口（默认 80）按域名区分项目：第一个 VirtualHost 是默认主机，没有对应域名时返回 404
+        if(shared>0)sb.Append($"\n<VirtualHost {WebBind}:{shared}>\n    ServerName yikai-panel-default.invalid\n    Redirect 404 /\n</VirtualHost>\n");
+        var hosts=Settings.Sites.Select(s=>(s,s.HttpPort,false))
+            .Concat(shared>0?Settings.Sites.Where(s=>s.HttpPort!=shared).Select(s=>(s,shared,false)):[])
+            .Concat(secure.Select(s=>(s,s.HttpsPort,true)));
+        foreach(var (site,port,ssl) in hosts)
         {
             var dir=Slash(site.Directory);
             sb.Append($"\n<VirtualHost {WebBind}:{port}>\n    ServerName {site.Domain}\n    DocumentRoot \"{dir}\"\n");

@@ -154,6 +154,8 @@ public sealed partial class Runtime(Settings settings)
             Settings.SetDatabasePort(kind,port);
             used.Add(port);
         }
+        // 共用端口（默认 80）不分配给任何项目自己用（钉在 80 的项目除外，它们本来就和共用端口重合）
+        if(Settings.SharedHttpPort>0)used.Add(Settings.SharedHttpPort);
         foreach(var site in Settings.Sites.Where(s=>web&&s.Enabled&&PhpRunning(s))){used.Add(site.HttpPort);if(site.Https&&site.HttpsPort>0)used.Add(site.HttpsPort);}
         foreach(var site in Settings.Sites.Where(s=>!(web&&s.Enabled&&PhpRunning(s))))
         {
@@ -177,6 +179,8 @@ public sealed partial class Runtime(Settings settings)
             list.Add(new("http-"+site.Id,WebKey,site.HttpPort));
             if(site.Https&&site.HttpsPort>0)list.Add(new("https-"+site.Id,WebKey,site.HttpsPort));
         }
+        // 共用端口被别的程序占着时会自动跳过，不算冲突，所以只在能用时列出
+        if(SharedPortUsable())list.Add(new("http-shared",WebKey,Settings.SharedHttpPort));
         foreach(var (id,ports) in Settings.PhpPools)
             for(var i=0;i<ports.Count;i++)list.Add(new(PoolKey(id,i),PoolKey(id,i),ports[i]));
         list.Add(new("php-db","php-db",Settings.DbFastCgiPort));
@@ -313,15 +317,21 @@ public sealed partial class Runtime(Settings settings)
     }
     void WriteNginx()
     {
-        var root=Slash(Root);
+        var root=Slash(Root);var shared=SharedPortForConfig();
         var text=new StringBuilder($"worker_processes 1;\npid \"{root}/temp/panel-nginx.pid\";\nerror_log \"{root}/logs/panel-nginx-error.log\";\nevents {{ worker_connections 512; }}\nhttp {{\ninclude \"{root}/config/mime.types\";\naccess_log \"{root}/logs/panel-nginx-access.log\";\n");
         // 自定义配置（config/custom-nginx.conf）在 http 块内载入；写了同名指令时不再输出面板默认值，避免 nginx 报重复指令。
         EnsureCustomConfig(new ConfigFile("nginx","",CustomConfigPath("nginx"),"nginx"));var custom=CustomConfigText("nginx");
         if(!HasDirective(custom,"client_max_body_size"))text.Append("client_max_body_size 160m;\n");
         if(!HasDirective(custom,"fastcgi_read_timeout"))text.Append("fastcgi_read_timeout 600s;\n");
+        // 所有项目共用 80 端口后，几十个域名（含 yikai-jp-cosmetics.yikai 这类长名字）挤在同一个端口上，
+        // 默认的 server_names 哈希表放不下，nginx -t 直接报 could not build server_names_hash。
+        if(!HasDirective(custom,"server_names_hash_bucket_size"))text.Append("server_names_hash_bucket_size 128;\n");
+        if(!HasDirective(custom,"server_names_hash_max_size"))text.Append("server_names_hash_max_size 4096;\n");
         text.Append($"include \"{Slash(CustomConfigPath("nginx"))}\";\n");
         // 各 PHP 进程池一个 upstream，项目的 fastcgi_pass 指向它
         text.Append(NginxUpstreams());
+        // 共用端口上没有对应项目的域名（例如直接访问 127.0.0.1）：明确返回 404，而不是随便交给第一个项目
+        if(shared>0)text.AppendLine($"server {{ listen {WebBind}:{shared} default_server; return 404 \"Yikai Panel: no project uses this host name.\\n\"; }}");
         foreach(var site in Settings.Sites)
         {
             var rulePath=Path.Combine(Root,"config","panel-rewrite-"+site.Id+".conf");
@@ -333,7 +343,8 @@ public sealed partial class Runtime(Settings settings)
             if(site.RewriteRules is not null)rules=ExpandRewrite(site,site.RewriteRules);
             if(!site.Enabled)rules="location / { return 503; }";
             File.WriteAllText(rulePath,rules);
-            text.AppendLine($"server {{ listen {WebBind}:{site.HttpPort}; server_name {site.Domain}; root \"{Slash(site.Directory)}\"; index index.php index.html; include \"{Slash(rulePath)}\"; }}");
+            var listen=shared>0&&site.HttpPort!=shared?$"listen {WebBind}:{site.HttpPort}; listen {WebBind}:{shared};":$"listen {WebBind}:{site.HttpPort};";
+            text.AppendLine($"server {{ {listen} server_name {site.Domain}; root \"{Slash(site.Directory)}\"; index index.php index.html; include \"{Slash(rulePath)}\"; }}");
             if(SslReady(site)){var (certificate,key)=CertificatePaths(site);text.AppendLine($"server {{ listen {WebBind}:{site.HttpsPort} ssl; server_name {site.Domain}; root \"{Slash(site.Directory)}\"; index index.php index.html; ssl_certificate \"{Slash(certificate)}\"; ssl_certificate_key \"{Slash(key)}\"; ssl_protocols TLSv1.2 TLSv1.3; include \"{Slash(rulePath)}\"; }}");}
         }
         text.AppendLine($"server {{ listen 127.0.0.1:{Settings.DbManagerPort}; server_name localhost 127.0.0.1; root \"{root}/soft/db-manager\"; index index.php; location ^~ /vendor/ {{ deny all; }} location ~ ^/(bootstrap|common|lang)\\.php$ {{ deny all; }} location ~ ^/adminer\\.php/([a-z0-9_]+)/(zh|en|ja)$ {{ include \"{root}/config/fastcgi_params\"; fastcgi_param SCRIPT_FILENAME \"{root}/soft/db-manager/adminer.php\"; fastcgi_param PATH_INFO /$1/$2; fastcgi_pass 127.0.0.1:{Settings.DbFastCgiPort}; }} location / {{ try_files $uri $uri/ =404; }} location ~ \\.php$ {{ try_files $uri =404; include \"{root}/config/fastcgi_params\"; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass 127.0.0.1:{Settings.DbFastCgiPort}; }} }}\n}}");
@@ -364,8 +375,10 @@ public sealed partial class Runtime(Settings settings)
     public static string WebUrl(string scheme,string host,int port)=>
         port==(scheme=="https"?443:80)?$"{scheme}://{host}/":$"{scheme}://{host}:{port}/";
     // 开启 HTTPS 后打开网站走 https；证书包含 127.0.0.1，未同步 hosts 时也能用。
+    // 共用端口（默认 80）可用且域名能解析时，网址就是 http://域名/
     public string SiteUrl(Site site) => site.Https&&site.HttpsPort>0
         ?WebUrl("https",HasHosts(site)?site.Domain:"127.0.0.1",site.HttpsPort)
+        :UsesSharedPort(site)?WebUrl("http",site.Domain,Settings.SharedHttpPort)
         :WebUrl("http",HasHosts(site)?site.Domain:"127.0.0.1",site.HttpPort);
     public string DatabaseUrl(Site site) => $"http://127.0.0.1:{Settings.DbManagerPort}/?site={Uri.EscapeDataString(site.Id)}&lang={Settings.Language}";
     // 只有项目域名与面板管理的 hosts 区块不一致时才需要请求管理员权限。
