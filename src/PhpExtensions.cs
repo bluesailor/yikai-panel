@@ -48,18 +48,8 @@ public sealed partial class Runtime
         (site.ExtensionsOn??[]).Select(n=>(n,IsZend(n),true)).Concat((site.ExtensionsOff??[]).Select(n=>(n,IsZend(n),false))).ToList();
     public bool SiteHasOwnExtensions(Site site)=>SiteExtensionChanges(site).Count>0;
 
-    // 项目自己的 php.ini：该 PHP 版本的配置 + 本项目的扩展增删 + 安装向导预填脚本。启动项目 PHP 时生成。
-    public string SitePhpIni(Site site)
-    {
-        var text=File.ReadAllText(PhpIniPath(site.Php));
-        var changes=SiteExtensionChanges(site);
-        if(changes.Count>0)text=ApplyPhpExtensions(text,changes);
-        var path=Path.Combine(Root,"config","panel-php-"+site.Id+".ini");
-        File.WriteAllText(path,text+"\nauto_prepend_file=\""+Slash(Path.Combine(Root,"soft","db-manager","install-prefill.php"))+"\"\n",Utf8NoBom);
-        return path;
-    }
-
-    // 保存某个项目的扩展选择：先用该 PHP 版本检查生成的配置，再写入并只重启这个项目的 PHP。调用方持有 Runtime.Lock。
+    // 保存某个项目的扩展选择：先用该 PHP 版本检查生成的配置，再写入。
+    // 项目会换到“版本 + 扩展增删”对应的进程池（与扩展设置相同的项目共用），不重启其它项目在用的进程。调用方持有 Runtime.Lock。
     public async Task<string> SaveSiteExtensionsAsync(Site site,IReadOnlyCollection<string> enabled)
     {
         var defaults=PhpExtensionList(site.Php);
@@ -71,26 +61,36 @@ public sealed partial class Runtime
         var changes=on.Select(n=>(n,IsZend(n),true)).Concat(off.Select(n=>(n,IsZend(n),false))).ToList();
         var candidate=changes.Count==0?File.ReadAllText(PhpIniPath(site.Php)):ApplyPhpExtensions(File.ReadAllText(PhpIniPath(site.Php)),changes);
         await CheckConfigAsync(new ConfigFile("php"+site.Php,"",PhpIniPath(site.Php),"php",site.Php),candidate);
+        var wasRunning=site.Enabled&&PhpRunning(site);
         site.ExtensionsOn=on.Count>0?on:null;site.ExtensionsOff=off.Count>0?off:null;
         try
         {
             Settings.Save();
-            if(!Alive("php-"+site.Id))return ResetText($"已保存，{site.Domain} 下次启动时生效。",$"Saved. {site.Domain} uses it on next start.",$"保存しました。{site.Domain} の次回起動時に反映します。");
-            await RestartSitePhpAsync(site);
-            return ResetText($"已保存，{site.Domain} 的 PHP 已重启。",$"Saved and PHP for {site.Domain} restarted.",$"保存し、{site.Domain} の PHP を再起動しました。");
+            if(!wasRunning)return ResetText($"已保存，{site.Domain} 下次启动时生效。",$"Saved. {site.Domain} uses it on next start.",$"保存しました。{site.Domain} の次回起動時に反映します。");
+            await SyncPhpPoolsAsync();
+            return ResetText($"已保存，{site.Domain} 已按新的扩展设置运行。",$"Saved. {site.Domain} now runs with the new extensions.",$"保存しました。{site.Domain} は新しい拡張設定で動作しています。");
         }
         catch
         {
-            (site.ExtensionsOn,site.ExtensionsOff)=previous;Settings.Save();throw;
+            (site.ExtensionsOn,site.ExtensionsOff)=previous;Settings.Save();
+            if(wasRunning)try{await SyncPhpPoolsAsync();}catch(IOException){/* 恢复失败时保留原错误给用户 */}
+            throw;
         }
     }
-    // 只重启这一个项目的 PHP，不动其他项目和共享服务。
+    // 让运行中的进程池与项目设置一致：拉起新需要的进程池、重载 Web 服务器、停掉没人用的进程池。
+    async Task SyncPhpPoolsAsync()
+    {
+        PreparePorts();
+        var failures=await StartPools(NeededPools());
+        if(WebAlive)await ReloadWebServer();
+        await StopUnusedPhp();
+        if(failures.Count>0)throw new IOException(string.Join("\n\n",failures));
+    }
+    // 重启这个项目所在的 PHP 进程池（同组的其它项目也会一起重启，通常只需一两秒）。
     public async Task RestartSitePhpAsync(Site site)
     {
-        var key="php-"+site.Id;
-        if(Alive(key)){processes[key].Kill();await processes[key].WaitForExitAsync();}
-        processes.Remove(key);SaveProcesses();
-        await StartSitePhp(site);
+        await StopPool(PoolOf(site).Id);
+        await SyncPhpPoolsAsync();
         Log("PHP restarted · "+site.Domain);
     }
 

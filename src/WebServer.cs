@@ -27,7 +27,9 @@ public sealed partial class Runtime
         return settings.PhpDefault;
     }
     IEnumerable<Site> PhpSites(string? version)=>Settings.Sites.Where(s=>version==null||s.Php==version);
-    string[] PhpKeys(string? version)=>version==null?SitePhpKeys.ToArray():PhpSites(version).Select(s=>"php-"+s.Id).Where(Alive).ToArray();
+    // 正在运行的项目 PHP 进程（进程池成员；version 只取该版本的进程池）
+    string[] PhpKeys(string? version)=>version==null?SitePhpKeys.Where(Alive).ToArray()
+        :SitePhpKeys.Where(k=>k.StartsWith(PoolPrefix,StringComparison.Ordinal)&&PoolVersion(PoolIdOfKey(k))==version&&Alive(k)).ToArray();
     public string WebKey=>Settings.WebServer;
     public static string WebServerName(string kind)=>kind=="apache"?"Apache "+ApacheVersion:"Nginx";
     string NginxExecutable=>Path.Combine(Root,"soft","nginx","nginx.exe");
@@ -95,14 +97,14 @@ public sealed partial class Runtime
                 var version=PhpVersionOf(service);
                 if(version!=null&&!PhpInstalled(version))throw new FileNotFoundException(ResetText($"未找到 PHP {version} 组件（soft\\php\\{version}）。",$"PHP {version} is not installed (soft\\php\\{version}).",$"PHP {version} がありません（soft\\php\\{version}）。"));
                 PreparePorts();
-                foreach(var site in PhpSites(version).Where(s=>s.Enabled))await StartSitePhp(site);
-                if(WebAlive)await ReloadWebServer();
+                try{await StartPhpFor(version);}
+                finally{if(WebAlive)await ReloadWebServer();}
                 break;
             }
             case "mysql80" or "mysql57":
                 await EnsureDatabaseAsync(service);
                 // 补建 PHP 先于 MySQL 单独启动时跳过的项目数据库（CREATE DATABASE IF NOT EXISTS，可重复执行）。
-                foreach(var site in Settings.Sites.Where(s=>s.Enabled&&s.Database==service&&Alive("php-"+s.Id)))await PrepareSiteDatabase(site);
+                foreach(var site in Settings.Sites.Where(s=>s.Enabled&&s.Database==service&&PhpRunning(s)))await PrepareSiteDatabase(site);
                 break;
             case "dbpage":PreparePorts();await StartDatabasePage();if(WebAlive)await ReloadWebServer();break;
             default:throw new ArgumentException("Unknown service.");
@@ -132,13 +134,15 @@ public sealed partial class Runtime
     {
         var root=Slash(Root);var sb=new StringBuilder();
         sb.Append($"# 由易开面板生成，手动修改会被覆盖。\nServerRoot \"{Slash(ApacheHome)}\"\nServerName localhost\nPidFile \"{root}/temp/panel-apache.pid\"\nDefaultRuntimeDir \"{root}/temp\"\nErrorLog \"{root}/logs/panel-apache-error.log\"\nLogLevel warn\n");
-        foreach(var module in new[]{"access_compat","alias","auth_basic","authn_core","authn_file","authz_core","authz_groupfile","authz_host","authz_user","autoindex","deflate","dir","env","expires","filter","headers","log_config","mime","proxy","proxy_fcgi","rewrite","setenvif","ssl","version"})
+        foreach(var module in new[]{"access_compat","alias","auth_basic","authn_core","authn_file","authz_core","authz_groupfile","authz_host","authz_user","autoindex","deflate","dir","env","expires","filter","headers","log_config","mime","proxy","proxy_fcgi","proxy_balancer","lbmethod_bybusyness","slotmem_shm","rewrite","setenvif","ssl","version"})
             sb.Append($"LoadModule {module}_module modules/mod_{module}.so\n");
         sb.Append($"TypesConfig conf/mime.types\nAcceptFilter http none\nAcceptFilter https none\nEnableSendfile Off\nEnableMMAP Off\nThreadsPerChild 64\nTimeout 600\nProxyTimeout 600\nLimitRequestBody 167772160\nKeepAlive On\nServerTokens Prod\n");
         sb.Append($"LogFormat \"%h %l %u %t \\\"%r\\\" %>s %b \\\"%{{Referer}}i\\\" \\\"%{{User-Agent}}i\\\"\" combined\nCustomLog \"{root}/logs/panel-apache-access.log\" combined\nDirectoryIndex index.php index.html\n");
         sb.Append("<Directory />\n    Options FollowSymLinks\n    AllowOverride None\n    Require all denied\n</Directory>\n<Files \".ht*\">\n    Require all denied\n</Files>\n");
         // 自定义配置（config/custom-apache.conf）：在面板默认值之后、各 VirtualHost 之前载入，同名指令覆盖默认值。
         sb.Append($"IncludeOptional \"{Slash(CustomConfigPath("apache"))}\"\n");
+        // 各 PHP 进程池一个 balancer，项目的 .php 交给它（与 Nginx 的 upstream 相同）
+        sb.Append(ApacheBalancers());
         var secure=Settings.Sites.Where(SslReady).ToList();
         foreach(var port in Settings.Sites.Select(s=>s.HttpPort).Concat(secure.Select(s=>s.HttpsPort)).Distinct())sb.Append($"Listen {WebBind}:{port}\n");
         sb.Append($"Listen 127.0.0.1:{Settings.DbManagerPort}\n");
@@ -152,21 +156,24 @@ public sealed partial class Runtime
             sb.Append("    <LocationMatch \"/\\.\">\n        Require all denied\n    </LocationMatch>\n    <LocationMatch \"^/storage/\">\n        Require all denied\n    </LocationMatch>\n");
             // 与 Nginx 通用模板一致：非 YikaiCMS 项目把不存在的地址交给 index.php；YikaiCMS 使用自带 .htaccess。
             if(site.Template!="yikaicms")sb.Append("    FallbackResource /index.php\n");
-            sb.Append(ApachePhpHandler(site.FastCgiPort)).Append("</VirtualHost>\n");
+            sb.Append(ApachePhpHandler($"balancer://{UpstreamName(PoolOf(site).Id)}")).Append("</VirtualHost>\n");
         }
         var manager=root+"/soft/db-manager";
         sb.Append($"\n<VirtualHost 127.0.0.1:{Settings.DbManagerPort}>\n    ServerName localhost\n    DocumentRoot \"{manager}\"\n    <Directory \"{manager}\">\n        Options None\n        AllowOverride None\n        Require all granted\n    </Directory>\n");
         sb.Append("    <LocationMatch \"^/vendor/\">\n        Require all denied\n    </LocationMatch>\n    <LocationMatch \"^/(bootstrap|common|lang)\\.php\">\n        Require all denied\n    </LocationMatch>\n");
         sb.Append("    <LocationMatch \"^/(?!adminer\\.php/[a-z0-9_]+/(zh|en|ja)$)[^/]+\\.php/\">\n        Require all denied\n    </LocationMatch>\n");
-        sb.Append(ApachePhpHandler(Settings.DbFastCgiPort)).Append("</VirtualHost>\n");
+        sb.Append(ApachePhpHandler($"fcgi://127.0.0.1:{Settings.DbFastCgiPort}")).Append("</VirtualHost>\n");
         Directory.CreateDirectory(Path.Combine(Root,"config"));Directory.CreateDirectory(Path.Combine(Root,"logs"));Directory.CreateDirectory(Path.Combine(Root,"temp"));
         File.WriteAllText(ApacheConfig,sb.ToString(),new UTF8Encoding(false));
     }
     // Windows 路径以盘符开头，mod_proxy_fcgi 会把 SCRIPT_FILENAME 写成 proxy:fcgi://host:port/D:/...，
     // php-cgi 不识别该前缀，这里去掉前缀并清除同样带前缀的 PATH_TRANSLATED。
-    static string ApachePhpHandler(int port)=>
-        $"    <FilesMatch \"\\.php$\">\n        <If \"-f %{{REQUEST_FILENAME}}\">\n            SetHandler \"proxy:fcgi://127.0.0.1:{port}/\"\n        </If>\n    </FilesMatch>\n"+
-        "    ProxyFCGISetEnvIf \"reqenv('SCRIPT_FILENAME') =~ m#^proxy:fcgi://[^/]+/(.+)$#\" SCRIPT_FILENAME \"$1\"\n    ProxyFCGISetEnvIf \"true\" !PATH_TRANSLATED\n";
+    // target：fcgi://127.0.0.1:端口（数据库页面）或 balancer://进程池（项目）。
+    // 直连时 SCRIPT_FILENAME 是 proxy:fcgi://127.0.0.1:端口/D:/...，经 balancer 时是 /D:/...（实测 Apache 2.4.39），
+    // 两种都还原成 D:/... 交给 php-cgi。
+    static string ApachePhpHandler(string target)=>
+        $"    <FilesMatch \"\\.php$\">\n        <If \"-f %{{REQUEST_FILENAME}}\">\n            SetHandler \"proxy:{target}/\"\n        </If>\n    </FilesMatch>\n"+
+        "    ProxyFCGISetEnvIf \"reqenv('SCRIPT_FILENAME') =~ m#^(?:proxy:(?:fcgi|balancer)://[^/]+)?/([A-Za-z]:/.+)$#\" SCRIPT_FILENAME \"$1\"\n    ProxyFCGISetEnvIf \"true\" !PATH_TRANSLATED\n";
 
     // Any：至少一个进程在运行；All：该服务应有的进程全部在运行。
     public (bool Any,bool All) ServiceState(string service)
@@ -174,8 +181,8 @@ public sealed partial class Runtime
         if(service is "php" or "php8.0" or "php8.2" or "php8.5")
         {
             var version=PhpVersionOf(service);
-            var enabled=PhpSites(version).Where(s=>s.Enabled).Select(s=>Alive("php-"+s.Id)).ToList();
-            return (PhpKeys(version).Length>0,enabled.Count>0&&enabled.All(alive=>alive));
+            var pools=NeededPools(version);
+            return (PhpKeys(version).Length>0,pools.Count>0&&pools.All(p=>PoolAlive(p.Id)));
         }
         var alive=Alive(service switch{"web"=>WebKey,"dbpage"=>"php-db",_=>service});
         return (alive,alive);

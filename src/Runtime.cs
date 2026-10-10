@@ -22,7 +22,7 @@ public sealed partial class Runtime(Settings settings)
     bool Alive(string key)=>processes.TryGetValue(key,out var p)&&!p.HasExited;
     public bool ServiceRunning(string key)=>Alive(key);
     public int? ServicePid(string key)=>Alive(key)?processes[key].Id:null;
-    public bool IsRunning(Site site)=>site.Enabled&&Alive(WebKey)&&Alive("php-"+site.Id)&&(site.Database is "sqlite" or "none"||Alive(site.Database));
+    public bool IsRunning(Site site)=>site.Enabled&&Alive(WebKey)&&PhpRunning(site)&&(site.Database is "sqlite" or "none"||Alive(site.Database));
     public bool Running => Alive(WebKey)&&Alive("php-db")&&Alive(Settings.MysqlActive)&&Settings.Sites.Where(s=>s.Enabled).All(IsRunning);
     public bool AnyRunning => processes.Values.Any(p => !p.HasExited);
     void Log(string text) { Progress?.Invoke(text); Directory.CreateDirectory(Path.Combine(Root,"logs")); File.AppendAllText(Path.Combine(Root,"logs","panel.log"), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {text}\n"); }
@@ -70,7 +70,11 @@ public sealed partial class Runtime(Settings settings)
     {
         if(processes.TryGetValue(key,out var old) && !old.HasExited) return;
         executablePaths[key]=executable;
-        processes[key] = Process.Start(Info(executable,args)) ?? throw new IOException("Process could not start.");
+        var info=Info(executable,args);
+        // php-cgi 默认处理 500 个请求后自行退出（PHP_FCGI_MAX_REQUESTS），Windows 上没有父进程替它重启；
+        // 多个项目共用进程池后很快就会到 500，所以关掉这个上限。
+        if(Path.GetFileName(executable).Equals("php-cgi.exe",StringComparison.OrdinalIgnoreCase))info.Environment["PHP_FCGI_MAX_REQUESTS"]="0";
+        processes[key] = Process.Start(info) ?? throw new IOException("Process could not start.");
         SaveProcesses();
     }
     static int FreePort(int desired, HashSet<int> used)
@@ -124,7 +128,7 @@ public sealed partial class Runtime(Settings settings)
         var file=Path.Combine(Root,"logs",key switch {
             "mysql57"=>"panel-mysql57.log","mysql80"=>"panel-mysql80.log",
             "nginx"=>"panel-nginx-error.log","apache"=>"panel-apache-error.log","php-db"=>"phpmyadmin-php.log",
-            _=>Settings.Sites.FirstOrDefault(s=>"php-"+s.Id==key) is { } site?$"php-{site.Php}.log":"panel.log"});
+            _=>key.StartsWith(PoolPrefix,StringComparison.Ordinal)?$"php-{PoolVersion(PoolIdOfKey(key))}.log":"panel.log"});
         try { return File.Exists(file)?string.Join("\n",File.ReadLines(file).Where(l=>l.Trim().Length>0).TakeLast(6)):""; }
         catch (IOException) { return ""; }
     }
@@ -150,16 +154,17 @@ public sealed partial class Runtime(Settings settings)
             Settings.SetDatabasePort(kind,port);
             used.Add(port);
         }
-        foreach(var site in Settings.Sites.Where(s=>Alive("php-"+s.Id))){used.Add(site.HttpPort);used.Add(site.FastCgiPort);if(site.Https&&site.HttpsPort>0)used.Add(site.HttpsPort);}
-        foreach(var site in Settings.Sites.Where(s=>!Alive("php-"+s.Id)))
+        foreach(var site in Settings.Sites.Where(s=>web&&s.Enabled&&PhpRunning(s))){used.Add(site.HttpPort);if(site.Https&&site.HttpsPort>0)used.Add(site.HttpsPort);}
+        foreach(var site in Settings.Sites.Where(s=>!(web&&s.Enabled&&PhpRunning(s))))
         {
             // 指定过端口的项目（常用端口 80 等）保持原样：被占用时由启动报错说明，不静默换端口。
             if(site.PortPinned)used.Add(site.HttpPort);
             else if(!web||!File.Exists(Path.Combine(Root,"config","panel-rewrite-"+site.Id+".conf")))site.HttpPort=FreePort(site.HttpPort,used);
             else used.Add(site.HttpPort);
-            site.FastCgiPort=FreePort(site.FastCgiPort,used);
             if(site.Https){if(site.PortPinned&&site.HttpsPort>0)used.Add(site.HttpsPort);else if(!web||site.HttpsPort<=0)site.HttpsPort=FreePort(site.HttpsPort>0?site.HttpsPort:8443,used);else used.Add(site.HttpsPort);}
         }
+        // PHP 不再按项目分端口（site.FastCgiPort 只为兼容旧配置保留），由进程池统一分配
+        PreparePoolPorts(used);
         Settings.Save();
     }
     // 端口排查：面板管理的每个端口及其归属服务（网站的 http/https 端口由 Web 服务器进程监听）。
@@ -171,8 +176,9 @@ public sealed partial class Runtime(Settings settings)
         {
             list.Add(new("http-"+site.Id,WebKey,site.HttpPort));
             if(site.Https&&site.HttpsPort>0)list.Add(new("https-"+site.Id,WebKey,site.HttpsPort));
-            list.Add(new("php-"+site.Id,"php-"+site.Id,site.FastCgiPort));
         }
+        foreach(var (id,ports) in Settings.PhpPools)
+            for(var i=0;i<ports.Count;i++)list.Add(new(PoolKey(id,i),PoolKey(id,i),ports[i]));
         list.Add(new("php-db","php-db",Settings.DbFastCgiPort));
         list.Add(new("dbpage",WebKey,Settings.DbManagerPort));
         list.Add(new("mysql80","mysql80",Settings.Mysql80Port));
@@ -193,22 +199,20 @@ public sealed partial class Runtime(Settings settings)
         }
         return text.ToString();
     }
-    async Task StartSitePhp(Site site)
-    {
-        if(Alive("php-"+site.Id))return;
-        await LaunchSitePhp(site);
-        await WaitPort("php-"+site.Id,site.FastCgiPort);
-    }
-    // 拉起项目的 PHP 进程但不等它就绪（StartAsync 拉起全部后统一等，见 WaitPorts）
-    async Task LaunchSitePhp(Site site)
+    // 项目启动前的准备：storage 目录与数据库（建好过且没变化时直接跳过，见 PrepareSiteDatabase）。
+    async Task PrepareSite(Site site)
     {
         Directory.CreateDirectory(Path.Combine(site.Directory,"storage"));
         // 单独启动 PHP 时 MySQL 可能未运行：PHP 照常启动，建库推迟到该 MySQL 启动时（见 StartServiceAsync）。
         if(site.Database is not ("mysql80" or "mysql57")||Alive(site.Database))await PrepareSiteDatabase(site);
         else Log($"MySQL {Settings.DatabaseVersion(site.Database)} not running · database deferred · {site.Domain}");
-        Log($"PHP {site.Php} · {site.Domain}");
-        var siteIni=SitePhpIni(site);
-        Start("php-"+site.Id,Path.Combine(Root,"soft","php",site.Php,"php-cgi.exe"),"-c",siteIni,"-d",NoOpcache,"-b",$"127.0.0.1:{site.FastCgiPort}");
+    }
+    // 启动某个 PHP 版本（null=全部）的项目：准备各项目，再拉起它们用到的进程池；失败汇总后抛出
+    async Task StartPhpFor(string? version)
+    {
+        foreach(var site in Settings.Sites.Where(s=>s.Enabled&&(version==null||s.Php==version)))await PrepareSite(site);
+        var failures=await StartPools(NeededPools(version));
+        if(failures.Count>0)throw new IOException(string.Join("\n\n",failures));
     }
     // 同时等多个服务就绪：每 100 毫秒统一检查一轮，返回起不来的那些（附原因），不在第一个失败处中断。
     async Task<List<string>> WaitPorts(IReadOnlyList<(string Key,int Port)> pending)
@@ -235,30 +239,33 @@ public sealed partial class Runtime(Settings settings)
         await WaitPort("php-db",Settings.DbFastCgiPort);
     }
     // 默认一起启动：所选 Web 服务器、启用项目的 PHP、所选 MySQL，以及项目用到的另一版本 MySQL。
-    public async Task StartAsync()
+    public Task StartAsync()=>StartAsync(false);
+    // force：启动单个项目时用。它所在的进程池可能早已在运行，Running 会显示“都在运行”，
+    // 但新项目的数据库还没建、Web 服务器配置里也还是 503，必须走完整流程（已在运行的部分会直接跳过）。
+    async Task StartAsync(bool force)
     {
-        if(Running)return;
+        if(Running&&!force)return;
         PreparePorts();
         foreach(var kind in Settings.Sites.Where(s=>s.Enabled).Select(s=>s.Database).Prepend(Settings.MysqlActive).Where(k=>k is "mysql80" or "mysql57").Distinct())
             if(!Alive(kind))await StartDatabase(kind);
-        // 各项目的 PHP 先全部拉起，再一起等端口就绪（以前逐个启动、逐个等待，几十个项目要排队十来秒）。
-        // 个别项目起不来时照样启动数据库页面和 Web 服务器，让其它项目可用，最后把失败的项目一起报出来。
-        var sites=Settings.Sites.Where(s=>s.Enabled&&!Alive("php-"+s.Id)).ToList();
-        foreach(var site in sites)await LaunchSitePhp(site);
-        var failures=await WaitPorts(sites.Select(s=>("php-"+s.Id,s.FastCgiPort)).ToList());
+        // 准备各启用项目（库已建好时跳过），再拉起它们用到的 PHP 进程池并一起等就绪。
+        // 个别进程起不来时照样启动数据库页面和 Web 服务器，让其它项目可用，最后把失败的一起报出来。
+        foreach(var site in Settings.Sites.Where(s=>s.Enabled))await PrepareSite(site);
+        var failures=await StartPools(NeededPools());
         await StartDatabasePage();
         await ReloadWebServer();
+        await StopUnusedPhp();
         if(failures.Count>0)throw new IOException(string.Join("\n\n",failures));
         Log("Ready");
     }
-    public async Task StartSiteAsync(Site site){site.Enabled=true;Settings.Save();await StartAsync();}
+    public async Task StartSiteAsync(Site site){site.Enabled=true;Settings.Save();await StartAsync(true);}
     public async Task StopSiteAsync(Site site)
     {
         site.Enabled=false;Settings.Save();
         if(WebAlive)await ReloadWebServer();
-        var key="php-"+site.Id;
-        if(Alive(key)){processes[key].Kill();await processes[key].WaitForExitAsync();}
-        processes.Remove(key);SaveProcesses();Log("Stopped · "+site.Domain);
+        // PHP 进程池可能还有其它项目在用：只在这一组已没有启用项目时才停掉
+        await StopUnusedPhp();
+        Log("Stopped · "+site.Domain);
     }
     async Task ReloadNginxServer()
     {
@@ -266,7 +273,15 @@ public sealed partial class Runtime(Settings settings)
         WriteNginx();var nginx=Path.Combine(Root,"soft","nginx","nginx.exe");
         try{await Run(nginx,["-p",Slash(Path.Combine(Root,"soft","nginx"))+"/","-c",Slash(NginxConfig),"-t"]);}
         catch{if(previous!=null)File.WriteAllText(NginxConfig,previous);throw;}
-        if(Alive("nginx"))await Run(nginx,["-p",Slash(Path.Combine(Root,"soft","nginx"))+"/","-c",Slash(NginxConfig),"-s","reload"]);
+        if(Alive("nginx"))
+        {
+            // Windows 上 reload 返回时旧工作进程还在按旧配置接新连接（实测改扩展、停项目后紧接着的请求拿到旧结果），
+            // 等旧工作进程退出再返回，最多 5 秒（有长请求时旧进程会等它处理完）。
+            var master=processes["nginx"].Id;
+            var oldWorkers=Process.GetProcessesByName("nginx").Where(p=>PortDiagnostics.ParentPid(p.Id)==master).ToList();
+            await Run(nginx,["-p",Slash(Path.Combine(Root,"soft","nginx"))+"/","-c",Slash(NginxConfig),"-s","reload"]);
+            for(var i=0;i<50&&oldWorkers.Any(p=>{try{p.Refresh();return !p.HasExited;}catch(InvalidOperationException){return false;}});i++)await Task.Delay(100);
+        }
         else{Start("nginx",nginx,"-p",Slash(Path.Combine(Root,"soft","nginx"))+"/","-c",Slash(NginxConfig));await WaitPort("nginx",Settings.DbManagerPort);}
     }
     public async Task EnsureDatabaseAsync(string kind){if(kind is not ("mysql80" or "mysql57"))throw new IOException("Invalid database engine");if(!Alive(kind))await StartDatabase(kind);}
@@ -305,13 +320,16 @@ public sealed partial class Runtime(Settings settings)
         if(!HasDirective(custom,"client_max_body_size"))text.Append("client_max_body_size 160m;\n");
         if(!HasDirective(custom,"fastcgi_read_timeout"))text.Append("fastcgi_read_timeout 600s;\n");
         text.Append($"include \"{Slash(CustomConfigPath("nginx"))}\";\n");
+        // 各 PHP 进程池一个 upstream，项目的 fastcgi_pass 指向它
+        text.Append(NginxUpstreams());
         foreach(var site in Settings.Sites)
         {
             var rulePath=Path.Combine(Root,"config","panel-rewrite-"+site.Id+".conf");
+            var upstream=UpstreamName(PoolOf(site).Id);
             // config/yikaicms-rewrite.conf 由 CMS 模板的 deploy/nginx-server.conf 生成（更换随包 CMS 版本时必须重新生成）：
             // 下面的 9082 占位端口和 `include fastcgi_params;` 字面量是生成脚本与这里的约定，换 CMS 版本后必须重新生成。
-            var rules=File.ReadAllText(Path.Combine(Root,"config","yikaicms-rewrite.conf")).Replace("127.0.0.1:9082",$"127.0.0.1:{site.FastCgiPort}").Replace("include fastcgi_params;",$"include \"{root}/config/fastcgi_params\";");
-            if(site.Template!="yikaicms")rules=$"location / {{ try_files $uri $uri/ /index.php?$query_string; }} location ~ \\.php$ {{ try_files $uri =404; include \"{root}/config/fastcgi_params\"; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass 127.0.0.1:{site.FastCgiPort}; }} location ~ /\\. {{ deny all; }} location ^~ /storage/ {{ deny all; }}";
+            var rules=File.ReadAllText(Path.Combine(Root,"config","yikaicms-rewrite.conf")).Replace("127.0.0.1:9082",upstream).Replace("include fastcgi_params;",$"include \"{root}/config/fastcgi_params\";");
+            if(site.Template!="yikaicms")rules=$"location / {{ try_files $uri $uri/ /index.php?$query_string; }} location ~ \\.php$ {{ try_files $uri =404; include \"{root}/config/fastcgi_params\"; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass {upstream}; }} location ~ /\\. {{ deny all; }} location ^~ /storage/ {{ deny all; }}";
             if(site.RewriteRules is not null)rules=ExpandRewrite(site,site.RewriteRules);
             if(!site.Enabled)rules="location / { return 503; }";
             File.WriteAllText(rulePath,rules);

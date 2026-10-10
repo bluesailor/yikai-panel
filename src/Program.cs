@@ -36,7 +36,8 @@ internal static class Program
                 var site=settings.Sites.FirstOrDefault(s=>s.Domain.Equals(startSite,StringComparison.OrdinalIgnoreCase))??settings.Sites.FirstOrDefault(s=>s.Id==startSite)
                     ??throw new ArgumentException("Unknown project: "+startSite);
                 runtime.StartSiteAsync(site).GetAwaiter().GetResult();
-                Console.WriteLine($"started {site.Domain} port={site.HttpPort} fastcgi={site.FastCgiPort}");
+                var pool=runtime.PoolOf(site);
+                Console.WriteLine($"started {site.Domain} port={site.HttpPort} php-pool={pool.Id} fastcgi={string.Join(",",runtime.PoolPorts(pool.Id))}");
                 return 0;
             }
             if(args.Contains("--reload")){using var operation=Runtime.Lock(settings);runtime.Adopt();runtime.ReloadWebServer().GetAwaiter().GetResult();return 0;}

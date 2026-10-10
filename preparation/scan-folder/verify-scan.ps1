@@ -215,7 +215,8 @@ Check ($null -ne $livePlain) '启动后配置里仍然有 plain.yikai'
 Check ($livePlain.enabled -eq $true) '启动后项目是启用状态'
 $port = $livePlain.httpPort
 if ($port -ne $plainSite.httpPort) { Write-Host "NOTE 端口从 $($plainSite.httpPort) 自动避让到 $port" }
-$fcgi = $livePlain.fastCgiPort
+# 0.9.1 起项目共用 PHP 进程池：端口记在 phpPools.<版本>（项目没改过扩展时组名就是版本号）
+$fcgi = @((Get-Content (Join-Path $Root 'config\panel.json') -Raw -Encoding UTF8 | ConvertFrom-Json).phpPools.($livePlain.php))[0]
 $listening = $false
 for ($i = 0; $i -lt 60 -and -not $listening; $i++) {
     Start-Sleep -Milliseconds 500

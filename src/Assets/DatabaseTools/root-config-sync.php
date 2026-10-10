@@ -4,7 +4,9 @@ if(PHP_SAPI!=='cli'){http_response_code(404);exit;}
 define('YIKAI_CONFIG_PARSER_ONLY',true);
 require __DIR__.'/phpstudy-transfer.php';
 // 同步已装站点的数据库连接配置：改 root 密码（password）或改 MySQL 端口（port + oldPort）。
-// 只处理能确认目标一致的站点：driver=mysql、用户 root、库名与面板记录一致、host 是本机、且记录的端口等于 oldPort。
+// 只处理能确认目标一致的站点：driver=mysql、库名与面板记录一致、host 是本机、且记录的端口等于 oldPort；
+// 账号：改 root 密码时只动用 root 连接的站点；只改端口时，用 root 或项目专属账号（面板记录的 databaseUser）的站点都要跟着改
+// （以前一律要求 root，用专属账号的项目全被列入手动检查，改端口后连不上库）。
 // 其余站点放进 manual，由界面提示手动检查。改前按文件哈希备份到 backups 下。
 $request=json_decode((string)file_get_contents($argv[1]),true,512,JSON_THROW_ON_ERROR);
 $settings=json_decode((string)file_get_contents(__DIR__.'/../../config/panel.json'),true,512,JSON_THROW_ON_ERROR);
@@ -18,7 +20,9 @@ foreach($settings['sites'] as $site){
     if(($site['database']??'')!==$engine)continue;
     try{
         $source=inspect($site['directory']);
-        if($source['configFile']===''||$source['driver']!=='mysql'||$source['user']!=='root'||$source['name']!==$site['databaseName']||!in_array($source['host'],['127.0.0.1','localhost'],true)||$source['port']!==$oldPort){$manual[]=$site['domain'];continue;}
+        $projectUser=(string)($site['databaseUser']??'');
+        $userMatches=$source['user']==='root'||($newPassword===null&&$projectUser!==''&&$source['user']===$projectUser);
+        if($source['configFile']===''||$source['driver']!=='mysql'||!$userMatches||$source['name']!==$site['databaseName']||!in_array($source['host'],['127.0.0.1','localhost'],true)||$source['port']!==$oldPort){$manual[]=$site['domain'];continue;}
         $file=$site['directory'].'/'.$source['configFile'];$text=(string)file_get_contents($file);$defs=definitions($text);$changes=[];
         // 端口：WordPress 没有独立端口字段，写在 DB_HOST 的 host:port 里；YikaiCMS 用 DB_PORT。
         if($source['port']!==$newPort){

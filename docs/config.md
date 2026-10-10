@@ -12,6 +12,8 @@
 | `language` | 界面语言 | `zh` |
 | `webServer` | Web 服务器：`nginx` 或 `apache`（Apache 2.4.39），二者共用项目端口，同一时间只运行一个 | `nginx` |
 | `phpDefault` | 新安装默认 PHP；已有配置保留原值，可从状态栏的 PHP 菜单修改。简化新建窗口使用默认版本，未安装时回退到 8.2 或其它可用版本 | `8.2` |
+| `phpPoolSize` | 每个 PHP 进程池最多几个 php-cgi（同一 PHP 版本、扩展设置相同的项目共用一个进程池；实际个数不超过组内启用的项目数）。1～16 | `4` |
+| `phpPools` | 各进程池的端口，由面板分配和维护，不需要手动改。项目的 `fastCgiPort` 自 0.9.1 起不再使用 | — |
 | `mysqlActive` | “全部启动”时一定启动的 MySQL；项目用到的另一版本也会一起启动 | `mysql80` |
 | `autoStart` | 打开面板是否启动环境 | `true` |
 | `minimizeToTray` | 关闭窗口是否缩到托盘 | `true` |

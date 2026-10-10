@@ -43,10 +43,11 @@ public sealed partial class MainForm
             "dbpage"=>T("数据库页面","Database page","DB ページ"),
             "mysql80"=>"MySQL 8.0",
             "mysql57"=>"MySQL 5.7",
-            _=>settings.Sites.FirstOrDefault(s=>use.Key=="https-"+s.Id||use.Key=="http-"+s.Id||use.Key=="php-"+s.Id) is { } site
+            // PHP 进程池成员：php-pool-<版本[-扩展组]>#<序号>
+            _ when use.Key.StartsWith("php-pool-")=>T("PHP 进程 · ","PHP process · ","PHP プロセス · ")+use.Key["php-pool-".Length..].Replace("#"," #"),
+            _=>settings.Sites.FirstOrDefault(s=>use.Key=="https-"+s.Id||use.Key=="http-"+s.Id) is { } site
                 ?use.Key.StartsWith("https-")?T("网站 HTTPS · ","Website HTTPS · ","サイト HTTPS · ")+site.Domain
-                :use.Key.StartsWith("http-")?T("网站 · ","Website · ","サイト · ")+site.Domain
-                :T("PHP · ","PHP · ","PHP · ")+site.Domain
+                :T("网站 · ","Website · ","サイト · ")+site.Domain
                 :use.Key
         };
         (string Text,Color Color,string Tip) PortState(Runtime.PortUse use)

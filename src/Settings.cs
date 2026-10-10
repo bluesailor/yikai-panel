@@ -61,6 +61,9 @@ public sealed partial class Settings
     public bool WindowMaximized { get; set; }
     public int DbManagerPort { get; set; } = 8878;
     public int DbFastCgiPort { get; set; } = 9084;
+    // PHP 进程池（见 PhpPools.cs）：每组最多几个 php-cgi；各组的端口由面板分配并记在这里
+    public int PhpPoolSize { get; set; } = 4;
+    public Dictionary<string,List<int>> PhpPools { get; set; } = [];
     public int Mysql57Port { get; set; } = 3307;
     public int Mysql80Port { get; set; } = 3308;
     // 用户指定过 MySQL 端口：未初始化的实例也不再自动换端口（见 DatabasePortPinned）。
@@ -115,6 +118,8 @@ public sealed partial class Settings
         if(MysqlActive is not ("mysql57" or "mysql80")) MysqlActive = "mysql80";
         if(Theme is not ("light" or "dark" or "system")) Theme = "light";
         FontSize = Math.Clamp(FontSize <= 0 ? 10f : FontSize, 9f, 13f);
+        PhpPoolSize = Math.Clamp(PhpPoolSize <= 0 ? 4 : PhpPoolSize, 1, 16);
+        PhpPools ??= [];
         if(string.IsNullOrWhiteSpace(CodeFont)) CodeFont = "Consolas";
         CodeFontSize = Math.Clamp(CodeFontSize <= 0 ? 10f : CodeFontSize, 8f, 18f);
     }
@@ -153,7 +158,7 @@ public sealed partial class Settings
     public string? PortProblem(int port,Site? exclude=null)
     {
         if(port<1||port>65535)return "range";
-        if(port==DbManagerPort||port==DbFastCgiPort)return "panel";
+        if(port==DbManagerPort||port==DbFastCgiPort||PhpPools.Values.Any(ports=>ports.Contains(port)))return "panel";
         if(port==Mysql57Port||port==Mysql80Port)return "mysql";
         foreach(var site in Sites.Where(s=>s!=exclude))
         {

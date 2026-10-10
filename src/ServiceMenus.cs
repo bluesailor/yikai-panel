@@ -76,12 +76,13 @@ public sealed partial class MainForm
     {
         var enabled=settings.Sites.Where(p=>p.Enabled).ToList();var (any,all)=runtime.ServiceState("php");
         var versions=enabled.Count==0?settings.PhpDefault:string.Join("/",enabled.Select(p=>p.Php).Distinct().Order());
-        var alive=enabled.Count(p=>runtime.ServiceRunning("php-"+p.Id));
+        var alive=enabled.Count(runtime.PhpRunning);
         var warning=!all&&enabled.Count>0&&runtime.AnyRunning&&!busy;
         var state=all?T("运行","On","起動"):any?T($"运行 {alive}/{enabled.Count}",$"On {alive}/{enabled.Count}",$"起動 {alive}/{enabled.Count}"):warning?T("未运行","Not running","未起動"):T("已停止","Off","停止中");
         phpState.Text=$"PHP {versions} · {state}";
         phpState.ForeColor=all?Palette.Success:warning?Palette.Warning:Muted;
         SetIcon(phpState,all?"dot":warning?"warning":"stop",phpState.ForeColor);
-        serviceTips.SetToolTip(phpState,enabled.Count==0?T("没有启用的项目","No enabled projects","有効なプロジェクトなし"):string.Join("\n",enabled.Select(p=>$"{p} · PHP {p.Php} · 127.0.0.1:{p.FastCgiPort} · PID {runtime.ServicePid("php-"+p.Id)?.ToString()??"—"}")));
+        serviceTips.SetToolTip(phpState,enabled.Count==0?T("没有启用的项目","No enabled projects","有効なプロジェクトなし"):string.Join("\n",runtime.PoolSummaries().Select(p=>
+            $"PHP {p.Version}{(p.Custom?T(" · 自定义扩展"," · custom extensions"," · カスタム拡張"):"")} · {T($"{p.Projects} 个项目",$"{p.Projects} projects",$"{p.Projects} プロジェクト")} · {T($"进程 {p.Alive}/{p.Ports.Count}",$"processes {p.Alive}/{p.Ports.Count}",$"プロセス {p.Alive}/{p.Ports.Count}")} · 127.0.0.1:{string.Join(",",p.Ports)}")));
     }
 }

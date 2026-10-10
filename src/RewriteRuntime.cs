@@ -13,7 +13,9 @@ public sealed partial class Runtime
             _=>throw new ArgumentException("Unknown rewrite template.")};
         return route+"\n\nlocation ~ /\\. { deny all; }\nlocation ^~ /storage/ { deny all; }\nlocation ~ \\.php$ {\n    try_files $uri =404;\n    include \"{{FASTCGI_PARAMS}}\";\n    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n    fastcgi_pass 127.0.0.1:{{PHP_PORT}};\n}\n";
     }
-    string ExpandRewrite(Site site,string rules)=>rules.Replace("{{PHP_PORT}}",site.FastCgiPort.ToString()).Replace("{{FASTCGI_PARAMS}}",Slash(Path.Combine(Root,"config","fastcgi_params")));
+    // fastcgi_pass 127.0.0.1:{{PHP_PORT}} 指向项目所在的 PHP 进程池（upstream）；单独出现的 {{PHP_PORT}} 给池里第一个进程的端口
+    string ExpandRewrite(Site site,string rules)=>rules.Replace("127.0.0.1:{{PHP_PORT}}",UpstreamName(PoolOf(site).Id))
+        .Replace("{{PHP_PORT}}",(PoolPorts(PoolOf(site).Id).FirstOrDefault() is var first&&first>0?first:9).ToString()).Replace("{{FASTCGI_PARAMS}}",Slash(Path.Combine(Root,"config","fastcgi_params")));
 
     // Caller holds Runtime.Lock; validate stopped sites as well without starting them.
     public async Task SaveRewriteAsync(Site site,string? rules,bool checkOnly=false)
