@@ -30,7 +30,9 @@ Copy-Item (Join-Path $publish 'YikaiLocal.exe') (Join-Path $Build 'soft\panel\Yi
 # nginx：面板运行时会写 logs 和 temp，开发机上的这两个目录已带日志，必须排除；安装包用 [Dirs] 建空目录
 Copy-Tree 'D:\yikai\soft\nginx' (Join-Path $payload 'nginx') -excludeDirs @('logs','temp')
 foreach ($version in @('8.0','8.2','8.5')) { Copy-Tree "D:\yikai\soft\php\$version" (Join-Path $payload "php\$version") }
-foreach ($version in @('5.7','8.0')) { Copy-Tree "D:\yikai\soft\mysql\$version" (Join-Path $payload "mysql\$version") }
+# 排除 data：MySQL 用默认配置启动过（例如别的程序直接运行了 mysqld.exe）会在 bin 旁边建 data 目录，
+# 2026-10-10 那里出现过一份 7.6 GB 的数据，差点被打进安装包（负载从 750 MB 变成 8.3 GB）
+foreach ($version in @('5.7','8.0')) { Copy-Tree "D:\yikai\soft\mysql\$version" (Join-Path $payload "mysql\$version") -excludeDirs @('data') }
 Copy-Tree 'D:\yikai\soft\apache\2.4.39' (Join-Path $payload 'apache\2.4.39')
 Copy-Tree 'D:\yikai\soft\db-manager' (Join-Path $payload 'db-manager')
 Copy-Tree 'D:\yikai\soft\packages\yikaicms' (Join-Path $payload 'packages\yikaicms')
@@ -88,3 +90,9 @@ Write-Host ("forbidden files: " + ($forbidden | ForEach-Object { $_.FullName.Rep
 Write-Host ("stray build exes: " + ($stray | ForEach-Object { $_.Name }) -join ', ')
 $size = (Get-ChildItem $Build -Recurse -Force -File | Measure-Object -Property Length -Sum).Sum / 1MB
 Write-Host ("payload: {0:N0} MB in {1:N0} files" -f $size, (Get-ChildItem $Build -Recurse -Force -File).Count)
+# 以前只打印不拦：开发状态文件、MySQL 数据文件、旧版面板 exe 一律中止，负载异常变大也中止（正常约 750 MB）
+$mysqlData = Get-ChildItem (Join-Path $Build 'soft\mysql') -Recurse -Force -File -Include 'ibdata1','ib_logfile*','*.ibd','auto.cnf','binlog.*','undo_*' -ErrorAction SilentlyContinue
+if ($forbidden) { throw ('负载里出现了开发状态文件：' + (($forbidden | ForEach-Object { $_.FullName.Replace($Build,'') }) -join '、')) }
+if ($mysqlData) { throw ('负载里出现了 MySQL 数据文件（' + $mysqlData.Count + ' 个），例如 ' + $mysqlData[0].FullName.Replace($Build,'')) }
+if ($stray) { throw ('负载里出现了旧版面板程序：' + (($stray | ForEach-Object { $_.Name }) -join '、')) }
+if ($size -gt 1500) { throw ("负载 {0:N0} MB 明显超过正常值（约 750 MB），先查清多出来的内容再打包" -f $size) }

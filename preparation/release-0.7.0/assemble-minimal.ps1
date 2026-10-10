@@ -36,7 +36,8 @@ Copy-Item $publish (Join-Path $payload 'panel\YikaiLocal.exe') -Force
 # Web 服务器与运行环境：只带 Nginx、一个 PHP 版本、MySQL 8.0
 Copy-Tree (Join-Path $Source 'soft\nginx') (Join-Path $payload 'nginx') -excludeDirs @('logs','temp')
 Copy-Tree (Join-Path $Source "soft\php\$PhpVersion") (Join-Path $payload "php\$PhpVersion")
-Copy-Tree (Join-Path $Source 'soft\mysql\8.0') (Join-Path $payload 'mysql\8.0')
+# 排除 data：别的程序直接运行 mysqld.exe 时会在这里建数据目录（2026-10-10 出现过 7.6 GB），不能打进安装包
+Copy-Tree (Join-Path $Source 'soft\mysql\8.0') (Join-Path $payload 'mysql\8.0') -excludeDirs @('data')
 Copy-Tree (Join-Path $Source 'soft\db-manager') (Join-Path $payload 'db-manager')
 # 不随包带 CMS 模板与默认站点：新建 YikaiCMS 项目时从官网下载（见 ProjectSources.MirrorCmsAsync）
 
@@ -82,9 +83,12 @@ $devState = Get-ChildItem $Build -Recurse -Force -Include 'panel.json','installe
     Where-Object { $_.FullName -notlike '*\packages\yikaicms\*' }
 if ($devState) { throw ('负载里出现了开发状态文件：' + (($devState | ForEach-Object { $_.Name }) -join '、')) }
 
+$mysqlData = Get-ChildItem (Join-Path $Build 'soft\mysql') -Recurse -Force -File -Include 'ibdata1','ib_logfile*','*.ibd','auto.cnf','binlog.*','undo_*' -ErrorAction SilentlyContinue
+if ($mysqlData) { throw ('最小包负载里出现了 MySQL 数据文件（' + $mysqlData.Count + ' 个），例如 ' + $mysqlData[0].FullName.Replace($Build,'')) }
 $files = Get-ChildItem $Build -Recurse -Force -File
 $size = ($files | Measure-Object -Property Length -Sum).Sum / 1MB
 Write-Host ("最小包负载：{0:N0} MB，{1:N0} 个文件" -f $size, $files.Count)
+if ($size -gt 600) { throw ("最小包负载 {0:N0} MB 明显超过正常值（约 270 MB），先查清多出来的内容再打包" -f $size) }
 Write-Host ("组件：panel、nginx、php\$PhpVersion、mysql\8.0、db-manager、config（CMS 模板与默认站点按需下载）")
 
 # 组装自检：用随包的 PHP 跑一次，确认运行库版本合适且扩展都能加载

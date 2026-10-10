@@ -10,7 +10,7 @@ Nginx / Apache + PHP 8.0 / 8.2 / 8.5 + MySQL 5.7 / 8.0 + SQLite · 图形界面 
 
 [官网](https://panel.yikai.cn) · [下载安装包](https://panel.yikai.cn) · [问题反馈](https://github.com/bluesailor/yikai-panel/issues)
 
-当前版本 **0.8.8** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
+当前版本 **0.9.2** · 各版本改动见 [CHANGELOG](CHANGELOG.md)
 
 </div>
 

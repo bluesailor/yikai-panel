@@ -100,7 +100,7 @@
                    },
                    {
                        "passed":  true,
-                       "check":  "install: uninstall entry registered (易开面板 0.8.8)"
+                       "check":  "install: uninstall entry registered (易开面板 0.9.2)"
                    },
                    {
                        "passed":  true,
