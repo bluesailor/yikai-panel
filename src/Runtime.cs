@@ -196,6 +196,12 @@ public sealed partial class Runtime(Settings settings)
     async Task StartSitePhp(Site site)
     {
         if(Alive("php-"+site.Id))return;
+        await LaunchSitePhp(site);
+        await WaitPort("php-"+site.Id,site.FastCgiPort);
+    }
+    // 拉起项目的 PHP 进程但不等它就绪（StartAsync 拉起全部后统一等，见 WaitPorts）
+    async Task LaunchSitePhp(Site site)
+    {
         Directory.CreateDirectory(Path.Combine(site.Directory,"storage"));
         // 单独启动 PHP 时 MySQL 可能未运行：PHP 照常启动，建库推迟到该 MySQL 启动时（见 StartServiceAsync）。
         if(site.Database is not ("mysql80" or "mysql57")||Alive(site.Database))await PrepareSiteDatabase(site);
@@ -203,7 +209,22 @@ public sealed partial class Runtime(Settings settings)
         Log($"PHP {site.Php} · {site.Domain}");
         var siteIni=SitePhpIni(site);
         Start("php-"+site.Id,Path.Combine(Root,"soft","php",site.Php,"php-cgi.exe"),"-c",siteIni,"-d",NoOpcache,"-b",$"127.0.0.1:{site.FastCgiPort}");
-        await WaitPort("php-"+site.Id,site.FastCgiPort);
+    }
+    // 同时等多个服务就绪：每 100 毫秒统一检查一轮，返回起不来的那些（附原因），不在第一个失败处中断。
+    async Task<List<string>> WaitPorts(IReadOnlyList<(string Key,int Port)> pending)
+    {
+        var failures=new List<string>();var waiting=pending.ToList();
+        for(var i=0;i<300&&waiting.Count>0;i++)
+        {
+            foreach(var item in waiting.ToList())
+            {
+                if(processes[item.Key].HasExited){failures.Add(StartupFailure(item.Key,item.Port,$"{item.Key} stopped."));waiting.Remove(item);}
+                else if(PortOwnedBy(item.Key,item.Port))waiting.Remove(item);
+            }
+            if(waiting.Count>0)await Task.Delay(100);
+        }
+        foreach(var item in waiting)failures.Add(StartupFailure(item.Key,item.Port,$"{item.Key}: startup timed out."));
+        return failures;
     }
     async Task StartDatabasePage()
     {
@@ -220,9 +241,15 @@ public sealed partial class Runtime(Settings settings)
         PreparePorts();
         foreach(var kind in Settings.Sites.Where(s=>s.Enabled).Select(s=>s.Database).Prepend(Settings.MysqlActive).Where(k=>k is "mysql80" or "mysql57").Distinct())
             if(!Alive(kind))await StartDatabase(kind);
-        foreach(var site in Settings.Sites.Where(s=>s.Enabled))await StartSitePhp(site);
+        // 各项目的 PHP 先全部拉起，再一起等端口就绪（以前逐个启动、逐个等待，几十个项目要排队十来秒）。
+        // 个别项目起不来时照样启动数据库页面和 Web 服务器，让其它项目可用，最后把失败的项目一起报出来。
+        var sites=Settings.Sites.Where(s=>s.Enabled&&!Alive("php-"+s.Id)).ToList();
+        foreach(var site in sites)await LaunchSitePhp(site);
+        var failures=await WaitPorts(sites.Select(s=>("php-"+s.Id,s.FastCgiPort)).ToList());
         await StartDatabasePage();
-        await ReloadWebServer();Log("Ready");
+        await ReloadWebServer();
+        if(failures.Count>0)throw new IOException(string.Join("\n\n",failures));
+        Log("Ready");
     }
     public async Task StartSiteAsync(Site site){site.Enabled=true;Settings.Save();await StartAsync();}
     public async Task StopSiteAsync(Site site)

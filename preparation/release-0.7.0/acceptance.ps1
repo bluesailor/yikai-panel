@@ -200,16 +200,18 @@ if ($Phase -in 'uninstall','all') {
     Check ($code -eq 0) "uninstall: exited 0 (got $code)"
     # 卸载器会把自己复制到临时目录再执行，父进程返回时它可能还在收尾（删除安装清单外的运行期文件）。
     # 这里轮询到程序侧目录真正清掉，再断言；同时记录等待时长，便于发现“慢”这类问题。
+    # 正在删除的文件会让 Test-Path 报“拒绝访问”（终止性错误，整段验收中断）：当作还在，继续等
+    function Present([string]$path) { try { Test-Path -LiteralPath $path -ErrorAction Stop } catch { $true } }
     $sw = [Diagnostics.Stopwatch]::StartNew()
     for ($i = 0; $i -lt 60; $i++) {
-        if (-not (Test-Path $uninstaller) -and -not (Test-Path (Join-Path $Root 'soft'))) { break }
+        if (-not (Present $uninstaller) -and -not (Present (Join-Path $Root 'soft'))) { break }
         Start-Sleep -Milliseconds 500
     }
     $sw.Stop()
     Write-Host ("uninstall settled after {0:N1}s" -f $sw.Elapsed.TotalSeconds)
-    Check (-not (Test-Path $uninstaller)) 'uninstall: uninstaller finished and removed itself'
+    Check (-not (Present $uninstaller)) 'uninstall: uninstaller finished and removed itself'
     Check (-not (Test-Path $panel)) 'uninstall: panel program removed'
-    Check (-not (Test-Path (Join-Path $Root 'soft'))) 'uninstall: software directory removed (including nginx runtime logs)'
+    Check (-not (Present (Join-Path $Root 'soft'))) 'uninstall: software directory removed (including nginx runtime logs)'
     Check (-not (Test-Path (Join-Path $Root 'logs'))) 'uninstall: runtime logs removed'
     Check (-not (Test-Path (Join-Path $Root 'temp'))) 'uninstall: runtime temp removed'
     Check (Test-Path $userFile) 'uninstall: user file in wwwroot preserved'

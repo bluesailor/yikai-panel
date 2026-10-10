@@ -1,12 +1,46 @@
 ﻿using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace YikaiLocal;
 
 // 项目数据库：建库（bootstrap.php，含 SQLite），以及项目专属 MySQL 账号的创建、授权和登录验证。
 public sealed partial class Runtime
 {
+    // 建库与账号同步每次都要起一次 php.exe 和两次 mysql.exe（约 0.25 秒/项目），几十个项目启动时会逐个排队。
+    // 成功后记一个指纹（引擎 + MySQL 实例 server-uuid + 库名 + 账号 + 密码）：指纹没变且库目录还在就跳过。
+    // 改了账号密码、MySQL 重新初始化（server-uuid 变）、库被手动删掉（目录没了）都会重新建。
+    string DatabaseReadyFile=>Path.Combine(Root,"config","database-ready.json");
+    Dictionary<string,string>? databaseReady;
+    Dictionary<string,string> DatabaseReady()
+    {
+        if(databaseReady!=null)return databaseReady;
+        try{databaseReady=File.Exists(DatabaseReadyFile)?JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(DatabaseReadyFile))??[]:[];}
+        catch(Exception e) when(e is JsonException or IOException){databaseReady=[];}
+        return databaseReady;
+    }
+    string? DatabaseFingerprint(Site site)
+    {
+        if(site.Database is not ("mysql80" or "mysql57"))return null;
+        var data=Path.Combine(Root,"data",site.Database);var identity=Path.Combine(data,"auto.cnf");
+        if(!File.Exists(identity)||!Directory.Exists(Path.Combine(data,site.DatabaseName)))return null;
+        var raw=string.Join("\n",site.Database,File.ReadAllText(identity).Trim(),site.DatabaseName,site.DatabaseUser??"",site.DatabasePassword??"");
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(raw)));
+    }
     async Task PrepareSiteDatabase(Site site)
+    {
+        if(DatabaseFingerprint(site) is { } known&&DatabaseReady().TryGetValue(site.Id,out var saved)&&saved==known)return;
+        await PrepareSiteDatabaseNow(site);
+        if(DatabaseFingerprint(site) is { } ready)
+        {
+            DatabaseReady()[site.Id]=ready;
+            Directory.CreateDirectory(Path.GetDirectoryName(DatabaseReadyFile)!);
+            File.WriteAllText(DatabaseReadyFile+".tmp",JsonSerializer.Serialize(DatabaseReady()));
+            File.Move(DatabaseReadyFile+".tmp",DatabaseReadyFile,true);
+        }
+    }
+    async Task PrepareSiteDatabaseNow(Site site)
     {
         await Run(Php,["-c",Path.Combine(Root,"soft","php",InternalPhpVersion,"php.ini"),"-d","display_errors=stderr",Path.Combine(Root,"soft","db-manager","bootstrap.php"),"--site",site.Id]);
         if(site.Database is "mysql80" or "mysql57"&&!string.IsNullOrEmpty(site.DatabaseUser)&&!string.IsNullOrEmpty(site.DatabasePassword))await EnsureDatabaseUser(site);
